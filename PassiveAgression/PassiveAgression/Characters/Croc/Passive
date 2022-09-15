@@ -1,0 +1,36 @@
+using RoR2;
+using RoR2.Skills;
+using EntityStates;
+using System;
+using R2API;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
+
+namespace PassiveAgression.Croc
+{
+    public static class BeetlePassive{
+     public static AssignableSkillDef def;
+     public static SkillFamily slot;
+     public static bool isHooked = false;
+
+
+     static BeetlePassive(){
+         LanguageAPI.Add("PASSIVEAGRESSION_CROCBEETLE","Beetle Juice");
+         LanguageAPI.Add("PASSIVEAGRESSION_CROCBEETLE_DESC","Beetlejuice.");
+         def = ScriptableObject.CreateInstance<AssignableSkillDef>();
+         def.skillNameToken = "PASSIVEAGRESSION_CROCBEETLE";
+         (def as ScriptableObject).name = def.skillNameToken;
+         def.skillDescriptionToken = "PASSIVEAGRESSION_CROCBEETLE_DESC";
+         def.onAssign = (GenericSkill slot) => {
+             if(!isHooked){
+                isHooked = true;
+             }
+             return null;
+         };
+         def.onUnassign = (GenericSkill slot) =>{
+         };
+         def.baseRechargeInterval = 0f;
+         LoadoutAPI.AddSkillDef(def);
+     }
+    }
+}

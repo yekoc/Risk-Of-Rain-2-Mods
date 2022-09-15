@@ -1,0 +1,56 @@
+using RoR2;
+using RoR2.Skills;
+using EntityStates;
+using RoR2.CharacterAI;
+using System;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using UnityEngine;
+using UnityEngine.Networking;
+using R2API;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
+using EntityStates.Bandit2;
+
+namespace PassiveAgression.Bandit
+{
+    public static class CoinUtil{
+     public static SkillDef def;
+
+     static CoinUtil(){
+         var body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<CharacterBody>("RoR2/Base/Bandit2/Bandit2Body.prefab");  
+         LanguageAPI.Add("PASSIVEAGRESSION_BANDITCOIN","Coin Toss");
+         LanguageAPI.Add("PASSIVEAGRESSION_BANDITCOIN_DESC","Toss a coin.");
+         def = ScriptableObject.CreateInstance<SkillDef>();
+         def.skillNameToken = "PASSIVEAGRESSION_BANDITCOIN";
+         (def as ScriptableObject).name = def.skillNameToken;
+         def.skillDescriptionToken = "PASSIVEAGRESSION_BANDITCOIN_DESC";
+         def.baseRechargeInterval = 6f;
+         def.canceledFromSprinting = false;
+         def.cancelSprintingOnActivation = false;
+         def.activationStateMachineName = "Weapon";
+         def.activationState = new SerializableEntityStateType(typeof(CoinState));
+         LoadoutAPI.AddSkillDef(def);
+         LoadoutAPI.AddSkill(typeof(CoinState));
+         }
+
+
+     public class CoinState : GenericProjectileBaseState  {
+         static CoinState(){
+         }
+         public override void OnEnter(){
+             base.OnEnter();
+         }
+         public override void FixedUpdate(){
+             base.FixedUpdate();
+         }
+         public override void OnExit(){
+             base.OnExit();
+         }
+         public override InterruptPriority GetMinimumInterruptPriority(){
+             return InterruptPriority.PrioritySkill;
+         }
+
+    }
+
+}

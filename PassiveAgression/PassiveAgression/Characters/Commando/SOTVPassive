@@ -1,0 +1,29 @@
+using RoR2;
+using RoR2.Skills;
+using UnityEngine;
+using EntityStates;
+
+namespace PassiveAgression.Bandit
+{
+    public static class StandoffPassive{
+     public static AssignableSkillDef def;
+     public static CustomPassiveSlot slot;
+
+     static StandoffPassive(){
+         slot = new CustomPassiveSlot("RoR2/Base/");
+         LanguageAPI.Add("PASSIVEAGRESSION_COMMANDOSOTV","");
+         LanguageAPI.Add("PASSIVEAGRESSION_COMMANDOSOTV_DESC","");
+         def = ScriptableObject.CreateInstance<AssignableSkillDef>();
+         def.skillNameToken = "PASSIVEAGRESSION_COMMANDOSOTV";
+         def.skillDescriptionToken = "PASSIVEAGRESSION_COMMANDOSOTV_DESC";
+         def.onAssign = (GenericSkill slot) => {
+             slot.gameObject.AddComponent<VoidSurvivorController>();
+         };
+         def.onUnassign = (GenericSkill slot) =>{
+             Destroy(slot.gameObject.GetComponent<VoidSurvivorController>());
+         };
+         def.icon = slot.family.variants[0].skillDef.icon;
+         LoadoutAPI.AddSkillDef(def);
+     }
+    }
+}
