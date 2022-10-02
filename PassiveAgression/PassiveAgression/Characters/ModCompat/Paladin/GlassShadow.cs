@@ -4,6 +4,9 @@ using EntityStates;
 using RoR2.CharacterAI;
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -16,26 +19,34 @@ using R2API;
 namespace PassiveAgression.ModCompat
 {
     public static class PaladinGlassShadow{
-     public static SkillDef def;
+     public static ConditionalWeakTable<CharacterBody,List<CharacterBody>> dopList = new ConditionalWeakTable<CharacterBody, List<CharacterBody>>();
+     public static DoppelSkillDef def;
+     public static SkillDef scepterdef;
      public static AsyncOperationHandle<Material> glassMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/Brother/maBrotherGlassOverlay.mat"); 
      public static GameObject glassPrefab;
      private class PaladinDoppelInputBank : DoppelInputBank{} //To prevent hooks from affecting anything else that might use the inputbank
+     public class DoppelSkillDef : SkillDef{
+         public override bool IsReady(GenericSkill skillSlot){
+             return base.IsReady(skillSlot) && dopList.GetOrCreateValue(skillSlot.characterBody).Count < skillSlot.stock;
+         }
+     }
      static PaladinGlassShadow(){
          LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE","Glass Shadow");
          LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE_DESC","Summon a glass facsimile with <style=cIsHealth>10%</style> health that copies your moves,<style=cIsUtility>hold to increase mimicry delay.</style>");
-         def = ScriptableObject.CreateInstance<SkillDef>();
+         def = ScriptableObject.CreateInstance<DoppelSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_PALADINCLONE";
          def.skillDescriptionToken = "PASSIVEAGRESSION_PALADINCLONE_DESC";
-         def.baseRechargeInterval = 0f;
+         def.baseRechargeInterval = 30f;
          def.dontAllowPastMaxStocks = false;
          def.fullRestockOnAssign = true;
-         def.rechargeStock = 0;
+         def.rechargeStock = 1;
          def.activationStateMachineName = "Weapon";
          def.activationState = new SerializableEntityStateType(typeof(PrepGlassShadowState));
          def.cancelSprintingOnActivation = false;
          def.canceledFromSprinting = false;
+         def.isCombatSkill = false;
          (def as ScriptableObject).name = def.skillNameToken;
-         def.icon = LoadoutAPI.CreateSkinIcon(Color.cyan,Color.cyan,Color.cyan,Color.cyan);
+         def.icon = Util.SpriteFromFile("GShadowIcon.png"); 
          LoadoutAPI.AddSkillDef(def);
          LoadoutAPI.AddSkill(typeof(PrepGlassShadowState));
          LoadoutAPI.AddSkill(typeof(CastGlassShadowState));
@@ -64,9 +75,43 @@ namespace PassiveAgression.ModCompat
              ILCursor c = new ILCursor(il);
              if(c.TryGotoNext(MoveType.After,x => x.MatchCallOrCallvirt(typeof(CharacterBody).GetProperty(nameof(CharacterBody.isGlass)).GetGetMethod()))){
                c.Emit(OpCodes.Ldarg_0);
-               c.EmitDelegate<Func<bool,GenericCharacterDeath,bool>>((glass,self) => (glass || self.characterBody.master.GetComponent<PaladinDoppelInputBank>()));
+               c.EmitDelegate<Func<bool,GenericCharacterDeath,bool>>((glass,self) => {
+                 if(self.characterBody && self.characterBody.master && self.characterBody.master.GetComponent<PaladinDoppelInputBank>()){
+                   dopList.GetOrCreateValue(self.characterBody.master.minionOwnership.ownerMaster.GetBody()).Remove(self.characterBody);
+                   self.characterBody.master.CancelInvoke("RespawnExtraLife");
+                   self.characterBody.master.CancelInvoke("PlayExtraLifeSFX");
+                   self.characterBody.master.CancelInvoke("RespawnExtraLifeVoid");
+                   self.characterBody.master.CancelInvoke("PlayExtraLifeVoidSFX");
+                   return true;
+                 }
+                 return glass;
+                 });
              }
          };
+     }
+
+     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining | System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
+     public static void SetUpScepter(){
+         LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE_SCEPTER","True Reflection");
+         LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE_SCEPTERDESC","Summon an <color=#d299ff>invincible</color> glass copy that mimics your moves,<style=cIsUtility>recast to resummon it to yourself with a new delay.</style>");
+         scepterdef = ScriptableObject.CreateInstance<SkillDef>();
+         scepterdef.skillNameToken = "PASSIVEAGRESSION_PALADINCLONE_SCEPTER";
+         scepterdef.skillDescriptionToken = "PASSIVEAGRESSION_PALADINCLONE_SCEPTERDESC";
+         scepterdef.baseRechargeInterval = 0f;
+         scepterdef.dontAllowPastMaxStocks = true;
+         scepterdef.fullRestockOnAssign = true;
+         scepterdef.rechargeStock = 1;
+         scepterdef.requiredStock = 0;
+         scepterdef.activationStateMachineName = "Weapon";
+         scepterdef.activationState = new SerializableEntityStateType(typeof(PrepGlassShadowState));
+         scepterdef.cancelSprintingOnActivation = false;
+         scepterdef.canceledFromSprinting = false;
+         scepterdef.isCombatSkill = false;
+         (scepterdef as ScriptableObject).name = def.skillNameToken;
+         scepterdef.icon = LoadoutAPI.CreateSkinIcon(Color.cyan,Color.cyan,Color.cyan,Color.cyan);
+         LoadoutAPI.AddSkillDef(def);
+         LoadoutAPI.AddSkill(typeof(RegrabGlassShadowState));
+         AncientScepter.AncientScepterItem.instance.RegisterScepterSkill(scepterdef,"RobPaladinBody",def);
      }
      public class PrepGlassShadowState : BaseChannelSpellState{
 	    ushort delay = 0;
@@ -90,7 +135,12 @@ namespace PassiveAgression.ModCompat
 		    return InterruptPriority.PrioritySkill;
 	    }
             protected override BaseCastChanneledSpellState GetNextState(){
-                return new CastGlassShadowState(Math.Min(delay,(ushort)300));
+                if(scepterdef && activatorSkillSlot.skillDef == scepterdef){
+                 return new RegrabGlassShadowState(Math.Min(delay,(ushort)300));
+                }
+                else{
+                 return new CastGlassShadowState(Math.Min(delay,(ushort)300));
+                }
             }
             protected override void PlayChannelAnimation(){
              base.PlayAnimation("Gesture, Override", "ChannelHeal", "Spell.playbackRate", this.baseDuration);
@@ -106,15 +156,13 @@ namespace PassiveAgression.ModCompat
                     muzzleString = "HandL";
                     muzzleflashEffectPrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Brother/MuzzleflashLunarShard.prefab").WaitForCompletion(); 
 		    base.OnEnter();
-                    PassiveAgressionPlugin.Logger.LogError(delay);
                     new MasterSummonClient{
                         position = characterBody.transform.position,
                         rotation = characterBody.transform.rotation,
                         masterPrefab = PaladinMod.PaladinPlugin.instance.doppelganger,
-                        //inventoryToCopy = characterBody.inventory,
+                        inventoryToCopy = characterBody.inventory,
                         preSpawnSetupCallback = (master) =>{
                             master.gameObject.AddComponent<PaladinDoppelInputBank>().updateDelay = delay;
-                            master.inventory = characterBody.inventory;
                             var ai = master.GetComponent<BaseAI>();
                             if(ai){
                              master.aiComponents = Array.Empty<BaseAI>();
@@ -132,19 +180,112 @@ namespace PassiveAgression.ModCompat
                               body.skillLocator.primary.stock = characterBody.skillLocator.primary.stock;
                               body.skillLocator.secondary.stock = characterBody.skillLocator.secondary.stock;
                               body.skillLocator.utility.stock = characterBody.skillLocator.utility.stock;
+                              body.outOfCombat = characterBody.outOfCombat;
+                              body.outOfDanger = characterBody.outOfDanger;
                               body.gameObject.layer = LayerIndex.fakeActor.intVal;
                               body.characterMotor.Motor.RebuildCollidableLayers();
+                              dopList.GetOrCreateValue(characterBody).Add(body);
                             };
-                            master.onBodyDeath.AddListener( () =>{
-                              characterBody?.skillLocator.special.AddOneStock();
-                            });
                             master.inventory.onInventoryChanged +=  () =>{
                                 master.luck = -10f;
                             };
+                            master.destroyOnBodyDeath = true;
                         },
                         summonerBodyObject = characterBody.gameObject, 
                         loadout = characterBody.master.loadout
                     }.Perform();
+	    }
+	    public override void FixedUpdate(){
+                    base.FixedUpdate();
+	    }
+	    public override void OnExit(){
+		    base.OnExit();
+
+	    }
+	    public override InterruptPriority GetMinimumInterruptPriority(){
+		    return InterruptPriority.PrioritySkill;
+	    }
+            public override void OnSerialize(NetworkWriter writer)
+            {
+                base.OnSerialize(writer);
+                writer.Write(delay);
+            }
+            public override void OnDeserialize(NetworkReader reader)
+            {
+                base.OnDeserialize(reader);
+                this.delay = reader.ReadUInt16();
+            }
+            protected override void PlayCastAnimation()
+            {
+                base.PlayAnimation("Gesture, Override", "CastHeal", "Spell.playbackRate", this.baseDuration * 1.5f);
+            }
+     }
+     public class RegrabGlassShadowState : BaseCastChanneledSpellState{
+            public ushort delay = 0;
+            public RegrabGlassShadowState(ushort delayFrames){
+                delay = delayFrames;
+            }
+	    public override void OnEnter(){
+                  baseDuration = 0.4f;
+                  muzzleString = "HandL";
+                  muzzleflashEffectPrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Brother/MuzzleflashLunarShard.prefab").WaitForCompletion(); 
+		  base.OnEnter();
+                  var list = dopList.GetOrCreateValue(characterBody);
+                  if(list.Count <= 0){
+                    new MasterSummonClient{
+                        position = characterBody.transform.position,
+                        rotation = characterBody.transform.rotation,
+                        masterPrefab = PaladinMod.PaladinPlugin.instance.doppelganger,
+                        inventoryToCopy = characterBody.inventory,
+                        preSpawnSetupCallback = (master) =>{
+                            var bank = master.gameObject.AddComponent<PaladinDoppelInputBank>();
+                            bank.updateDelay = delay;
+                            bank.ownerInputs = characterBody.inputBank;
+                            var ai = master.GetComponent<BaseAI>();
+                            if(ai){
+                             master.aiComponents = Array.Empty<BaseAI>();
+                             Destroy(ai);
+                            }
+                            else{
+                             master.playerCharacterMasterController = null;
+                             Destroy(master.GetComponent<PlayerCharacterMasterController>());
+                            }
+                            master.onBodyStart += (body) =>{
+                              body.teamComponent.hideAllyCardDisplay = true;
+                              var machine = EntityStateMachine.FindByCustomName(body.gameObject,"Body");
+                              machine.initialStateType = machine.mainStateType;
+                              body.baseNameToken = Language.GetString(body.baseNameToken) + "GLASS";
+                              body.skillLocator.primary.stock = characterBody.skillLocator.primary.stock;
+                              body.skillLocator.secondary.stock = characterBody.skillLocator.secondary.stock;
+                              body.skillLocator.utility.stock = characterBody.skillLocator.utility.stock;
+                              body.outOfCombat = characterBody.outOfCombat;
+                              body.outOfDanger = characterBody.outOfDanger;
+                              body.gameObject.layer = LayerIndex.fakeActor.intVal;
+                              body.characterMotor.Motor.RebuildCollidableLayers();
+                              dopList.GetOrCreateValue(characterBody).Add(body);
+                              body.healthComponent.godMode = true;
+                            };
+                            master.inventory.onInventoryChanged +=  () =>{
+                                master.luck = -10f;
+                            };
+                            master.destroyOnBodyDeath = true;
+                        },
+                        summonerBodyObject = characterBody.gameObject, 
+                        loadout = characterBody.master.loadout
+                    }.Perform();
+                  }
+                  else{ 
+                    var body = list.First();
+                    if(body){
+                        if(RoR2.Util.HasEffectiveAuthority(body.gameObject)){
+                         TeleportHelper.TeleportBody(body,characterBody.footPosition);
+                        }
+                        body.master.GetComponent<PaladinDoppelInputBank>().updateDelay = delay;
+                        if(NetworkServer.active){
+                         body.inventory.CopyItemsFrom(characterBody.inventory);
+                        }
+                    }
+                  }
 	    }
 	    public override void FixedUpdate(){
                     base.FixedUpdate();

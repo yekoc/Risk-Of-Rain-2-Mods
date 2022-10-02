@@ -132,7 +132,12 @@ namespace PassiveAgression
 			}
 			preSpawnSetupCallback?.Invoke(component);
                         NetworkConnection clientAuthorityOwner = characterMaster?.networkIdentity?.clientAuthorityOwner;
-			NetworkServer.SpawnWithClientAuthority(gameObject,clientAuthorityOwner);
+                        if(clientAuthorityOwner != null){
+			 NetworkServer.SpawnWithClientAuthority(gameObject,clientAuthorityOwner);
+                        }
+                        else{
+                         NetworkServer.Spawn(gameObject);
+                        }
 			component.Respawn(position, rotation);
 			return component;
 		}

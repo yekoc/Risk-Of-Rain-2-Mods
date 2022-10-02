@@ -86,6 +86,14 @@ namespace PassiveAgression{
             prefabString = path;
             Init(useNone);
         }
+        public CustomPassiveSlot(GameObject prefab){
+            bodyPrefab = prefab;
+            Init(!bodyPrefab.GetComponent<SkillLocator>().passiveSkill.enabled);
+        }
+        public CustomPassiveSlot(GameObject prefab,bool useNone){
+            bodyPrefab = prefab;
+            Init(useNone);
+        }
         public void Init(bool SetupNone = true){
             if(!bodyPrefab && prefabString != null){
                 bodyPrefab = Addressables.LoadAssetAsync<GameObject>(prefabString).WaitForCompletion();
@@ -133,15 +141,13 @@ namespace PassiveAgression{
                 onUnassign?.Invoke(skillSlot);
         } 
         public bool IsAssigned(CharacterBody body){
-          foreach(var skill in body.skillLocator.allSkills){
-              if(skill.skillDef == this){
-                  return true;
-              }
-          }
-          return false;
+            return System.Array.Exists(body.skillLocator.allSkills,IsAssigned);
         }
-        public bool IsAssigned(GenericSkill skillSlot){
-            return skillSlot.skillDef == this;
+        public bool IsAssigned(GenericSkill skill){
+            return skill.skillDef == this;
+        }
+        public bool IsAssigned(CharacterBody body,SkillSlot skillSlot){
+            return body.skillLocator.GetSkill(skillSlot).skillDef == this;
         }
  } 
 }

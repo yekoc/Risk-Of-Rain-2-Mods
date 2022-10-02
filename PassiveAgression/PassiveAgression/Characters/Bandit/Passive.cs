@@ -54,7 +54,7 @@ namespace PassiveAgression.Bandit
          def.onUnassign = (GenericSkill slot) =>{
              slot.characterBody.bodyFlags |= CharacterBody.BodyFlags.HasBackstabPassive;
          };
-         def.icon = slot.family.variants[0].skillDef.icon;
+         def.icon = Util.SpriteFromFile("StandoffIcon.png"); 
          def.baseRechargeInterval = 0f;
          LoadoutAPI.AddSkillDef(def);
          CharacterBody.onBodyStartGlobal += (body) =>{
@@ -62,7 +62,7 @@ namespace PassiveAgression.Bandit
                 body.onSkillActivatedServer += (slot) =>{
                     if(slot.isCombatSkill){
                         void modifier(EntityStateMachine machine,ref EntityState state){
-                            if(machine.mainStateType.stateType == state.GetType() || state is StunState || state is FrozenState || state is ShockState){
+                            if(machine.mainStateType.stateType == state.GetType() || state is StunState || state is FrozenState || state is ShockState || state is Idle){
                                 attacking.GetOrCreateValue(machine.commonComponents.characterBody).val--;
                                 machine.nextStateModifier -= modifier;
                             }

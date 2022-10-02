@@ -18,7 +18,6 @@ namespace PassiveAgression.Bandit
      public static SkillDef def;
 
      static StarchUtil(){
-         var body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<CharacterBody>("RoR2/Base/Bandit2/Bandit2Body.prefab");  
          LanguageAPI.Add("PASSIVEAGRESSION_BANDITSTARCH","Starch Bomb");
          LanguageAPI.Add("PASSIVEAGRESSION_BANDITSTARCH_DESC","<style=cIsDamage>Stunning.</style> Deal 75% damage,allies in area are <style=cIsUtility>cleansed from a debuff</style>.");
          def = ScriptableObject.CreateInstance<SkillDef>();
@@ -31,6 +30,7 @@ namespace PassiveAgression.Bandit
          def.activationStateMachineName = "Stealth";
          def.keywordTokens = new string[]{"KEYWORD_STUNNING"};
          def.activationState = new SerializableEntityStateType(typeof(StarchState));
+         def.icon = Util.SpriteFromFile("StarchIcon.png");
          LoadoutAPI.AddSkillDef(def);
          LoadoutAPI.AddSkill(typeof(StarchState));
          }

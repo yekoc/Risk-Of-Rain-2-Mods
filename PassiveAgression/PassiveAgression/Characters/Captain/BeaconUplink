@@ -1,0 +1,37 @@
+using System;
+using EntityStates;
+using EntityStates.Captain.Weapon;
+
+namespace PassiveAgression.Captain{
+    public static class UplinkBeacon{
+
+        static UplinkBeacon(){
+         LanguageAPI.Add("PASSIVEAGRESSION_CAPTAINUPLINK","Starch Bomb");
+         LanguageAPI.Add("PASSIVEAGRESSION_CAPTAINUPLINK_DESC","<style=cIsDamage>Stunning.</style> Deal 75% damage,allies in area are <style=cIsUtility>cleansed from a debuff</style>.");
+         def = ScriptableObject.CreateInstance<SkillDef>();
+         def.skillNameToken = "PASSIVEAGRESSION_CAPTAINUPLINK";
+         (def as ScriptableObject).name = def.skillNameToken;
+         def.skillDescriptionToken = "PASSIVEAGRESSION_CAPTAINUPLINK_DESC";
+         def.canceledFromSprinting = false;
+         def.cancelSprintingOnActivation = false;
+         def.activationStateMachineName = "Weapon";
+         def.activationState = new SerializableEntityStateType(typeof(StarchState));
+         LoadoutAPI.AddSkillDef(def);
+         LoadoutAPI.AddSkill(typeof(CallSupplyDropBase));
+         LoadoutAPI.AddSkill(typeof(UplinkBeaconState));
+        }
+
+
+
+        public class CallUplinkSupplyDrop : CallSupplyDropBase {
+
+
+
+        } 
+        public class UplinkBeaconState : EntityStates.CaptainSupplyDrop.BaseMainState {
+
+
+
+        }
+    }
+}

@@ -47,14 +47,15 @@ namespace PassiveAgression.Huntress{
                    comp3.minSpeed = 0;
                    comp3.maxSpeed = 5;
                }
-               minePrefab.GetComponentInChildren<GravitatePickup>().acceleration /= 2f;
+               minePrefab.GetComponentInChildren<GravitatePickup>().acceleration /= 4f;
                minePrefab.GetComponentInChildren<UnityEngine.Rigidbody>().useGravity = false;
-               Destroy(minePrefab.GetComponentInChildren<DestroyOnTimer>());
-               Destroy(minePrefab.GetComponentInChildren<BeginRapidlyActivatingAndDeactivating>());
+               minePrefab.GetComponentInChildren<DestroyOnTimer>().duration *= 10f;
+               minePrefab.GetComponentInChildren<BeginRapidlyActivatingAndDeactivating>().delayBeforeBeginningBlinking *= 10f;
                Destroy(minePrefab.GetComponentInChildren<HealthPickup>());
             }
             public override void OnEnter(){
                 base.OnEnter();
+		PlayAnimation("Gesture", "FireGlaive", "FireGlaive.playbackRate", 2f);
                 if(UnityEngine.Networking.NetworkServer.active){
                 var obj = UnityEngine.GameObject.Instantiate(minePrefab,transform.position, transform.rotation);
                 var comp = obj.GetComponent<TeamFilter>();
@@ -72,13 +73,14 @@ namespace PassiveAgression.Huntress{
             }
 
             public override void FixedUpdate(){
+             base.FixedUpdate();
              if(base.fixedAge >= duration){
                  outer.SetNextStateToMain();
              }
             }
 
             public override InterruptPriority GetMinimumInterruptPriority(){
-                return InterruptPriority.Skill;
+                return InterruptPriority.PrioritySkill;
             }
         }
 
