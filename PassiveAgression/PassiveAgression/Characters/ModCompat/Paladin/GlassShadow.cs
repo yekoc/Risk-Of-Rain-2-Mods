@@ -36,7 +36,7 @@ namespace PassiveAgression.ModCompat
          def = ScriptableObject.CreateInstance<DoppelSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_PALADINCLONE";
          def.skillDescriptionToken = "PASSIVEAGRESSION_PALADINCLONE_DESC";
-         def.baseRechargeInterval = 30f;
+         def.baseRechargeInterval = 60f;
          def.dontAllowPastMaxStocks = false;
          def.fullRestockOnAssign = true;
          def.rechargeStock = 1;
@@ -107,9 +107,9 @@ namespace PassiveAgression.ModCompat
          scepterdef.cancelSprintingOnActivation = false;
          scepterdef.canceledFromSprinting = false;
          scepterdef.isCombatSkill = false;
-         (scepterdef as ScriptableObject).name = def.skillNameToken;
+         (scepterdef as ScriptableObject).name = scepterdef.skillNameToken;
          scepterdef.icon = LoadoutAPI.CreateSkinIcon(Color.cyan,Color.cyan,Color.cyan,Color.cyan);
-         LoadoutAPI.AddSkillDef(def);
+         LoadoutAPI.AddSkillDef(scepterdef);
          LoadoutAPI.AddSkill(typeof(RegrabGlassShadowState));
          AncientScepter.AncientScepterItem.instance.RegisterScepterSkill(scepterdef,"RobPaladinBody",def);
      }
@@ -134,7 +134,7 @@ namespace PassiveAgression.ModCompat
 	    public override InterruptPriority GetMinimumInterruptPriority(){
 		    return InterruptPriority.PrioritySkill;
 	    }
-            protected override BaseCastChanneledSpellState GetNextState(){
+            public override BaseCastChanneledSpellState GetNextState(){
                 if(scepterdef && activatorSkillSlot.skillDef == scepterdef){
                  return new RegrabGlassShadowState(Math.Min(delay,(ushort)300));
                 }
@@ -142,7 +142,7 @@ namespace PassiveAgression.ModCompat
                  return new CastGlassShadowState(Math.Min(delay,(ushort)300));
                 }
             }
-            protected override void PlayChannelAnimation(){
+            public override void PlayChannelAnimation(){
              base.PlayAnimation("Gesture, Override", "ChannelHeal", "Spell.playbackRate", this.baseDuration);
             }
      }
@@ -215,7 +215,7 @@ namespace PassiveAgression.ModCompat
                 base.OnDeserialize(reader);
                 this.delay = reader.ReadUInt16();
             }
-            protected override void PlayCastAnimation()
+            public override void PlayCastAnimation()
             {
                 base.PlayAnimation("Gesture, Override", "CastHeal", "Spell.playbackRate", this.baseDuration * 1.5f);
             }
@@ -307,7 +307,7 @@ namespace PassiveAgression.ModCompat
                 base.OnDeserialize(reader);
                 this.delay = reader.ReadUInt16();
             }
-            protected override void PlayCastAnimation()
+            public override void PlayCastAnimation()
             {
                 base.PlayAnimation("Gesture, Override", "CastHeal", "Spell.playbackRate", this.baseDuration * 1.5f);
             }

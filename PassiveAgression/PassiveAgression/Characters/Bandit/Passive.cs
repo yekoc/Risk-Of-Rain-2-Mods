@@ -33,6 +33,18 @@ namespace PassiveAgression.Bandit
          }
      }
 
+     private static void BodyTracker(CharacterBody body){
+         if(body.canReceiveBackstab){
+            body.onSkillActivatedServer += (slot) =>{
+                if(slot.isCombatSkill){
+                    Util.OnStateWorkFinished(slot.stateMachine,(EntityStateMachine machine,ref EntityState state) =>{
+                            attacking.GetOrCreateValue(machine.commonComponents.characterBody).val--;
+                    });
+                    attacking.GetOrCreateValue(slot.characterBody).val++;
+                }
+            };
+         }
+     }
 
      static StandoffPassive(){
          slot = new CustomPassiveSlot("RoR2/Base/Bandit2/Bandit2Body.prefab");
@@ -47,9 +59,16 @@ namespace PassiveAgression.Bandit
              if(!isHooked){
                 isHooked = true;
                 IL.RoR2.HealthComponent.TakeDamage += takeDamageHook;
+                CharacterBody.onBodyStartGlobal += BodyTracker;
+                Run.onRunDestroyGlobal += unsub;
              }
 
              return null;
+             void unsub(Run run){
+                IL.RoR2.HealthComponent.TakeDamage -= takeDamageHook;
+                CharacterBody.onBodyStartGlobal -= BodyTracker;
+                Run.onRunDestroyGlobal -= unsub;
+             }
          };
          def.onUnassign = (GenericSkill slot) =>{
              slot.characterBody.bodyFlags |= CharacterBody.BodyFlags.HasBackstabPassive;
@@ -57,22 +76,6 @@ namespace PassiveAgression.Bandit
          def.icon = Util.SpriteFromFile("StandoffIcon.png"); 
          def.baseRechargeInterval = 0f;
          LoadoutAPI.AddSkillDef(def);
-         CharacterBody.onBodyStartGlobal += (body) =>{
-             if(isHooked && body.canReceiveBackstab){
-                body.onSkillActivatedServer += (slot) =>{
-                    if(slot.isCombatSkill){
-                        void modifier(EntityStateMachine machine,ref EntityState state){
-                            if(machine.mainStateType.stateType == state.GetType() || state is StunState || state is FrozenState || state is ShockState || state is Idle){
-                                attacking.GetOrCreateValue(machine.commonComponents.characterBody).val--;
-                                machine.nextStateModifier -= modifier;
-                            }
-                        }
-                        slot.stateMachine.nextStateModifier += modifier;
-                        attacking.GetOrCreateValue(slot.characterBody).val++;
-                    }
-                };
-             }
-         };
      }
     }
 }

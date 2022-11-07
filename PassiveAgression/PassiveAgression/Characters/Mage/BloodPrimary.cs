@@ -46,7 +46,7 @@ namespace PassiveAgression.Mage
          proPrefab = PrefabAPI.InstantiateClone((GameObject)epiESC.WaitForCompletion().serializedFieldsCollection.GetOrCreateField("projectilePrefab").fieldValue.GetValue(typeof(FireFireBolt).GetField("projectilePrefab")),"MageBloodBoltProjectile");
          proPrefab.GetComponent<ProjectileDamage>().damageType = DamageType.BleedOnHit;
 
-         muzzleFlash = PrefabAPI.InstantiateClone((GameObject)epiESC.WaitForCompletion().serializedFieldsCollection.GetOrCreateField("muzzleflashEffectPrefab").fieldValue.GetValue(typeof(FireFireBolt).GetField("muzzleflashEffectPrefab")),"MageBloodMuzzle",false);
+         muzzleFlash = PrefabAPI.InstantiateClone((GameObject)epiESC.WaitForCompletion().serializedFieldsCollection.GetOrCreateField("muzzleflashEffectPrefab").fieldValue.GetValue(typeof(FireFireBolt).GetField("muzzleflashEffectPrefab")),"MuzzleFlashMageBlood",false);
 
          ContentAddition.AddEffect(muzzleFlash);
          ContentAddition.AddProjectile(proPrefab);

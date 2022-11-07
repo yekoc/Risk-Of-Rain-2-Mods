@@ -1,6 +1,8 @@
 using RoR2;
+using EntityStates;
 using UnityEngine;
 using UnityEngine.Networking;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,6 +16,17 @@ namespace PassiveAgression{
           miscRNG = new Xoroshiro128Plus(run.runRNG);
       };
 
+    }
+    public static void OnStateWorkFinished(EntityStateMachine machine,EntityStateMachine.ModifyNextStateDelegate del,List<Type> additionalStops = null){
+        if(!machine) return;
+        machine.nextStateModifier += logic;
+        void logic(EntityStateMachine mach,ref EntityState state){
+            Type type = state.GetType();
+            if(machine.mainStateType.stateType == type || (additionalStops != null && additionalStops.Contains(type))  || state is StunState || state is FrozenState || state is ShockState || state is Idle){
+                del(mach,ref state);
+                mach.nextStateModifier -= logic;
+            }
+        }
     }
     public static bool GetRandomDebuffOrDot(CharacterBody body,out BuffIndex debuff,out DotController.DotStack dot){
         debuff = BuffIndex.None;

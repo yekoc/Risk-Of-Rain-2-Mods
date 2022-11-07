@@ -92,6 +92,15 @@ namespace PassiveAgression
          });
          #endregion
 
+         #region Captain
+         body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Captain/CaptainBody.prefab").WaitForCompletion();
+         HG.ArrayUtils.ArrayAppend(ref body.GetComponent<SkillLocator>().special.skillFamily.variants,new SkillFamily.Variant{
+            skillDef = Captain.IntegratedBeacon.def,
+            viewableNode = new ViewablesCatalog.Node(Captain.IntegratedBeacon.def.skillNameToken,false,null)
+         });
+
+         #endregion
+
          #region Croco
          body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Croco/CrocoBody.prefab").WaitForCompletion();
          HG.ArrayUtils.ArrayAppend(ref body.GetComponent<SkillLocator>().special.skillFamily.variants,new SkillFamily.Variant{
@@ -130,6 +139,14 @@ namespace PassiveAgression
             skillDef = Mage.BloodPrimary.def,
             viewableNode = new ViewablesCatalog.Node(Mage.BloodPrimary.def.skillNameToken,false,null)
          });
+         HG.ArrayUtils.ArrayAppend(ref body.GetComponent<SkillLocator>().secondary.skillFamily.variants,new SkillFamily.Variant{
+            skillDef = Mage.FloatingChaos.def,
+            viewableNode = new ViewablesCatalog.Node(Mage.FloatingChaos.def.skillNameToken,false,null)
+         });
+         HG.ArrayUtils.ArrayAppend(ref body.GetComponent<SkillLocator>().special.skillFamily.variants,new SkillFamily.Variant{
+            skillDef = Mage.IceGolemSpecial.def,
+            viewableNode = new ViewablesCatalog.Node(Mage.IceGolemSpecial.def.skillNameToken,false,null)
+         });
          #endregion
 
          #region Merc
@@ -151,11 +168,17 @@ namespace PassiveAgression
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         private void SetupPaladin(){
             var skillFamily = PaladinMod.Modules.Prefabs.paladinPrefab.GetComponent<SkillLocator>()?.special?.skillFamily;
-            if(skillFamily)
+            if(skillFamily){
             HG.ArrayUtils.ArrayAppend(ref skillFamily.variants, new SkillFamily.Variant{
                     skillDef = ModCompat.PaladinGlassShadow.def,
-                    viewableNode = new ViewablesCatalog.Node(ModCompat.PaladinGlassShadow.def.skillNameToken,false,null)
+                    viewableNode = new ViewablesCatalog.Node(ModCompat.PaladinGlassShadow.def.skillNameToken,false,null),
+                    unlockableDef = PaladinMod.Modules.Unlockables.paladinLunarShardSkillDef
             });
+            HG.ArrayUtils.ArrayAppend(ref skillFamily.variants, new SkillFamily.Variant{
+                    skillDef = ModCompat.PaladinResolve.def,
+                    viewableNode = new ViewablesCatalog.Node(ModCompat.PaladinResolve.def.skillNameToken,false,null)
+            });
+            }
         }
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         private void SetupScepter(){
@@ -163,6 +186,7 @@ namespace PassiveAgression
          AncientScepter.AncientScepterItem.instance.RegisterScepterSkill(Croc.PathogenSpecialScepter.def,"CrocoBody",Croc.PathogenSpecial.def);
          if(modCompat.Paladin){
            ModCompat.PaladinGlassShadow.SetUpScepter();
+           ModCompat.PaladinResolve.SetUpScepter();
          }
         }
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
