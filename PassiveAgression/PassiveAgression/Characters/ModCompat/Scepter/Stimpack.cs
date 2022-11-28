@@ -17,7 +17,7 @@ namespace PassiveAgression.Commando
      static CommandoStimpackScepter(){
          
          LanguageAPI.Add("PASSIVEAGRESSION_COMMANDOSTIM_SCEPTER","Stim Shot++");
-         def = ScriptableObject.CreateInstance<SkillDef>();
+         def = ScriptableObject.Instantiate(CommandoStimpack.def);
          def.skillNameToken = "PASSIVEAGRESSION_COMMANDOSTIM_SCEPTER";
          (def as ScriptableObject).name = def.skillNameToken;
          def.skillDescriptionToken = "PASSIVEAGRESSION_COMMANDOSTIM_SCEPTERDESC";

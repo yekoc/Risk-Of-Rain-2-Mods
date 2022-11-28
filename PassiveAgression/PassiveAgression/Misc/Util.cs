@@ -63,8 +63,13 @@ namespace PassiveAgression{
 
     public static Sprite SpriteFromFile(string name){
          var texture = new Texture2D(2,2);
-         texture.LoadImage(System.IO.File.ReadAllBytes(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetCallingAssembly().Location),"Assets/" + name)));
-         return Sprite.Create(texture,new Rect(0f,0f,texture.height,texture.width),new Vector2(0.5f,0.5f),55); 
+         try{
+         texture.LoadImage(System.IO.File.ReadAllBytes(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),"Assets/" + name)));
+         }
+         catch(System.IO.FileNotFoundException e){
+            return null;
+         }
+         return Sprite.Create(texture,new Rect(0f,0f,texture.height,texture.width),new Vector2(0.5f,0.5f),100); 
     }
 
  }

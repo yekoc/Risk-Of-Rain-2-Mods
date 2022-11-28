@@ -23,7 +23,7 @@ namespace PassiveAgression.ModCompat{
 
      static DiggerBlacksmithPassive(){
          slot = new CustomPassiveSlot(DiggerPlugin.DiggerPlugin.characterBodyPrefab);
-         LanguageAPI.Add("PASSIVEAGRESSION_DIGGERFLAME","Heat of the Forge");
+         LanguageAPI.Add("PASSIVEAGRESSION_DIGGERFLAME",(UnityEngine.Random.value > 0.5)?"Heart of the Forge" :"Heat of the Forge");
          LanguageAPI.Add("PASSIVEAGRESSION_DIGGERFLAME_DESC","Each one of your attacks deal <style=cIsHealth>BLAZING</style> damage.");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_DIGGERFLAME";

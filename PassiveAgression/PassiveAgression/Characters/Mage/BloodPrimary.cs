@@ -41,12 +41,20 @@ namespace PassiveAgression.Mage
          def.activationState = new SerializableEntityStateType(typeof(BloodPrimaryState));
          def.stepGraceDuration = 3f;
          def.stepResetTimer = 0f;
+         def.icon = Util.SpriteFromFile("ExciseIcon.png");
          LoadoutAPI.AddSkillDef(def);
         
          proPrefab = PrefabAPI.InstantiateClone((GameObject)epiESC.WaitForCompletion().serializedFieldsCollection.GetOrCreateField("projectilePrefab").fieldValue.GetValue(typeof(FireFireBolt).GetField("projectilePrefab")),"MageBloodBoltProjectile");
          proPrefab.GetComponent<ProjectileDamage>().damageType = DamageType.BleedOnHit;
+         var ghost = PrefabAPI.InstantiateClone(UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Mage/MageLightningboltGhost.prefab").WaitForCompletion(),"MageBloodBoltProjectileGhost",false);
+         //ghost.GetComponentInChildren<Light>().color = new Color(1,0,0);
+         proPrefab.GetComponent<ProjectileController>().ghostPrefab = ghost;
 
-         muzzleFlash = PrefabAPI.InstantiateClone((GameObject)epiESC.WaitForCompletion().serializedFieldsCollection.GetOrCreateField("muzzleflashEffectPrefab").fieldValue.GetValue(typeof(FireFireBolt).GetField("muzzleflashEffectPrefab")),"MuzzleFlashMageBlood",false);
+         muzzleFlash = PrefabAPI.InstantiateClone(UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Common/VFX/BleedEffect.prefab").WaitForCompletion(),"MuzzleFlashMageBlood",false);
+         muzzleFlash.transform.localScale /= 10;
+         muzzleFlash.AddComponent<EffectComponent>();
+         muzzleFlash.AddComponent<DestroyOnParticleEnd>();
+         muzzleFlash.AddComponent<DestroyOnTimer>().duration = 1f;
 
          ContentAddition.AddEffect(muzzleFlash);
          ContentAddition.AddProjectile(proPrefab);

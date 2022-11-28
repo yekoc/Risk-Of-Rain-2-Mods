@@ -68,12 +68,13 @@ namespace PassiveAgression.Bandit
                 IL.RoR2.HealthComponent.TakeDamage -= takeDamageHook;
                 CharacterBody.onBodyStartGlobal -= BodyTracker;
                 Run.onRunDestroyGlobal -= unsub;
+                isHooked = false;
              }
          };
          def.onUnassign = (GenericSkill slot) =>{
              slot.characterBody.bodyFlags |= CharacterBody.BodyFlags.HasBackstabPassive;
          };
-         def.icon = Util.SpriteFromFile("StandoffIcon.png"); 
+         def.icon = Util.SpriteFromFile("Standoff.png"); 
          def.baseRechargeInterval = 0f;
          LoadoutAPI.AddSkillDef(def);
      }

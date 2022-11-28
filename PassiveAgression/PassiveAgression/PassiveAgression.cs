@@ -109,6 +109,15 @@ namespace PassiveAgression
          });
          #endregion
 
+
+         #region Engi
+         body = Engineer.ScrapPassive.slot.bodyPrefab;
+         HG.ArrayUtils.ArrayAppend(ref Engineer.ScrapPassive.slot.family.variants,new SkillFamily.Variant{
+            skillDef = Engineer.ScrapPassive.def,
+            viewableNode = new ViewablesCatalog.Node(Engineer.ScrapPassive.def.skillNameToken,false,null)
+         });
+         #endregion
+
          #region Huntress
          body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Huntress/HuntressBody.prefab").WaitForCompletion();
          HG.ArrayUtils.ArrayAppend(ref body.GetComponent<SkillLocator>().secondary.skillFamily.variants,new SkillFamily.Variant{
@@ -164,6 +173,18 @@ namespace PassiveAgression
             viewableNode = new ViewablesCatalog.Node(Treebot.SprintClimbPassive.def.skillNameToken,false,null)
          });
          #endregion
+
+         #region Viend
+         body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidSurvivor/VoidSurvivorBody.prefab").WaitForCompletion();
+         HG.ArrayUtils.ArrayAppend(ref body.GetComponent<SkillLocator>().utility.skillFamily.variants,new SkillFamily.Variant{
+            skillDef = VoidSurvivor.TearUtil.def,
+            viewableNode = new ViewablesCatalog.Node(VoidSurvivor.TearUtil.def.skillNameToken,false,null)
+         });
+         HG.ArrayUtils.ArrayAppend(ref body.GetComponent<GenericSkill>().skillFamily.variants,new SkillFamily.Variant{
+            skillDef = VoidSurvivor.InfestationPassive.def,
+            viewableNode = new ViewablesCatalog.Node(VoidSurvivor.InfestationPassive.def.skillNameToken,false,null)
+         });
+         #endregion
         }
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         private void SetupPaladin(){
@@ -184,6 +205,7 @@ namespace PassiveAgression
         private void SetupScepter(){
          AncientScepter.AncientScepterItem.instance.RegisterScepterSkill(Commando.CommandoStimpackScepter.def, "CommandoBody", Commando.CommandoStimpack.def);
          AncientScepter.AncientScepterItem.instance.RegisterScepterSkill(Croc.PathogenSpecialScepter.def,"CrocoBody",Croc.PathogenSpecial.def);
+         //AncientScepter.AncientScepterItem.instance.RegisterScepterSkill(Mage.IceGolemScepter.def,"MageBody",Mage.IceGolemSpecial.def); // Buggy
          if(modCompat.Paladin){
            ModCompat.PaladinGlassShadow.SetUpScepter();
            ModCompat.PaladinResolve.SetUpScepter();
@@ -199,7 +221,8 @@ namespace PassiveAgression
             if(skillFamily)
             HG.ArrayUtils.ArrayAppend(ref skillFamily.variants, new SkillFamily.Variant{
                     skillDef = ModCompat.EnforcerSundowner.def,
-                    viewableNode = new ViewablesCatalog.Node(ModCompat.EnforcerSundowner.def.skillNameToken,false,null)
+                    viewableNode = new ViewablesCatalog.Node(ModCompat.EnforcerSundowner.def.skillNameToken,false,null),
+                    unlockableDef = Modules.EnforcerUnlockables.enforcerDesperadoSkinUnlockableDef
             });
 
         }

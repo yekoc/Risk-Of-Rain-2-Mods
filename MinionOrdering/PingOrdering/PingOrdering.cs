@@ -20,7 +20,7 @@ using System.Linq;
 
 namespace PingOrdering
 {
-    [BepInPlugin("xyz.yekoc.PingOrdering", "Ping Ordering","1.0.0" )]
+    [BepInPlugin("xyz.yekoc.PingOrdering", "Ping Ordering","1.0.2" )]
     //[BepInDependency("com.bepis.r2api",BepInDependency.DependencyFlags.HardDependency)]
     public class BetterAIPlugin : BaseUnityPlugin
     {
@@ -53,7 +53,7 @@ namespace PingOrdering
 			    self.pingColor = Color.cyan;
 			    self.pingDuration = float.PositiveInfinity;
 			    self.enemyPingGameObjects[0].GetComponent<SpriteRenderer>().color = Color.cyan;
-			    self.pingHighlight.highlightColor = Highlight.HighlightColor.unavailable;
+			    self.pingHighlight.highlightColor = (Highlight.HighlightColor)(451);
 			    return true;
 			  }
 			  return false;
@@ -79,6 +79,13 @@ namespace PingOrdering
 			  });
 			 c.Emit(OpCodes.Brtrue,l);
 		};
+                On.RoR2.Highlight.GetColor += (orig,self) => {
+                  var ret = orig(self);
+                  if(ret == Color.magenta && self.highlightColor == (Highlight.HighlightColor)(451)){
+                    return Color.cyan + new Color(0.01f,0,0);
+                  }
+                  return ret;
+                };
 	}
 	private void OnDestroy(){
 

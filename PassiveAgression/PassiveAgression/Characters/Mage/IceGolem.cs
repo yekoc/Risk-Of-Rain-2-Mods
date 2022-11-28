@@ -34,8 +34,7 @@ namespace PassiveAgression.Mage
          def.cancelSprintingOnActivation = true;
          def.activationStateMachineName = "Weapon";
          def.activationState = new SerializableEntityStateType(typeof(SnowmanState));
-         //def.icon = Util.SpriteFromFile("StarchIcon.png");
-         //
+         def.icon = Util.SpriteFromFile("SnowmanIcon.png");
 
          def.onAssign += (skill) =>{
             if(!isHooked){
@@ -54,6 +53,20 @@ namespace PassiveAgression.Mage
                   self.currentOverlays[self.activeOverlayCount < CharacterModel.maxOverlays? self.activeOverlayCount++ : (CharacterModel.maxOverlays - 1)] = iceMat; 
                 }
               };
+              On.RoR2.CharacterMaster.OnBodyDeath += (orig,self,body) =>{
+                if(!body.gameObject.GetComponent<GolemMechBehaviour>()){
+                    orig(self,body);
+                }
+              };
+              IL.RoR2.GlobalEventManager.OnCharacterDeath += (il) =>{
+                 ILCursor c = new ILCursor(il);
+                 if(c.TryGotoNext(x => x.MatchCallOrCallvirt<GlobalEventManager>("OnPlayerCharacterDeath")) && c.TryGotoPrev(x => x.MatchCallOrCallvirt(typeof(UnityEngine.Object).GetMethod("op_Implicit",(System.Reflection.BindingFlags)(-1))),x => x.MatchBrfalse(out _))){
+                    c.Index++;
+                    c.Emit(OpCodes.Ldarg_1);
+                    c.EmitDelegate<Func<DamageReport,bool>>((report) => report.victimBody.gameObject.GetComponent<GolemMechBehaviour>());
+                    c.Emit(OpCodes.And);
+                 }
+              };
               isHooked = true;
             }
             return null;
@@ -61,13 +74,19 @@ namespace PassiveAgression.Mage
 
          golemPrefab = PrefabAPI.InstantiateClone(UnityEngine.AddressableAssets.Addressables.LoadAsset<GameObject>("RoR2/Base/Golem/GolemBody.prefab").WaitForCompletion(),"MageSnowmanMech");
          GameObject.Destroy(golemPrefab.GetComponent<BaseAI>());
-         //GameObject.Destroy(golemPrefab.GetComponent<CharacterMaster>());
+         golemPrefab.AddComponent<CharacterMaster>();
          golemPrefab.AddComponent<VehicleSeat>();
          golemPrefab.AddComponent<GolemMechBehaviour>();
+         foreach(var l in golemPrefab.GetComponentsInChildren<Light>()) {l.color = new Color(0,0,1);}
          var esm = EntityStateMachine.FindByCustomName(golemPrefab,"Body");
          if(esm){
             esm.initialStateType = esm.mainStateType;
          }
+         var locat = golemPrefab.GetComponent<SkillLocator>();
+         locat.primary = null;
+         locat.secondary = null;
+         locat.utility = null;
+         locat.special = null;
          golemPrefab.GetComponent<CharacterBody>().bodyFlags |= CharacterBody.BodyFlags.Masterless;
 
          iceMat = mat.WaitForCompletion();
@@ -111,7 +130,6 @@ namespace PassiveAgression.Mage
             }
             if(NetworkServer.active)
               GetComponent<CharacterBody>().healthComponent.Suicide();
-            Destroy(gameObject);
          };
         }
         
@@ -126,10 +144,14 @@ namespace PassiveAgression.Mage
 
      public class SnowmanState : BaseState {
          public static float duration = 0.5f;
+         public static GameObject muzzleFlash;
+         public GameObject golemPrefab;
          static SnowmanState(){
+             muzzleFlash = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Mage/MuzzleflashMageIceLarge.prefab").WaitForCompletion();
          }
          public override void OnEnter(){
 	     PlayAnimation("Gesture, Additive", "PrepWall", "PrepWall.playbackRate", duration);
+             golemPrefab = IceGolemSpecial.golemPrefab; 
              base.OnEnter();
          }
          public override void FixedUpdate(){
@@ -141,12 +163,19 @@ namespace PassiveAgression.Mage
          public override void OnExit(){
              base.OnExit();
              PlayAnimation("Gesture, Additive", "FireWall");
+             EffectManager.SimpleMuzzleFlash(muzzleFlash, base.gameObject, "MuzzleLeft", transmit: true);
+             EffectManager.SimpleMuzzleFlash(muzzleFlash, base.gameObject, "MuzzleRight", transmit: true);
              if(NetworkServer.active){
                 var gameObject = GameObject.Instantiate(golemPrefab,transform.position,transform.rotation);
                 var seat = gameObject.GetComponent<VehicleSeat>();
                 gameObject.GetComponent<TeamComponent>().teamIndex = teamComponent.teamIndex;
                 var body = gameObject.GetComponent<CharacterBody>();
-                body.inventory = characterBody.inventory;
+                var master = gameObject.GetComponent<CharacterMaster>();
+                //master.bodyInstanceObject = gameObject;
+                //body.masterObject = gameObject;
+                //body.inventory = characterBody.inventory;
+                body.masterObject = characterBody.masterObject;
+
                 if(seat){
                   seat.AssignPassenger(characterBody.gameObject);
                   NetworkUser clientAuthorityOwner = characterBody?.master?.playerCharacterMasterController?.networkUser;

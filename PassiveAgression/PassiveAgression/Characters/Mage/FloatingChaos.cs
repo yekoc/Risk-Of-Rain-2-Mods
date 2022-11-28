@@ -34,10 +34,10 @@ namespace PassiveAgression.Mage
          def.cancelSprintingOnActivation = false;
          def.activationStateMachineName = "Weapon";
          def.activationState = new SerializableEntityStateType(typeof(PrepFloatingChaosState));
-         def.icon = Util.SpriteFromFile("StarchIcon.png");
+         def.icon = Util.SpriteFromFile((UnityEngine.Random.value > 0.9)? "LifesparkFunny.png" : "Lifespark.png");
 
 
-         projPrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Vagrant/VagrantTrackingBomb.prefab").WaitForCompletion();
+         projPrefab = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Vagrant/VagrantTrackingBomb.prefab").WaitForCompletion(),"FloatingFlameyBoy");
          GameObject.Destroy(projPrefab.GetComponent<ProjectileImpactExplosion>());
          GameObject.Destroy(projPrefab.GetComponent<ProjectileSimple>());
          var esm = projPrefab.AddComponent<EntityStateMachine>();
@@ -91,10 +91,12 @@ namespace PassiveAgression.Mage
          BullseyeSearch search;
          GameObject owner;
          CharacterBody ownerBody;
+         int delay = 0;
          static GameObject projectilePrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Mage/MageFireboltBasic.prefab").WaitForCompletion();
 
          public override void OnEnter(){
              base.OnEnter();
+             characterBody.AddBuff(RoR2Content.Buffs.AffixRed);
              search = new BullseyeSearch{
                  sortMode = BullseyeSearch.SortMode.Distance,
                  viewer = characterBody,
@@ -114,7 +116,7 @@ namespace PassiveAgression.Mage
             }
             if(isAuthority && rigidbody){
              var velocity = rigidbody.velocity;
-             if((int)fixedAge % 2 == 0){
+             if((int)fixedAge % 10 <= 5){
                velocity.y = 0.25f;
              }
              else{
@@ -122,14 +124,17 @@ namespace PassiveAgression.Mage
              }
              rigidbody.velocity = velocity;
             }
-            if(NetworkServer.active){
-              search.searchOrigin = characterBody.transform.position;
-              search.RefreshCandidates();
-              var result = search.GetResults().FirstOrDefault();
+            if(NetworkServer.active && delay <= 0){
+              //search.searchOrigin = characterBody.transform.position;
+              //search.RefreshCandidates();
+              var result = GetComponent<ProjectileTargetComponent>().target;
               if(result){
                ProjectileManager.instance.FireProjectile(projectilePrefab,transform.position,transform.rotation,owner,ownerBody.damage * 4f, 0f,RoR2.Util.CheckRoll(ownerBody.crit,ownerBody.master));
               }
+              delay = 20;
             }
+            delay--;
+            
          }
 
          public override void OnExit(){

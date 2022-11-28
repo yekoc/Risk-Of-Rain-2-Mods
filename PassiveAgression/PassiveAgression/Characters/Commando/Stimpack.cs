@@ -27,10 +27,10 @@ namespace PassiveAgression.Commando
          def.activationStateMachineName = "Weapon";
          def.keywordTokens = new string[]{"PASSIVEAGRESSION_COMMANDOSTIM_KEYWORD"};
          def.activationState = new SerializableEntityStateType(typeof(StimState));
+         def.icon = Util.SpriteFromFile("StimShot.png");
          bdef = ScriptableObject.CreateInstance<BuffDef>();
          bdef.buffColor = Color.yellow;
          var sprite = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<Texture2D>("RoR2/Base/Croco/texBuffRegenBoostIcon.tif").WaitForCompletion();
-         //sprite.SetPixels(sprite.GetPixels().Select((pixel) => (pixel == Color.green)? Color.yellow : pixel).ToArray());
          bdef.iconSprite = Sprite.Create(sprite, new Rect(0.0f, 0.0f, sprite.width, sprite.height), new Vector2(0.5f, 0.5f), 100.0f);
          bdef.name = "PASSIVEAGRESSION_COMMANDOSTIM_BUFF";
          bdef.canStack = true;

@@ -64,6 +64,8 @@ namespace PassiveAgression.Croc
              }
              return null;
          };
+         def.icon = Util.SpriteFromFile("Pathogen.png");
+
          LoadoutAPI.AddSkillDef(def);
         
          proPrefab = PrefabAPI.InstantiateClone((GameObject)epiESC.WaitForCompletion().serializedFieldsCollection.GetOrCreateField("projectilePrefab").fieldValue.GetValue(typeof(FireDiseaseProjectile).GetField("projectilePrefab")),"CrocoCarrierProjectile");

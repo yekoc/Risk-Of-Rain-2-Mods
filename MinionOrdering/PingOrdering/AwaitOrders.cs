@@ -46,6 +46,9 @@ namespace PingOrdering{
 			    break;
 			  }
 			  case Orders.Move:{
+                            if(!body || body.moveSpeed == 0){
+                              outer.SetNextStateToMain();
+                            }
 			    BroadNavigationSystem.Agent agent = ai.broadNavigationAgent;
 			    agent.currentPosition = ai.body.footPosition;
 			    ai.localNavigator.targetPosition = agent.output.nextPosition ?? ai.localNavigator.targetPosition; 

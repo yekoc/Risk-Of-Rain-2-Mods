@@ -83,7 +83,7 @@ namespace PassiveAgression.Mage
               jetMachine.nextStateModifier -= unJetLocal;
             }
          };
-         def.icon = Util.SpriteFromFile("StandoffIcon.png"); 
+         def.icon = Util.SpriteFromFile("UnorthodoxIcon.png"); 
          def.baseRechargeInterval = 0f;
          def.activationStateMachineName = "Jet";
          LoadoutAPI.AddSkillDef(def);

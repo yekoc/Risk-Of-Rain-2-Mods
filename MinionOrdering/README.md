@@ -8,6 +8,9 @@ Credit to cute anime girls for giving me the will to continue living.
 
 #Changelog
 ---
+1.0.2 - Why did no one tell me this sometimes breaks the ai of minions with 0 movespeed.\
+Also fixed Ping Highlight Color on allies awaiting orders.
+
 Readme Update to signify that this wasn't broken by SOTV
 
 1.0.0 - Initial Release
