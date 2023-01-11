@@ -52,7 +52,9 @@ namespace PassiveAgression.ModCompat{
          };
          def.icon = Util.SpriteFromFile("HForgeIcon.png"); 
          def.baseRechargeInterval = 0f;
-         LoadoutAPI.AddSkillDef(def);
+         def.activationStateMachineName = "Body";
+         def.activationState = EntityStateMachine.FindByCustomName(slot.bodyPrefab,"Body").mainStateType;
+         ContentAddition.AddSkillDef(def);
      }
 
      public static void UnAdrenalinize(Action<DiggerMain> orig,DiggerMain self){

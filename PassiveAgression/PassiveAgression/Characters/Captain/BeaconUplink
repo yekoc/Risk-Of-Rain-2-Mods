@@ -16,9 +16,9 @@ namespace PassiveAgression.Captain{
          def.cancelSprintingOnActivation = false;
          def.activationStateMachineName = "Weapon";
          def.activationState = new SerializableEntityStateType(typeof(StarchState));
-         LoadoutAPI.AddSkillDef(def);
-         LoadoutAPI.AddSkill(typeof(CallSupplyDropBase));
-         LoadoutAPI.AddSkill(typeof(UplinkBeaconState));
+         ContentAddition.AddSkillDef(def);
+         ContentAddition.AddEntityState(typeof(CallSupplyDropBase),out _);
+         ContentAddition.AddEntityState(typeof(UplinkBeaconState),out _);
         }
 
 

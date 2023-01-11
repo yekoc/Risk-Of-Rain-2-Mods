@@ -12,6 +12,7 @@ using MonoMod.Cil;
 using Mono.Cecil.Cil;
 using static RoR2.CharacterBody;
 
+#pragma warning disable CS0618
 namespace PassiveAgression.Engineer
 {
     public static class ScrapPassive{
@@ -32,7 +33,7 @@ namespace PassiveAgression.Engineer
                     ItemTier.Tier2 => 0.03f,
                     ItemTier.Tier3 => 0.09f,
                     ItemTier.Boss => 0.10f,
-                    _ => 0.01f
+                    _ => 0.02f
                  };
                }
             }
@@ -114,8 +115,11 @@ namespace PassiveAgression.Engineer
          def.onUnassign = (GenericSkill slot) =>{
          };
          def.icon = Util.SpriteFromFile("StandoffIcon.png"); 
+         def.activationStateMachineName = "Body";
+         def.activationState = EntityStateMachine.FindByCustomName(slot.bodyPrefab,"Body").mainStateType;
          def.baseRechargeInterval = 0f;
-         LoadoutAPI.AddSkillDef(def);
+         ContentAddition.AddSkillDef(def);
      }
     }
 }
+#pragma warning restore CS0618

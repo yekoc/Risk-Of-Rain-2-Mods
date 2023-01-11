@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using BepInEx.Bootstrap;
 using RoR2;
@@ -18,22 +19,29 @@ using System.Linq;
 
 namespace PassiveAgression
 {
-    [BepInDependency("com.bepis.r2api", BepInDependency.DependencyFlags.HardDependency)] 
+    //[BepInDependency("com.bepis.r2api", BepInDependency.DependencyFlags.HardDependency)] 
+    [BepInDependency(LanguageAPI.PluginGUID,BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(DamageAPI.PluginGUID,BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(RecalculateStatsAPI.PluginGUID,BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(PrefabAPI.PluginGUID,BepInDependency.DependencyFlags.HardDependency)]
+    //[BepInDependency(R2APIContentManager.PluginGUID,BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("com.DestroyedClone.AncientScepter", BepInDependency.DependencyFlags.SoftDependency)] 
     [BepInDependency("com.KingEnderBrine.ExtraSkillSlots", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.rob.Paladin",BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.Moffein.SniperClassic",BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.EnforcerGang.Enforcer",BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInDependency("com.Gnome.ChefMod",BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInDependency("com.Bog.Pathfinder",BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInDependency("com.Bog.Pathfinder",BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("com.rob.HenryMod",BepInDependency.DependencyFlags.SoftDependency)]
+    //[BepInDependency("com.Gnome.ChefMod",BepInDependency.DependencyFlags.SoftDependency)]
+    //[BepInDependency("com.Bog.Pathfinder",BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.rob.DiggerUnearthed",BepInDependency.DependencyFlags.SoftDependency)]
 
-    [R2APISubmoduleDependency(nameof(LanguageAPI),nameof(LoadoutAPI),nameof(RecalculateStatsAPI))]
+    //[R2APISubmoduleDependency(nameof(LanguageAPI),nameof(LoadoutAPI),nameof(RecalculateStatsAPI),nameof(DamageAPI))]
     [BepInPlugin("xyz.yekoc.PassiveAgression", "Passive Agression","1.0.0" )]
     public class PassiveAgressionPlugin : BaseUnityPlugin
     {
+        public static ConfigEntry<bool> unfinishedContent;
         internal new static ManualLogSource Logger { get; set; }
+        internal static ConfigFile config;
         internal struct ModList{
             internal bool Paladin;
             internal bool Scepter;
@@ -42,10 +50,13 @@ namespace PassiveAgression
             internal bool Pathfinder;
             internal bool Sniper;
             internal bool Digger;
+            internal bool Henry;
         };
         internal ModList modCompat;
         private void Awake(){
             Logger = base.Logger;
+            config = Config;
+            unfinishedContent =  Config.Bind("Configuration","Enable Unfinished Content",false,"Enables Unfinished/Potentially Broken Content");
             SetupVanilla();
         }
         private void Start(){
@@ -61,7 +72,9 @@ namespace PassiveAgression
                 SetupPathfinder();
             if(modCompat.Digger = Chainloader.PluginInfos.ContainsKey("com.rob.DiggerUnearthed"))
                 SetupDigger();
-            if(modCompat.Scepter = Chainloader.PluginInfos.ContainsKey("com.DestroyedClone.AncientScepter"))
+            if(modCompat.Henry = Chainloader.PluginInfos.ContainsKey("com.rob.HenryMod"))
+                SetupHenry();
+            if(modCompat.Scepter = Chainloader.PluginInfos.ContainsKey("com.DestroyedClone.AncientScepter") && Chainloader.PluginInfos["com.DestroyedClone.AncientScepter"].Metadata.Version.Minor > 1)
                 SetupScepter();
 
         }
@@ -78,6 +91,7 @@ namespace PassiveAgression
             skillDef = Commando.CommandoStimpack.def,
             viewableNode = new ViewablesCatalog.Node(Commando.CommandoStimpack.def.skillNameToken,false,null)
          });
+         Coin.SetMarksman(body,SkillSlot.Secondary);
          #endregion
 
          #region Bandit
@@ -90,10 +104,17 @@ namespace PassiveAgression
             skillDef = Bandit.StarchUtil.def,
             viewableNode = new ViewablesCatalog.Node(Bandit.StarchUtil.def.skillNameToken,false,null)
          });
+         Coin.SetMarksman(body,SkillSlot.Secondary);
+         /* Crash
+         HG.ArrayUtils.ArrayAppend(ref body.GetComponent<SkillLocator>().special.skillFamily.variants,new SkillFamily.Variant{
+            skillDef = Bandit.ChainSpecial.def,
+            viewableNode = new ViewablesCatalog.Node(Bandit.ChainSpecial.def.skillNameToken,false,null)
+         });*/
          #endregion
 
          #region Captain
          body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Captain/CaptainBody.prefab").WaitForCompletion();
+         if(unfinishedContent.Value)
          HG.ArrayUtils.ArrayAppend(ref body.GetComponent<SkillLocator>().special.skillFamily.variants,new SkillFamily.Variant{
             skillDef = Captain.IntegratedBeacon.def,
             viewableNode = new ViewablesCatalog.Node(Captain.IntegratedBeacon.def.skillNameToken,false,null)
@@ -120,6 +141,7 @@ namespace PassiveAgression
 
          #region Huntress
          body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Huntress/HuntressBody.prefab").WaitForCompletion();
+         if(unfinishedContent.Value)
          HG.ArrayUtils.ArrayAppend(ref body.GetComponent<SkillLocator>().secondary.skillFamily.variants,new SkillFamily.Variant{
             skillDef = Huntress.LightMine.def,
             viewableNode = new ViewablesCatalog.Node(Huntress.LightMine.def.skillNameToken,false,null)
@@ -128,6 +150,7 @@ namespace PassiveAgression
 
          #region Loader
          body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Loader/LoaderBody.prefab").WaitForCompletion();
+         if(unfinishedContent.Value)
          HG.ArrayUtils.ArrayAppend(ref body.GetComponent<SkillLocator>().secondary.skillFamily.variants,new SkillFamily.Variant{
             skillDef = Loader.LoaderZipline.def,
             viewableNode = new ViewablesCatalog.Node(Loader.LoaderZipline.def.skillNameToken,false,null)
@@ -148,6 +171,7 @@ namespace PassiveAgression
             skillDef = Mage.BloodPrimary.def,
             viewableNode = new ViewablesCatalog.Node(Mage.BloodPrimary.def.skillNameToken,false,null)
          });
+         if(unfinishedContent.Value)
          HG.ArrayUtils.ArrayAppend(ref body.GetComponent<SkillLocator>().secondary.skillFamily.variants,new SkillFamily.Variant{
             skillDef = Mage.FloatingChaos.def,
             viewableNode = new ViewablesCatalog.Node(Mage.FloatingChaos.def.skillNameToken,false,null)
@@ -159,6 +183,7 @@ namespace PassiveAgression
          #endregion
 
          #region Merc
+         if(unfinishedContent.Value)
          body = Merc.FlickerPassive.slot.bodyPrefab;
          HG.ArrayUtils.ArrayAppend(ref Merc.FlickerPassive.slot.family.variants ,new SkillFamily.Variant{
             skillDef = Merc.FlickerPassive.def,
@@ -167,22 +192,34 @@ namespace PassiveAgression
          #endregion
 
          #region Treebot
-         body = Treebot.SprintClimbPassive.slot.bodyPrefab;
+         //body = Treebot.SprintClimbPassive.slot.bodyPrefab;
+         /*Super Buggy
          HG.ArrayUtils.ArrayAppend(ref Treebot.SprintClimbPassive.slot.family.variants,new SkillFamily.Variant{
             skillDef = Treebot.SprintClimbPassive.def,
             viewableNode = new ViewablesCatalog.Node(Treebot.SprintClimbPassive.def.skillNameToken,false,null)
-         });
+         });*/
          #endregion
 
          #region Viend
          body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidSurvivor/VoidSurvivorBody.prefab").WaitForCompletion();
+         HG.ArrayUtils.ArrayAppend(ref body.GetComponent<GenericSkill>().skillFamily.variants,new SkillFamily.Variant{
+            skillDef = VoidSurvivor.InfestationPassive.def,
+            viewableNode = new ViewablesCatalog.Node(VoidSurvivor.InfestationPassive.def.skillNameToken,false,null)
+         });
+         if(unfinishedContent.Value){
          HG.ArrayUtils.ArrayAppend(ref body.GetComponent<SkillLocator>().utility.skillFamily.variants,new SkillFamily.Variant{
             skillDef = VoidSurvivor.TearUtil.def,
             viewableNode = new ViewablesCatalog.Node(VoidSurvivor.TearUtil.def.skillNameToken,false,null)
          });
+         }
+         #endregion
+
+         #region Railgunner
+         body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/Railgunner/RailgunnerBody.prefab").WaitForCompletion();
+         Coin.SetMarksman(body,SkillSlot.Utility);
          HG.ArrayUtils.ArrayAppend(ref body.GetComponent<GenericSkill>().skillFamily.variants,new SkillFamily.Variant{
-            skillDef = VoidSurvivor.InfestationPassive.def,
-            viewableNode = new ViewablesCatalog.Node(VoidSurvivor.InfestationPassive.def.skillNameToken,false,null)
+            skillDef = Railgunner.RailgunnerPassive.def,
+            viewableNode = new ViewablesCatalog.Node(Railgunner.RailgunnerPassive.def.skillNameToken,false,null)
          });
          #endregion
         }
@@ -228,7 +265,7 @@ namespace PassiveAgression
         }
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         private void SetupSniper(){
-
+            Coin.SetMarksman(SniperClassic.SniperClassic.SniperBody,SkillSlot.Utility);
         }
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         private void SetupPathfinder(){
@@ -242,5 +279,17 @@ namespace PassiveAgression
             unlockableDef = DiggerPlugin.Unlockables.blacksmithUnlockableDef
          });
         }
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        private void SetupHenry(){
+          CharacterBody body = HenryMod.Modules.Survivors.Henry.instance.bodyPrefab.GetComponent<CharacterBody>();
+          if(unfinishedContent.Value){
+             HG.ArrayUtils.ArrayAppend(ref body.skillLocator.secondary.skillFamily.variants,new SkillFamily.Variant{
+                skillDef = ModCompat.HenryYomiJC.def,
+                viewableNode = new ViewablesCatalog.Node(ModCompat.HenryYomiJC.def.skillNameToken,false,null),
+             });
+          }
+        }
+
+
     }
 }

@@ -118,9 +118,9 @@ namespace PassiveAgression.ModCompat{
 
          ContentAddition.AddBuffDef(activebdef);
          ContentAddition.AddBuffDef(cooldownbdef);
-         LoadoutAPI.AddSkillDef(def);
-         LoadoutAPI.AddSkillDef(def2);
-         LoadoutAPI.AddSkill(typeof(EnforcerSundownerState));
+         ContentAddition.AddSkillDef(def);
+         ContentAddition.AddSkillDef(def2);
+         ContentAddition.AddEntityState(typeof(EnforcerSundownerState),out _);
         }
 
         public static EnforcerWeaponComponent.EquippedShield GetShieldHook(System.Func<EnforcerWeaponComponent,EnforcerWeaponComponent.EquippedShield> orig,EnforcerWeaponComponent self){

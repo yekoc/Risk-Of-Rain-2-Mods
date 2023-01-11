@@ -86,8 +86,9 @@ namespace PassiveAgression.Mage
          def.icon = Util.SpriteFromFile("UnorthodoxIcon.png"); 
          def.baseRechargeInterval = 0f;
          def.activationStateMachineName = "Jet";
-         LoadoutAPI.AddSkillDef(def);
-         LoadoutAPI.AddSkill(typeof(BleedRitualState));
+         def.activationState = new SerializableEntityStateType(typeof(BleedRitualState));
+         ContentAddition.AddSkillDef(def);
+         ContentAddition.AddEntityState(typeof(BleedRitualState),out _);
 
          void unJetLocal(EntityStateMachine esm,ref EntityState s){
              if(s.GetType() == typeof(Idle)){

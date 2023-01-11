@@ -36,8 +36,8 @@ namespace PassiveAgression.Commando
          bdef.canStack = true;
          
          R2API.ContentAddition.AddBuffDef(bdef);
-         LoadoutAPI.AddSkillDef(def);
-         LoadoutAPI.AddSkill(typeof(StimState));
+         ContentAddition.AddSkillDef(def);
+         ContentAddition.AddEntityState(typeof(StimState),out _);
          RecalculateStatsAPI.GetStatCoefficients += (sender,args) =>{
              var stacks = sender.GetBuffCount(bdef);
              args.attackSpeedMultAdd += 0.25f * stacks;

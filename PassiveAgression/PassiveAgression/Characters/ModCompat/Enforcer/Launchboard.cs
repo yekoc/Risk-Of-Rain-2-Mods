@@ -21,8 +21,8 @@ namespace PassiveAgression.ModCompat{
          def.cancelSprintingOnActivation = true;
          def.activationStateMachineName = "Weapon";
          def.activationState = new SerializableEntityStateType(typeof(EnforcerLaunchboardState));
-         LoadoutAPI.AddSkillDef(def);
-         LoadoutAPI.AddSkill(typeof(EnforcerLaunchboardState));
+         ContentAddition.AddSkillDef(def);
+         ContentAddition.AddEntityState(typeof(EnforcerLaunchboardState),out _);
         }
 
 

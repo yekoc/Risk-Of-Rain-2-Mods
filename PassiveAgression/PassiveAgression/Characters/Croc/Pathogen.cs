@@ -66,13 +66,19 @@ namespace PassiveAgression.Croc
          };
          def.icon = Util.SpriteFromFile("Pathogen.png");
 
-         LoadoutAPI.AddSkillDef(def);
+         ContentAddition.AddSkillDef(def);
         
          proPrefab = PrefabAPI.InstantiateClone((GameObject)epiESC.WaitForCompletion().serializedFieldsCollection.GetOrCreateField("projectilePrefab").fieldValue.GetValue(typeof(FireDiseaseProjectile).GetField("projectilePrefab")),"CrocoCarrierProjectile");
+         /*var procont = proPrefab.GetComponent<ProjectileController>();
+         procont.ghostPrefab = PrefabAPI.InstantiateClone(procont.ghostPrefab,"CrocoCarrierProjectileGhost");
+         var ghostPart = procont.ghostPrefab.transform.GetChild(0).GetComponent<ParticleSystemRenderer>();
+         var ghostMat = GameObject.Instantiate<Material>(ghostPart.materials[0]);
+         ghostMat.name += "spread";
+         ghostMat.SetColor("_TintColor", new Color(3.5f, 1.9f, 9.3f, 1f));*/
          proPrefab.GetComponent<ProjectileDamage>().damageType = DamageType.Generic;
          proPrefab.GetComponent<ProjectileProximityBeamController>().damageCoefficient = 0.85f;
          ContentAddition.AddProjectile(proPrefab);
-         LoadoutAPI.AddSkill(typeof(PathogenState));
+         ContentAddition.AddEntityState(typeof(PathogenState),out _);
      }
 
      public class PathogenOrb : RoR2.Orbs.LightningOrb {
@@ -85,7 +91,10 @@ namespace PassiveAgression.Croc
              
              targetsToFindPerBounce = 0;
              base.OnArrival();
-             CharacterBody body = target.healthComponent.body;
+             CharacterBody body = target?.healthComponent?.body;
+             if(!body){
+                return;
+             }
              DotController dootc = null;
              DotController.dotControllerLocator.TryGetValue(body.gameObject.GetInstanceID(),out dootc);
              if(debuff != BuffIndex.None){

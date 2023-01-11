@@ -15,9 +15,9 @@
 
   <ItemGroup>
     
-    <Reference Include="R2API">
+      <!--    <Reference Include="R2API">
       <HintPath>..\libs\R2API.dll</HintPath>
-    </Reference>
+      </Reference> -->
     <Reference Include="AncientScepter">
       <HintPath>..\libs\AncientScepter.dll</HintPath>
     </Reference>
@@ -49,6 +49,7 @@
       <HintPath>..\libs\Enforcer.dll</HintPath>
     </Reference>
 
+    <PackageReference Include="R2API" Version="*"/>
     <PackageReference Include="BepInEx.Core" Version="5.4.19" />
     <PackageReference Include="RiskOfRain2.GameLibs" Version="*-*" />
     <PackageReference Include="UnityEngine.Modules" Version="2019.4.26" />

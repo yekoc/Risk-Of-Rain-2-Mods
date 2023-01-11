@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Networking;
 using R2API;
+using BepInEx.Configuration;
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
 using EntityStates.VoidSurvivor;
@@ -20,9 +21,12 @@ namespace PassiveAgression.VoidSurvivor
     public static class InfestationPassive{
      public static AssignableSkillDef def;
      public static bool isHooked = false;
-     private static SpawnInfo[] spawns = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidChest/VoidChest.prefab").WaitForCompletion().GetComponent<ScriptedCombatEncounter>().spawns; 
+     public static ConfigEntry<bool> friendlyInfest;
+     private static SpawnInfo[] spawns = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidChest/VoidChest.prefab").WaitForCompletion().GetComponent<ScriptedCombatEncounter>().spawns;
+
 
      static InfestationPassive(){
+         friendlyInfest = PassiveAgression.PassiveAgressionPlugin.config.Bind("ViendBug","Friendly Infestors",false,"Makes the infestors spawned by Incessant Infestation friendly to their creator");
          LanguageAPI.Add("PASSIVEAGRESSION_VIENDBUG","『Incessant Infestation】");
          LanguageAPI.Add("PASSIVEAGRESSION_VIENDBUG_DESC","At full <style=cIsVoid>Corruption</style>, burst out a gaggle of Infestors.");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
@@ -32,6 +36,9 @@ namespace PassiveAgression.VoidSurvivor
          def.onAssign = (GenericSkill slot) => {
              var encount = slot.characterBody.gameObject.AddComponent<ScriptedCombatEncounter>();
              encount.spawns = spawns;
+             if(friendlyInfest.Value){
+               encount.teamIndex = slot.characterBody.teamComponent.teamIndex;
+             }
              for(int i = 0;i < spawns.Length; i++){
                  encount.spawns[i].explicitSpawnPosition = slot.characterBody.gameObject.transform;
                  encount.spawns[i].cullChance /= 4f;
@@ -43,10 +50,17 @@ namespace PassiveAgression.VoidSurvivor
              var machine = EntityStateMachine.FindByCustomName(slot.characterBody.gameObject,"CorruptMode");
              machine.mainStateType = new SerializableEntityStateType(typeof(InfestedMode));
              machine.initialStateType = machine.mainStateType;
-            /* if(!isHooked){
+            if(!isHooked){
                 isHooked = true;
-                Run.onRunDestroyGlobal += unsub;
-             }*/
+                IL.EntityStates.VoidInfestor.Infest.FixedUpdate += (il) =>{
+                  ILCursor c = new ILCursor(il);
+                  while(c.TryGotoNext(x => x.MatchLdcI4(4),x => x.MatchCallOrCallvirt(out _))){
+                    c.Emit(OpCodes.Ldarg_0);
+                    c.EmitDelegate<Func<TeamIndex,EntityStates.VoidInfestor.Infest,TeamIndex>>((orig,self) => friendlyInfest.Value? self.teamComponent.teamIndex : orig);
+                  }
+                };
+                //Run.onRunDestroyGlobal += unsub;
+             }
 
              return null;
              /*void unsub(Run run){
@@ -61,30 +75,40 @@ namespace PassiveAgression.VoidSurvivor
          };
          def.icon = Util.SpriteFromFile("Infestation.png"); 
          def.baseRechargeInterval = 0f;
+         def.activationState = new SerializableEntityStateType(typeof(InfestedMode));
+         def.activationStateMachineName = "CorruptMode";
 
-         LoadoutAPI.AddSkillDef(def);
+         ContentAddition.AddSkillDef(def);
+         ContentAddition.AddEntityState(typeof(InfestedMode),out _);
+         ContentAddition.AddEntityState(typeof(ExpelInfestation),out _);
      }
 
      public class InfestedMode : CorruptModeBase{
-        public float overCorruptTimer = 12f;
+        //public float overCorruptTimer = 12f;
+        public override void OnEnter(){
+           base.OnEnter();
+           characterBody.gameObject.GetComponent<CombatSquad>().onDefeatedServer += OverCorruptRefresh; 
+        }
         public override void FixedUpdate()
         {
                 base.FixedUpdate();
                 if (base.isAuthority){ 
-                    if(voidSurvivorController && voidSurvivorController.minimumCorruption >= voidSurvivorController.maxCorruption){
-                        if(overCorruptTimer <= 0){
-                         var infests = characterBody.gameObject.GetComponent<ScriptedCombatEncounter>();
-                         infests.BeginEncounter();
-                         infests.hasSpawnedServer = false;
-                         overCorruptTimer = 12f;
-                        }
-                        overCorruptTimer -= 0.01f;
-                    }
-                    else if((bool)voidSurvivorController && voidSurvivorController.corruption >= voidSurvivorController.maxCorruption && (bool)voidSurvivorController.bodyStateMachine)
+                    if(voidSurvivorController && voidSurvivorController.minimumCorruption < voidSurvivorController.maxCorruption && voidSurvivorController.corruption >= voidSurvivorController.maxCorruption && (bool)voidSurvivorController.bodyStateMachine)
                     {
                         voidSurvivorController.bodyStateMachine.SetInterruptState(new ExpelInfestation(), InterruptPriority.Skill);
                     }
                 }
+        }
+        public override void OnExit(){
+          characterBody.gameObject.GetComponent<CombatSquad>().onDefeatedServer -= OverCorruptRefresh;
+        }
+        internal void OverCorruptRefresh(){
+            if(voidSurvivorController && voidSurvivorController.minimumCorruption <= voidSurvivorController.maxCorruption){
+             var infests = characterBody.gameObject.GetComponent<ScriptedCombatEncounter>();
+             infests.combatSquad.defeatedServer = false;
+             infests.BeginEncounter();
+             infests.hasSpawnedServer = false;
+            }
         }
      }
      public class ExpelInfestation : CorruptionTransitionBase{

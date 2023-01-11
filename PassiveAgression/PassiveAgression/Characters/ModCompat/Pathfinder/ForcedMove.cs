@@ -24,8 +24,8 @@ namespace PassiveAgression.ModCompat
          def.cancelSprintingOnActivation = false;
          def.activationStateMachineName = "Body";
          def.activationState = new SerializableEntityStateType(typeof(FloatState));
-         LoadoutAPI.AddSkillDef(def);
-         LoadoutAPI.AddSkill(typeof(FloatState));
+         ContentAddition.AddSkillDef(def);
+         ContentAddition.AddEntityState(typeof(FloatState),out _);
      }
 
      public class FloatState : GenericCharacterMain {

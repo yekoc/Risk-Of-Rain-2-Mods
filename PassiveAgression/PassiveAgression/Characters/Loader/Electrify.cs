@@ -26,12 +26,13 @@ namespace PassiveAgression.Loader{
          def.activationStateMachineName = "Weapon";
          def.keywordTokens = new string[]{"KEYWORD_SHOCKING"};
          def.activationState = new SerializableEntityStateType(typeof(ElectricState));
-         LoadoutAPI.AddSkillDef(def);
-         LoadoutAPI.AddSkill(typeof(ElectricState));
+         def.icon = Util.SpriteFromFile("HookDischarge.png");
+         ContentAddition.AddSkillDef(def);
+         ContentAddition.AddEntityState(typeof(ElectricState),out _);
         }
 
 	class ElectricState : BaseSkillState{
-	  private ProjectileGrappleController grappleController;
+	  //private ProjectileGrappleController grappleController;
 	  private FireHook hookState;
 
 	  public override void OnEnter(){

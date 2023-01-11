@@ -47,10 +47,10 @@ namespace PassiveAgression.Mage
          esm.mainStateType = esm.initialStateType;
          
 
-         LoadoutAPI.AddSkillDef(def);
-         LoadoutAPI.AddSkill(typeof(PrepFloatingChaosState));
-         LoadoutAPI.AddSkill(typeof(FloatingChaosState));
-         LoadoutAPI.AddSkill(typeof(ChaosFloatState));
+         ContentAddition.AddSkillDef(def);
+         ContentAddition.AddEntityState(typeof(PrepFloatingChaosState),out _);
+         ContentAddition.AddEntityState(typeof(FloatingChaosState),out _);
+         ContentAddition.AddEntityState(typeof(ChaosFloatState),out _);
          }
 
 

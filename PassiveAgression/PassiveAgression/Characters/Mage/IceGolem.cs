@@ -72,12 +72,13 @@ namespace PassiveAgression.Mage
             return null;
          };
 
-         golemPrefab = PrefabAPI.InstantiateClone(UnityEngine.AddressableAssets.Addressables.LoadAsset<GameObject>("RoR2/Base/Golem/GolemBody.prefab").WaitForCompletion(),"MageSnowmanMech");
+         golemPrefab = PrefabAPI.InstantiateClone(UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Golem/GolemBody.prefab").WaitForCompletion(),"MageSnowmanMech");
          GameObject.Destroy(golemPrefab.GetComponent<BaseAI>());
          golemPrefab.AddComponent<CharacterMaster>();
          golemPrefab.AddComponent<VehicleSeat>();
          golemPrefab.AddComponent<GolemMechBehaviour>();
-         foreach(var l in golemPrefab.GetComponentsInChildren<Light>()) {l.color = new Color(0,0,1);}
+         golemPrefab.GetComponentInChildren<SkinnedMeshRenderer>().material.SetColor("_EmColor",Color.cyan);
+         foreach(var l in golemPrefab.GetComponentsInChildren<Light>()) {l.color = Color.cyan;}
          var esm = EntityStateMachine.FindByCustomName(golemPrefab,"Body");
          if(esm){
             esm.initialStateType = esm.mainStateType;
@@ -90,8 +91,8 @@ namespace PassiveAgression.Mage
          golemPrefab.GetComponent<CharacterBody>().bodyFlags |= CharacterBody.BodyFlags.Masterless;
 
          iceMat = mat.WaitForCompletion();
-         LoadoutAPI.AddSkillDef(def);
-         LoadoutAPI.AddSkill(typeof(SnowmanState));
+         ContentAddition.AddSkillDef(def);
+         ContentAddition.AddEntityState(typeof(SnowmanState),out _);
     
      }
 

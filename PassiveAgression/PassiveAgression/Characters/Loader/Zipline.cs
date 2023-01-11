@@ -30,9 +30,9 @@ namespace PassiveAgression.Loader{
          def.activationStateMachineName = "Hook";
          def.activationState = new SerializableEntityStateType(typeof(ZipHookState)); 
          projectileprefab = proj.WaitForCompletion();
-         LoadoutAPI.AddSkillDef(def);
-         LoadoutAPI.AddSkill(typeof(ZipHookState));
-         LoadoutAPI.AddSkill(typeof(ZipperHookState));
+         ContentAddition.AddSkillDef(def);
+         ContentAddition.AddEntityState(typeof(ZipHookState),out _);
+         ContentAddition.AddEntityState(typeof(ZipperHookState),out _);
      }
 
 	class ZipHookState : FireHook{
@@ -73,7 +73,7 @@ namespace PassiveAgression.Loader{
 	}
         class ZipperHookState : BaseGripState{
             GameObject otherCatch;
-            CharacterBody stuckBody;
+            //CharacterBody stuckBody;
 
             ZipperHookState(GameObject other){
                 if(other){

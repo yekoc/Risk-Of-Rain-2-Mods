@@ -74,9 +74,11 @@ namespace PassiveAgression.Bandit
          def.onUnassign = (GenericSkill slot) =>{
              slot.characterBody.bodyFlags |= CharacterBody.BodyFlags.HasBackstabPassive;
          };
-         def.icon = Util.SpriteFromFile("Standoff.png"); 
+         def.activationStateMachineName = "Body";
+         def.activationState = EntityStateMachine.FindByCustomName(slot.bodyPrefab,"Body").mainStateType;
+         def.icon = Util.SpriteFromFile("Standoff.png");
          def.baseRechargeInterval = 0f;
-         LoadoutAPI.AddSkillDef(def);
+         ContentAddition.AddSkillDef(def);
      }
     }
 }

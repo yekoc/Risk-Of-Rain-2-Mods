@@ -22,8 +22,8 @@ namespace PassiveAgression.ModCompat
     public static class PaladinResolve{
      public static AssignableSkillDef def;
      public static SkillDef scepterdef;
-     public static BuffDef  bdef;
-     public static BuffDef hiddenbdef;
+     public static BuffDef  bdef,sbdef;
+     public static BuffDef hiddenbdef,hiddensbdef;
      public static bool isHooked;
      public static float resolveMult = 0.8f;
 
@@ -52,6 +52,9 @@ namespace PassiveAgression.ModCompat
                   if(sender.HasBuff(hiddenbdef)){
                     args.damageMultAdd += resolveMult;
                   }
+                  else if(sender.HasBuff(hiddensbdef)){
+                    args.damageMultAdd += 2;
+                  }
                 };
              }
              return null;
@@ -70,9 +73,9 @@ namespace PassiveAgression.ModCompat
 
          ContentAddition.AddBuffDef(bdef);
          ContentAddition.AddBuffDef(hiddenbdef);
-         LoadoutAPI.AddSkillDef(def);
-         LoadoutAPI.AddSkill(typeof(PrepResolveState));
-         LoadoutAPI.AddSkill(typeof(CastResolveState));
+         ContentAddition.AddSkillDef(def);
+         ContentAddition.AddEntityState(typeof(PrepResolveState),out _);
+         ContentAddition.AddEntityState(typeof(CastResolveState),out _);
 
          void unsub(Run run){ 
             On.RoR2.OverlapAttack.ProcessHits -= OverlapFire;
@@ -99,9 +102,16 @@ namespace PassiveAgression.ModCompat
          scepterdef.canceledFromSprinting = false;
          scepterdef.isCombatSkill = false;
          (scepterdef as ScriptableObject).name = scepterdef.skillNameToken;
-         scepterdef.icon = LoadoutAPI.CreateSkinIcon(Color.cyan,Color.cyan,Color.cyan,Color.cyan);
-         LoadoutAPI.AddSkillDef(scepterdef);
-         //LoadoutAPI.AddSkill(typeof(RegrabGlassShadowState));
+         scepterdef.icon = def.icon;
+         sbdef = GameObject.Instantiate(bdef);
+         (sbdef as ScriptableObject).name = "PASSIVEAGRESSION_RESOLVE_BUFFSCEPTER";
+         hiddensbdef = GameObject.Instantiate(hiddenbdef);
+         (hiddensbdef as ScriptableObject).name = "PASSIVEAGRESSION_RESOLVE_BUFFSCEPTER_ACTUAL";
+         hiddensbdef.buffColor = new Color32(0xd2,0x99,0xff,0xff);
+
+         ContentAddition.AddBuffDef(sbdef);
+         ContentAddition.AddBuffDef(hiddensbdef);
+         ContentAddition.AddSkillDef(scepterdef);
          AncientScepter.AncientScepterItem.instance.RegisterScepterSkill(scepterdef,"RobPaladinBody",def);
      }
 
@@ -116,6 +126,16 @@ namespace PassiveAgression.ModCompat
                 Util.OnStateWorkFinished(EntityStateMachine.FindByCustomName(self.attacker,"Weapon"),(EntityStateMachine machine,ref EntityState state) =>{
                   if(NetworkServer.active && machine.commonComponents.characterBody.HasBuff(hiddenbdef)){
                     machine.commonComponents.characterBody.RemoveBuff(hiddenbdef);
+                  }
+                },new List<Type>{typeof(PaladinMod.States.Slash)});
+             }
+             if(body.HasBuff(sbdef)){
+                body.RemoveBuff(sbdef);
+                body.AddBuff(hiddensbdef); 
+                self.damage *= (1 + resolveMult);
+                Util.OnStateWorkFinished(EntityStateMachine.FindByCustomName(self.attacker,"Weapon"),(EntityStateMachine machine,ref EntityState state) =>{
+                  if(NetworkServer.active && machine.commonComponents.characterBody.HasBuff(hiddensbdef)){
+                    machine.commonComponents.characterBody.RemoveBuff(hiddensbdef);
                   }
                 },new List<Type>{typeof(PaladinMod.States.Slash)});
              }
@@ -141,7 +161,11 @@ namespace PassiveAgression.ModCompat
      public class CastResolveState : BaseCastChanneledSpellState{
             public override void OnEnter(){
                 base.OnEnter();
-                characterBody.AddBuff(bdef);
+                if(activatorSkillSlot.skillDef = scepterdef){
+                  characterBody.AddBuff(sbdef);
+                }
+                else
+                  characterBody.AddBuff(bdef);
             }
 	    public override InterruptPriority GetMinimumInterruptPriority(){
 		    return InterruptPriority.PrioritySkill;

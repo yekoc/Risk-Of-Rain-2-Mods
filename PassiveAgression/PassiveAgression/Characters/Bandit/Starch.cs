@@ -31,8 +31,8 @@ namespace PassiveAgression.Bandit
          def.keywordTokens = new string[]{"KEYWORD_STUNNING"};
          def.activationState = new SerializableEntityStateType(typeof(StarchState));
          def.icon = Util.SpriteFromFile("StarchIcon.png");
-         LoadoutAPI.AddSkillDef(def);
-         LoadoutAPI.AddSkill(typeof(StarchState));
+         ContentAddition.AddSkillDef(def);
+         ContentAddition.AddEntityState(typeof(StarchState),out _);
          }
 
 

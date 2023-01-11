@@ -140,7 +140,9 @@ namespace PassiveAgression.Treebot{
          };
          def.icon = slot.bodyPrefab.GetComponent<SkillLocator>().special.skillFamily.variants[1].skillDef.icon;
          def.baseRechargeInterval = 0f;
-         LoadoutAPI.AddSkillDef(def);
+         def.activationState = EntityStateMachine.FindByCustomName(slot.bodyPrefab,"Body").mainStateType;
+         def.activationStateMachineName = "Body";
+         ContentAddition.AddSkillDef(def);
      }
     }
 }

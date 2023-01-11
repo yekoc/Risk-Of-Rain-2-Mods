@@ -42,12 +42,17 @@ namespace PassiveAgression.Mage
          def.stepGraceDuration = 3f;
          def.stepResetTimer = 0f;
          def.icon = Util.SpriteFromFile("ExciseIcon.png");
-         LoadoutAPI.AddSkillDef(def);
+         ContentAddition.AddSkillDef(def);
         
          proPrefab = PrefabAPI.InstantiateClone((GameObject)epiESC.WaitForCompletion().serializedFieldsCollection.GetOrCreateField("projectilePrefab").fieldValue.GetValue(typeof(FireFireBolt).GetField("projectilePrefab")),"MageBloodBoltProjectile");
          proPrefab.GetComponent<ProjectileDamage>().damageType = DamageType.BleedOnHit;
          var ghost = PrefabAPI.InstantiateClone(UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Mage/MageLightningboltGhost.prefab").WaitForCompletion(),"MageBloodBoltProjectileGhost",false);
-         //ghost.GetComponentInChildren<Light>().color = new Color(1,0,0);
+         //ghost.GetComponentInChildren<Light>().color = Color.red;
+         var mrend = ghost.transform.GetChild(3).GetComponent<MeshRenderer>();
+         mrend.material = GameObject.Instantiate(mrend.material);
+         mrend.material.SetColor("_Color",Color.red);
+         foreach(var rend in ghost.GetComponentsInChildren<ParticleSystemRenderer>()){rend.material = GameObject.Instantiate(mrend.material); rend.material.SetColor("_Color",Color.red);}
+         foreach(var rend in ghost.GetComponentsInChildren<ParticleSystem>()){var m = rend.main; m.startColor = Color.red;}
          proPrefab.GetComponent<ProjectileController>().ghostPrefab = ghost;
 
          muzzleFlash = PrefabAPI.InstantiateClone(UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Common/VFX/BleedEffect.prefab").WaitForCompletion(),"MuzzleFlashMageBlood",false);
@@ -58,7 +63,7 @@ namespace PassiveAgression.Mage
 
          ContentAddition.AddEffect(muzzleFlash);
          ContentAddition.AddProjectile(proPrefab);
-         LoadoutAPI.AddSkill(typeof(BloodPrimaryState));
+         ContentAddition.AddEntityState(typeof(BloodPrimaryState),out _);
      }
 
      public static float regenBlock(On.RoR2.HealthComponent.orig_Heal orig,HealthComponent self,float amount,ProcChainMask proc,bool nonRegen){

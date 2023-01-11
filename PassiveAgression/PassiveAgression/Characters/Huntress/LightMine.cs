@@ -24,8 +24,8 @@ namespace PassiveAgression.Huntress{
          def.activationStateMachineName = "Weapon";
          def.baseMaxStock = 4;
          def.activationState = new SerializableEntityStateType(typeof(LightMineState));
-         LoadoutAPI.AddSkillDef(def);
-         LoadoutAPI.AddSkill(typeof(LightMineState));
+         ContentAddition.AddSkillDef(def);
+         ContentAddition.AddEntityState(typeof(LightMineState),out _);
         }
 
 

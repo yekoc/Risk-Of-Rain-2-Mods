@@ -24,14 +24,14 @@ namespace PassiveAgression.Bandit
          def.skillNameToken = "PASSIVEAGRESSION_MERCDODGE";
          (def as ScriptableObject).name = def.skillNameToken;
          def.skillDescriptionToken = "PASSIVEAGRESSION_MERCDODGE_DESC";
-         def.baseRechargeInterval = 6f;
+         def.baseRechargeInterval = 0f;
          def.canceledFromSprinting = false;
          def.cancelSprintingOnActivation = false;
          def.activationStateMachineName = "Body";
          def.interruptPriority = InterruptPriority.PrioritySkill;
          def.activationState = new SerializableEntityStateType(typeof(SpotState));
-         LoadoutAPI.AddSkillDef(def);
-         LoadoutAPI.AddSkill(typeof(SpotState));
+         ContentAddition.AddSkillDef(def);
+         ContentAddition.AddEntityState(typeof(SpotState),out _);
          }
 
 

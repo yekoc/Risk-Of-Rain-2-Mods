@@ -19,7 +19,7 @@ namespace PassiveAgression{
         internal GenericSkill skill = null;
         internal SkillFamily family => skill?.skillFamily;
         public static SkillDef NoneDef;
-        public SkillDef currentDef => skill?.skillDef;
+        //public SkillDef currentDef => skill?.skillDef;
 
         static CustomPassiveSlot(){
            LanguageAPI.Add("PASSIVEAGRESSION_NONE","None");
@@ -28,9 +28,12 @@ namespace PassiveAgression{
            NoneDef.skillNameToken = "NONE";
            (NoneDef as ScriptableObject).name = NoneDef.skillNameToken;
            NoneDef.skillDescriptionToken = "NONE_DESC";
-           NoneDef.icon = LoadoutAPI.CreateSkinIcon(Color.black,Color.white,Color.grey,Color.grey);
+           //NoneDef.icon = LoadoutAPI.CreateSkinIcon(Color.black,Color.white,Color.grey,Color.grey);
+           NoneDef.icon = Util.SpriteFromFile("nonedef.png");
            NoneDef.baseRechargeInterval = 0f;
-           LoadoutAPI.AddSkillDef(NoneDef);
+           NoneDef.activationState = new EntityStates.SerializableEntityStateType(typeof(EntityStates.Idle));
+           NoneDef.activationStateMachineName = "Body";
+           ContentAddition.AddSkillDef(NoneDef);
            On.RoR2.UI.LoadoutPanelController.Row.FromSkillSlot += (orig,owner,bodyI,slotI,slot) => {
              LoadoutPanelController.Row row = (LoadoutPanelController.Row)orig(owner,bodyI,slotI,slot);
              if((slot.skillFamily as ScriptableObject).name.Contains("Passive")){
@@ -104,6 +107,7 @@ namespace PassiveAgression{
                 skill._skillFamily = ScriptableObject.CreateInstance<SkillFamily>();
                 (skill.skillFamily as ScriptableObject).name = bodyPrefab.name + "Passive";
                 skill.skillFamily.variants = new SkillFamily.Variant[1];
+                skill.skillName = bodyPrefab.name + "Passive";
                 if(SetupNone)
                   skill.skillFamily.variants[0] = new SkillFamily.Variant{skillDef = NoneDef,viewableNode = new ViewablesCatalog.Node(NoneDef.skillNameToken,false,null)}; 
                 else if(locator.passiveSkill.enabled){ 
@@ -115,10 +119,12 @@ namespace PassiveAgression{
                   passiveDef.icon = locator.passiveSkill.icon;
                   passiveDef.keywordTokens = locator.passiveSkill.keywordToken.Length>0 ? new string[] {locator.passiveSkill.keywordToken} : null;
                   passiveDef.baseRechargeInterval = 0f;
-                  LoadoutAPI.AddSkillDef(passiveDef);
+                  passiveDef.activationStateMachineName = "Body";
+                  passiveDef.activationState = new EntityStates.SerializableEntityStateType(typeof(EntityStates.GenericCharacterMain));
+                  ContentAddition.AddSkillDef(passiveDef);
                   skill.skillFamily.variants[0] = new SkillFamily.Variant{skillDef = passiveDef,viewableNode = new ViewablesCatalog.Node(passiveDef.skillNameToken,false,null)};
                 }
-                LoadoutAPI.AddSkillFamily(skill.skillFamily);
+                ContentAddition.AddSkillFamily(skill.skillFamily);
             }
 
         }
@@ -149,5 +155,23 @@ namespace PassiveAgression{
         public bool IsAssigned(CharacterBody body,SkillSlot skillSlot){
             return body.skillLocator.GetSkill(skillSlot).skillDef == this;
         }
- } 
+        public GenericSkill GetSkill(CharacterBody body){
+            if(body && body.skillLocator){
+             for(int i = 0;i < body.skillLocator.allSkills.Length;i++){
+               if(IsAssigned(body.skillLocator.allSkills[i])){
+                 return body.skillLocator.allSkills[i];
+               }
+             }
+            }
+            return null;
+        }
+ }
+ public class SingleUseSkillDef : AssignableSkillDef {
+     public override void OnExecute(GenericSkill skillSlot){
+        base.OnExecute(skillSlot);
+        if(skillSlot.stock <= 0){
+          skillSlot.UnsetSkillOverride(skillSlot.gameObject,this,GenericSkill.SkillOverridePriority.Contextual);
+        }
+     }
+ }
 }

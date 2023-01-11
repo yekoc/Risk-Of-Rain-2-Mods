@@ -61,8 +61,8 @@ namespace PassiveAgression.VoidSurvivor
             return null;
          };
 
-         LoadoutAPI.AddSkillDef(def);
-         LoadoutAPI.AddSkill(typeof(TearState));
+         ContentAddition.AddSkillDef(def);
+         ContentAddition.AddEntityState(typeof(TearState),out _);
      }
 
 
@@ -158,7 +158,7 @@ namespace PassiveAgression.VoidSurvivor
          static TearCorruptState(){
              var obj = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/gauntlets/GauntletEntranceOrb.prefab").WaitForCompletion(),"TearCPrefab");
              var obj2 = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidCamp/VoidCamp.prefab").WaitForCompletion(),"TearCAreaattempt",false);
-             indicator = obj2.transform.FindChild("mdlVoidFogEmitter/RangeIndicator").gameObject;
+             indicator = obj2.transform.Find("mdlVoidFogEmitter/RangeIndicator").gameObject;
              Destroy(obj.GetComponent<VoidRaidGauntletEntranceController>());
              Destroy(obj.GetComponent<VoidRaidGauntletExitController>());
              Destroy(obj.GetComponentInChildren<MapZone>());
@@ -170,10 +170,11 @@ namespace PassiveAgression.VoidSurvivor
              fog.healthFractionRampCoefficientPerSecond = 0.15f;
              fog.dangerBuffDef = Addressables.LoadAssetAsync<BuffDef>("RoR2/Base/Common/bdVoidFogMild.asset").WaitForCompletion();
              var zone = obj.AddComponent<SphereZone>();
-             indicator.transform.SetParent(zone.transform);
-             zone.radius = 30f;
+             indicator.transform.SetParent(obj.transform);
+             zone.radius = 10f;
              zone.isInverted = true;
              zone.rangeIndicator = indicator.transform;
+             zone.rangeIndicatorScaleVelocity = 0.3f;
              indicator.transform.localPosition = new Vector3(0,0,0);
              
              fog.initialSafeZones = new BaseZoneBehavior[]{zone};
@@ -193,8 +194,7 @@ namespace PassiveAgression.VoidSurvivor
              base.FixedUpdate();
              if(fixedAge >= movetoggle && !instance){
                  instance = GameObject.Instantiate(prefab,initialPos,base.transform.rotation);
-                 instance.transform.localScale /= 10;
-                 instance.transform.FindChild("RangeIndicator").localScale *=10;
+                 instance.GetComponent<SphereZone>().rangeIndicator.localPosition = new Vector3(0,0,0);
                  if(NetworkServer.active){
                     NetworkServer.Spawn(instance);
                  }

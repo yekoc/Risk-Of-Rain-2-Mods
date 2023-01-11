@@ -67,6 +67,7 @@ namespace PassiveAgression{
          texture.LoadImage(System.IO.File.ReadAllBytes(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),"Assets/" + name)));
          }
          catch(System.IO.FileNotFoundException e){
+            Debug.LogError("Failed to read file at " + e.FileName);
             return null;
          }
          return Sprite.Create(texture,new Rect(0f,0f,texture.height,texture.width),new Vector2(0.5f,0.5f),100); 

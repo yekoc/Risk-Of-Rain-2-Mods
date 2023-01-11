@@ -41,7 +41,9 @@ namespace PassiveAgression.Merc
          };
          def.icon = slot.family.variants[0].skillDef.icon;
          def.baseRechargeInterval = 0f;
-         LoadoutAPI.AddSkillDef(def);
+         def.activationStateMachineName = "Body";
+         def.activationState = new SerializableEntityStateType(typeof(GenericCharacterMain));
+         ContentAddition.AddSkillDef(def);
      }
     }
 }

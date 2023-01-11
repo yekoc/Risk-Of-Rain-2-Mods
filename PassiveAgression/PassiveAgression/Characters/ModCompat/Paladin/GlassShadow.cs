@@ -47,9 +47,9 @@ namespace PassiveAgression.ModCompat
          def.isCombatSkill = false;
          (def as ScriptableObject).name = def.skillNameToken;
          def.icon = Util.SpriteFromFile("GShadowIcon.png"); 
-         LoadoutAPI.AddSkillDef(def);
-         LoadoutAPI.AddSkill(typeof(PrepGlassShadowState));
-         LoadoutAPI.AddSkill(typeof(CastGlassShadowState));
+         ContentAddition.AddSkillDef(def);
+         ContentAddition.AddEntityState(typeof(PrepGlassShadowState),out _);
+         ContentAddition.AddEntityState(typeof(CastGlassShadowState),out _);
          On.RoR2.ModelSkinController.ApplySkin += (orig,self,index) =>
          {
              orig(self,index);
@@ -108,9 +108,9 @@ namespace PassiveAgression.ModCompat
          scepterdef.canceledFromSprinting = false;
          scepterdef.isCombatSkill = false;
          (scepterdef as ScriptableObject).name = scepterdef.skillNameToken;
-         scepterdef.icon = LoadoutAPI.CreateSkinIcon(Color.cyan,Color.cyan,Color.cyan,Color.cyan);
-         LoadoutAPI.AddSkillDef(scepterdef);
-         LoadoutAPI.AddSkill(typeof(RegrabGlassShadowState));
+         scepterdef.icon = def.icon;
+         ContentAddition.AddSkillDef(scepterdef);
+         ContentAddition.AddEntityState(typeof(RegrabGlassShadowState),out _);
          AncientScepter.AncientScepterItem.instance.RegisterScepterSkill(scepterdef,"RobPaladinBody",def);
      }
      public class PrepGlassShadowState : BaseChannelSpellState{
