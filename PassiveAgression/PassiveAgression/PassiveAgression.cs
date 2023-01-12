@@ -185,10 +185,10 @@ namespace PassiveAgression
          #region Merc
          if(unfinishedContent.Value)
          body = Merc.FlickerPassive.slot.bodyPrefab;
-         HG.ArrayUtils.ArrayAppend(ref Merc.FlickerPassive.slot.family.variants ,new SkillFamily.Variant{
+         /*HG.ArrayUtils.ArrayAppend(ref Merc.FlickerPassive.slot.family.variants ,new SkillFamily.Variant{
             skillDef = Merc.FlickerPassive.def,
             viewableNode = new ViewablesCatalog.Node(Merc.FlickerPassive.def.skillNameToken,false,null)
-         });
+         });*/
          #endregion
 
          #region Treebot

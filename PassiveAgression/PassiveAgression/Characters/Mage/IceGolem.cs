@@ -29,7 +29,7 @@ namespace PassiveAgression.Mage
          def.skillNameToken = "PASSIVEAGRESSION_MAGEICEARMOR";
          (def as ScriptableObject).name = def.skillNameToken;
          def.skillDescriptionToken = "PASSIVEAGRESSION_MAGEICEARMOR_DESC";
-         def.baseRechargeInterval = 6f;
+         def.baseRechargeInterval = 20f;
          def.canceledFromSprinting = false;
          def.cancelSprintingOnActivation = true;
          def.activationStateMachineName = "Weapon";

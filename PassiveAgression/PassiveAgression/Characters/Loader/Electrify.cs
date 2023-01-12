@@ -20,7 +20,7 @@ namespace PassiveAgression.Loader{
          def.skillNameToken = "PASSIVEAGRESSION_LOADERELEC";
          (def as ScriptableObject).name = def.skillNameToken;
          def.skillDescriptionToken = "PASSIVEAGRESSION_LOADERELEC_DESC";
-         def.baseRechargeInterval = 6f;
+         def.baseRechargeInterval = 10f;
          def.canceledFromSprinting = false;
          def.cancelSprintingOnActivation = false;
          def.activationStateMachineName = "Weapon";

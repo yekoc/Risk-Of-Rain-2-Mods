@@ -35,18 +35,18 @@ namespace PassiveAgression.VoidSurvivor
          def.activationStateMachineName = "Body";
          def.keywordTokens = new string[]{};
          def.activationState = new SerializableEntityStateType(typeof(TearState));
-         def.icon = Util.SpriteFromFile("StandoffIcon.png");
+         def.icon = Util.SpriteFromFile("TEAR.png");
          cdef = ScriptableObject.CreateInstance<SkillDef>();
          cdef.skillNameToken = "PASSIVEAGRESSION_VIENDTEAR";
          (cdef as ScriptableObject).name = def.skillNameToken + "CORRUPT";
          cdef.skillDescriptionToken = "PASSIVEAGRESSION_VIENDTEARCORRUPT_DESC";
-         cdef.baseRechargeInterval = 6f;
+         cdef.baseRechargeInterval = 10f;
          cdef.canceledFromSprinting = false;
          cdef.cancelSprintingOnActivation = false;
          cdef.activationStateMachineName = "Weapon";
          cdef.keywordTokens = new string[]{};
          cdef.activationState = new SerializableEntityStateType(typeof(TearCorruptState));
-         cdef.icon = Util.SpriteFromFile("StandoffIcon.png");
+         cdef.icon = Util.SpriteFromFile("TEARC.png");
 
          def.onAssign = (skill) => {
             if(!isHooked){
@@ -106,7 +106,7 @@ namespace PassiveAgression.VoidSurvivor
                  instance = GameObject.Instantiate(prefab,initialPos,base.transform.rotation);
                  instance.transform.localScale /= 10;
                  var zone1 = instance.GetComponentInChildren<MapZone>();
-                 if(Physics.Raycast(GetAimRay(),out var hit,Mathf.Infinity,LayerIndex.CommonMasks.bullet)){
+                 if(Physics.Raycast(GetAimRay(),out var hit,Mathf.Infinity,LayerIndex.world.mask)){
                     instance2 = GameObject.Instantiate(prefab,hit.point,base.transform.rotation);
                  }
                  if(!(zone1 && instance2 && instance2.transform)){
@@ -171,14 +171,14 @@ namespace PassiveAgression.VoidSurvivor
              fog.dangerBuffDef = Addressables.LoadAssetAsync<BuffDef>("RoR2/Base/Common/bdVoidFogMild.asset").WaitForCompletion();
              var zone = obj.AddComponent<SphereZone>();
              indicator.transform.SetParent(obj.transform);
-             zone.radius = 10f;
+             zone.radius = 20f;
              zone.isInverted = true;
              zone.rangeIndicator = indicator.transform;
-             zone.rangeIndicatorScaleVelocity = 0.3f;
              indicator.transform.localPosition = new Vector3(0,0,0);
+             indicator.transform.localScale *= 0.5f;
              
              fog.initialSafeZones = new BaseZoneBehavior[]{zone};
-             obj.AddComponent<DestroyOnTimer>().duration = 8f;
+             obj.AddComponent<DestroyOnTimer>().duration = 20f;
              prefab = obj;
 
          }

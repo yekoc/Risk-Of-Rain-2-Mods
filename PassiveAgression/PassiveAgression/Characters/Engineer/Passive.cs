@@ -114,7 +114,7 @@ namespace PassiveAgression.Engineer
          };
          def.onUnassign = (GenericSkill slot) =>{
          };
-         def.icon = Util.SpriteFromFile("StandoffIcon.png"); 
+         def.icon = Util.SpriteFromFile("ScrapWrench.png"); 
          def.activationStateMachineName = "Body";
          def.activationState = EntityStateMachine.FindByCustomName(slot.bodyPrefab,"Body").mainStateType;
          def.baseRechargeInterval = 0f;

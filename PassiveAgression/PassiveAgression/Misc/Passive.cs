@@ -23,11 +23,11 @@ namespace PassiveAgression{
 
         static CustomPassiveSlot(){
            LanguageAPI.Add("PASSIVEAGRESSION_NONE","None");
-           LanguageAPI.Add("PASSIVEAGRESSION_NONE_DESC","Nothing");
+           LanguageAPI.Add("PASSIVEAGRESSION_NONE_DESC","Not all who wander are lost.");
            NoneDef = ScriptableObject.CreateInstance<SkillDef>();
-           NoneDef.skillNameToken = "NONE";
+           NoneDef.skillNameToken = "PASSIVEAGRESSION_NONE";
            (NoneDef as ScriptableObject).name = NoneDef.skillNameToken;
-           NoneDef.skillDescriptionToken = "NONE_DESC";
+           NoneDef.skillDescriptionToken = "PASSIVEAGRESSION_NONE_DESC";
            //NoneDef.icon = LoadoutAPI.CreateSkinIcon(Color.black,Color.white,Color.grey,Color.grey);
            NoneDef.icon = Util.SpriteFromFile("nonedef.png");
            NoneDef.baseRechargeInterval = 0f;
@@ -102,6 +102,12 @@ namespace PassiveAgression{
                 bodyPrefab = Addressables.LoadAssetAsync<GameObject>(prefabString).WaitForCompletion();
             }
             if(bodyPrefab){
+                foreach(var comp in bodyPrefab.GetComponents<GenericSkill>()){
+                   if((comp.skillFamily as ScriptableObject).name.ToLower().Contains("passive")){
+                      skill = comp;
+                      return;
+                   }
+                }
                 skill = bodyPrefab.AddComponent<GenericSkill>();
                 SkillLocator locator = bodyPrefab.GetComponent<SkillLocator>();
                 skill._skillFamily = ScriptableObject.CreateInstance<SkillFamily>();
