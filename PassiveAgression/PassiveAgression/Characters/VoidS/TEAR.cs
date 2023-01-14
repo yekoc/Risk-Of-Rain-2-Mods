@@ -170,15 +170,13 @@ namespace PassiveAgression.VoidSurvivor
              fog.healthFractionRampCoefficientPerSecond = 0.15f;
              fog.dangerBuffDef = Addressables.LoadAssetAsync<BuffDef>("RoR2/Base/Common/bdVoidFogMild.asset").WaitForCompletion();
              var zone = obj.AddComponent<SphereZone>();
-             indicator.transform.SetParent(obj.transform);
+             //indicator.transform.SetParent(obj.transform);
              zone.radius = 20f;
              zone.isInverted = true;
-             zone.rangeIndicator = indicator.transform;
-             indicator.transform.localPosition = new Vector3(0,0,0);
-             indicator.transform.localScale *= 0.5f;
+             //zone.rangeIndicator = indicator.transform;
              
              fog.initialSafeZones = new BaseZoneBehavior[]{zone};
-             obj.AddComponent<DestroyOnTimer>().duration = 20f;
+             obj.AddComponent<DestroyOnTimer>().duration = 10f;
              prefab = obj;
 
          }
@@ -194,10 +192,14 @@ namespace PassiveAgression.VoidSurvivor
              base.FixedUpdate();
              if(fixedAge >= movetoggle && !instance){
                  instance = GameObject.Instantiate(prefab,initialPos,base.transform.rotation);
-                 instance.GetComponent<SphereZone>().rangeIndicator.localPosition = new Vector3(0,0,0);
+                 var radiusInstance = GameObject.Instantiate(indicator,initialPos,base.transform.rotation);
                  if(NetworkServer.active){
                     NetworkServer.Spawn(instance);
+                    NetworkServer.Spawn(radiusInstance);
                  }
+                 instance.transform.localScale /= 10;
+                 instance.GetComponent<SphereZone>().rangeIndicator = radiusInstance.transform;
+                 //instance.GetComponent<SphereZone>().rangeIndicator.localPosition = new Vector3(0,0,0);
              }
              if(fixedAge > duration){
                  outer.SetNextStateToMain();

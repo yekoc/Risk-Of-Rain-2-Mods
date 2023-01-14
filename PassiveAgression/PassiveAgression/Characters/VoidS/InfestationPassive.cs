@@ -5,6 +5,7 @@ using RoR2.CharacterAI;
 using System;
 using System.Reflection;
 using System.Linq;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -23,6 +24,7 @@ namespace PassiveAgression.VoidSurvivor
      public static bool isHooked = false;
      public static ConfigEntry<bool> friendlyInfest;
      private static SpawnInfo[] spawns = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidChest/VoidChest.prefab").WaitForCompletion().GetComponent<ScriptedCombatEncounter>().spawns;
+     private static List<CombatSquad> squads = new List<CombatSquad>();
 
 
      static InfestationPassive(){
@@ -45,6 +47,8 @@ namespace PassiveAgression.VoidSurvivor
              }
              encount.randomizeSeed = true;
              encount.combatSquad = slot.characterBody.gameObject.AddComponent<CombatSquad>();
+             encount.combatSquad.propagateMembershipToSummons = true;
+             squads.Add(encount.combatSquad);
              encount.teamIndex = TeamIndex.Void;
              encount.grantUniqueBonusScaling = false;
              var machine = EntityStateMachine.FindByCustomName(slot.characterBody.gameObject,"CorruptMode");
@@ -54,9 +58,39 @@ namespace PassiveAgression.VoidSurvivor
                 isHooked = true;
                 IL.EntityStates.VoidInfestor.Infest.FixedUpdate += (il) =>{
                   ILCursor c = new ILCursor(il);
-                  while(c.TryGotoNext(x => x.MatchLdcI4(4),x => x.MatchCallOrCallvirt(out _))){
+                  if(c.TryGotoNext(x => x.MatchLdloc(4),x => x.MatchLdcI4(4))){
+                    c.Index++;
                     c.Emit(OpCodes.Ldarg_0);
-                    c.EmitDelegate<Func<TeamIndex,EntityStates.VoidInfestor.Infest,TeamIndex>>((orig,self) => friendlyInfest.Value? self.teamComponent.teamIndex : orig);
+                    c.EmitDelegate<Func<CharacterMaster,EntityStates.VoidInfestor.Infest,CharacterMaster>>((orig,self) =>{
+                       var squad = squads.Find((s) => s.ContainsMember(self.characterBody.master));
+                       if(squad && BossGroup.FindBossGroup(orig.GetBody()) == null){
+                         squad.AddMember(orig);
+                       }
+                       return orig;
+                    });
+                  }
+                  while(c.TryGotoNext(x => x.MatchLdcI4(4),x => x.MatchCallOrCallvirt(out _))){
+                    c.Index++;
+                    c.Emit(OpCodes.Ldarg_0);
+                    c.Emit(OpCodes.Ldloc,4);
+                    c.EmitDelegate<Func<TeamIndex,EntityStates.VoidInfestor.Infest,CharacterMaster,TeamIndex>>((orig,self,master) => friendlyInfest.Value? (self.teamComponent.teamIndex == TeamIndex.Player && BossGroup.FindBossGroup(master.GetBody()) != null)? orig : self.teamComponent.teamIndex : orig);
+                  }
+                };
+                IL.RoR2.GlobalEventManager.OnCharacterDeath += (il) =>{
+                  ILCursor c = new ILCursor(il);
+                  if(c.TryGotoNext(x => x.MatchLdstr("RoR2/DLC1/EliteVoid/VoidInfestorMaster.prefab")) && c.TryGotoNext(x => x.MatchLdcI4(4),x=>x.MatchCallOrCallvirt(typeof(CharacterMaster).GetProperty("teamIndex").GetSetMethod()))){
+                    c.Emit(OpCodes.Ldarg_1);
+                    c.EmitDelegate<Func<CharacterMaster,DamageReport,CharacterMaster>>((orig,report) => { 
+                       var squad = squads.Find((s) => s.ContainsMember(report.victimMaster));
+                       if(orig && squad){
+                         squad.AddMember(orig);
+                       }
+                       return orig;
+                    });
+                    c.Index++;
+                    c.MoveAfterLabels();
+                    c.Emit(OpCodes.Ldarg_1);
+                    c.EmitDelegate<Func<TeamIndex,DamageReport,TeamIndex>>((orig,report) => friendlyInfest.Value? report.victimTeamIndex : orig);
                   }
                 };
                 //Run.onRunDestroyGlobal += unsub;
@@ -71,7 +105,7 @@ namespace PassiveAgression.VoidSurvivor
              var machine = EntityStateMachine.FindByCustomName(slot.characterBody.gameObject,"CorruptMode");
              machine.mainStateType = new SerializableEntityStateType(typeof(UncorruptedMode));
              machine.initialStateType = machine.mainStateType;
-
+             squads.Remove(slot.characterBody.GetComponent<ScriptedCombatEncounter>().combatSquad);
          };
          def.icon = Util.SpriteFromFile("Infestation.png"); 
          def.baseRechargeInterval = 0f;
@@ -85,30 +119,26 @@ namespace PassiveAgression.VoidSurvivor
 
      public class InfestedMode : CorruptModeBase{
         //public float overCorruptTimer = 12f;
+        public bool overCorrupt;
         public override void OnEnter(){
            base.OnEnter();
-           characterBody.gameObject.GetComponent<CombatSquad>().onDefeatedServer += OverCorruptRefresh; 
+           overCorrupt = voidSurvivorController.minimumCorruption >= voidSurvivorController.maxCorruption;
         }
         public override void FixedUpdate()
         {
                 base.FixedUpdate();
-                if (base.isAuthority){ 
-                    if(voidSurvivorController && voidSurvivorController.minimumCorruption < voidSurvivorController.maxCorruption && voidSurvivorController.corruption >= voidSurvivorController.maxCorruption && (bool)voidSurvivorController.bodyStateMachine)
+                if (base.isAuthority){
+                    if(voidSurvivorController && !overCorrupt && voidSurvivorController.corruption >= voidSurvivorController.maxCorruption && (bool)voidSurvivorController.bodyStateMachine)
                     {
                         voidSurvivorController.bodyStateMachine.SetInterruptState(new ExpelInfestation(), InterruptPriority.Skill);
                     }
+                    else if(voidSurvivorController && voidSurvivorController.minimumCorruption < voidSurvivorController.maxCorruption){
+                      overCorrupt = false;
+                    }
                 }
-        }
-        public override void OnExit(){
-          characterBody.gameObject.GetComponent<CombatSquad>().onDefeatedServer -= OverCorruptRefresh;
-        }
-        internal void OverCorruptRefresh(){
-            if(voidSurvivorController && voidSurvivorController.minimumCorruption <= voidSurvivorController.maxCorruption){
-             var infests = characterBody.gameObject.GetComponent<ScriptedCombatEncounter>();
-             infests.combatSquad.defeatedServer = false;
-             infests.BeginEncounter();
-             infests.hasSpawnedServer = false;
-            }
+                if(NetworkServer.active && overCorrupt && characterBody.gameObject.GetComponent<ScriptedCombatEncounter>().combatSquad.defeatedServer){
+                        voidSurvivorController.bodyStateMachine.SetInterruptState(new ExpelInfestation(), InterruptPriority.Skill); 
+                }
         }
      }
      public class ExpelInfestation : CorruptionTransitionBase{
@@ -150,6 +180,7 @@ namespace PassiveAgression.VoidSurvivor
                 var infests = characterBody.gameObject.GetComponent<ScriptedCombatEncounter>();
                 infests.BeginEncounter();
                 infests.hasSpawnedServer = false;
+                infests.combatSquad.defeatedServer = false;
                 if ((bool)voidSurvivorController)
                 {
                         voidSurvivorController.corruptionModeStateMachine.SetNextState(new InfestedMode());

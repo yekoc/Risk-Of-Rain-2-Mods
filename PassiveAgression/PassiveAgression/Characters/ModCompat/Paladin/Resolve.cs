@@ -22,7 +22,7 @@ namespace PassiveAgression.ModCompat
     public static class PaladinResolve{
      public static AssignableSkillDef def;
      public static SkillDef scepterdef;
-     public static BuffDef  bdef,sbdef;
+     public static BuffDef  bdef;//,sbdef;
      public static BuffDef hiddenbdef,hiddensbdef;
      public static bool isHooked;
      public static float resolveMult = 0.8f;
@@ -102,14 +102,14 @@ namespace PassiveAgression.ModCompat
          scepterdef.canceledFromSprinting = false;
          scepterdef.isCombatSkill = false;
          (scepterdef as ScriptableObject).name = scepterdef.skillNameToken;
-         scepterdef.icon = def.icon;
-         sbdef = GameObject.Instantiate(bdef);
-         (sbdef as ScriptableObject).name = "PASSIVEAGRESSION_RESOLVE_BUFFSCEPTER";
+         scepterdef.icon = Util.SpriteFromFile("ResolveIconScepter.png");;
+/*       sbdef = GameObject.Instantiate(bdef);
+         (sbdef as ScriptableObject).name = "PASSIVEAGRESSION_RESOLVE_BUFFSCEPTER";*/
          hiddensbdef = GameObject.Instantiate(hiddenbdef);
          (hiddensbdef as ScriptableObject).name = "PASSIVEAGRESSION_RESOLVE_BUFFSCEPTER_ACTUAL";
          hiddensbdef.buffColor = new Color32(0xd2,0x99,0xff,0xff);
 
-         ContentAddition.AddBuffDef(sbdef);
+         //ContentAddition.AddBuffDef(sbdef);
          ContentAddition.AddBuffDef(hiddensbdef);
          ContentAddition.AddSkillDef(scepterdef);
          AncientScepter.AncientScepterItem.instance.RegisterScepterSkill(scepterdef,"RobPaladinBody",def);
@@ -121,19 +121,18 @@ namespace PassiveAgression.ModCompat
              var body = self.attacker.GetComponent<CharacterBody>();
              if(body.HasBuff(bdef)){
                 body.RemoveBuff(bdef);
-                body.AddBuff(hiddenbdef); 
-                self.damage *= (1 + resolveMult);
+                if(body.skillLocator.special.skillDef == scepterdef){
+                    body.AddBuff(hiddensbdef);
+                    self.damage *= 3f;
+                }
+                else{
+                    body.AddBuff(hiddenbdef);
+                    self.damage *= (1 + resolveMult);
+                }
                 Util.OnStateWorkFinished(EntityStateMachine.FindByCustomName(self.attacker,"Weapon"),(EntityStateMachine machine,ref EntityState state) =>{
                   if(NetworkServer.active && machine.commonComponents.characterBody.HasBuff(hiddenbdef)){
                     machine.commonComponents.characterBody.RemoveBuff(hiddenbdef);
                   }
-                },new List<Type>{typeof(PaladinMod.States.Slash)});
-             }
-             if(body.HasBuff(sbdef)){
-                body.RemoveBuff(sbdef);
-                body.AddBuff(hiddensbdef); 
-                self.damage *= (1 + resolveMult);
-                Util.OnStateWorkFinished(EntityStateMachine.FindByCustomName(self.attacker,"Weapon"),(EntityStateMachine machine,ref EntityState state) =>{
                   if(NetworkServer.active && machine.commonComponents.characterBody.HasBuff(hiddensbdef)){
                     machine.commonComponents.characterBody.RemoveBuff(hiddensbdef);
                   }
@@ -163,10 +162,10 @@ namespace PassiveAgression.ModCompat
             
             public override void OnEnter(){
                 base.OnEnter();
-                if(activatorSkillSlot.skillDef = scepterdef){
+              /*  if(activatorSkillSlot.skillDef = scepterdef){
                   characterBody.AddBuff(sbdef);
                 }
-                else
+                else*/
                   characterBody.AddBuff(bdef);
             }
 	    public override InterruptPriority GetMinimumInterruptPriority(){

@@ -74,7 +74,7 @@ namespace PassiveAgression
                 SetupDigger();
             if(modCompat.Henry = Chainloader.PluginInfos.ContainsKey("com.rob.HenryMod"))
                 SetupHenry();
-            if(modCompat.Scepter = Chainloader.PluginInfos.ContainsKey("com.DestroyedClone.AncientScepter") && Chainloader.PluginInfos["com.DestroyedClone.AncientScepter"].Metadata.Version.Minor > 1)
+            if(modCompat.Scepter = Chainloader.PluginInfos.ContainsKey("com.DestroyedClone.AncientScepter"))
                 SetupScepter();
 
         }
@@ -206,12 +206,10 @@ namespace PassiveAgression
             skillDef = VoidSurvivor.InfestationPassive.def,
             viewableNode = new ViewablesCatalog.Node(VoidSurvivor.InfestationPassive.def.skillNameToken,false,null)
          });
-         if(unfinishedContent.Value){
          HG.ArrayUtils.ArrayAppend(ref body.GetComponent<SkillLocator>().utility.skillFamily.variants,new SkillFamily.Variant{
             skillDef = VoidSurvivor.TearUtil.def,
             viewableNode = new ViewablesCatalog.Node(VoidSurvivor.TearUtil.def.skillNameToken,false,null)
          });
-         }
          #endregion
 
          #region Railgunner

@@ -11,12 +11,12 @@ using R2API;
 
 namespace PassiveAgression.Loader{
     public static class ElectrifySpecial{
-        public static SkillDef def;
+        public static HookedSkillDef def;
 
         static ElectrifySpecial(){
          LanguageAPI.Add("PASSIVEAGRESSION_LOADERELEC","Power Pack Discharge");
          LanguageAPI.Add("PASSIVEAGRESSION_LOADERELEC_DESC","<style=cIsDamage>Shocking.</style> Unload stored charge through the gauntlet,draining all barrier and dealing <style=cIsDamage>400%-1400%</style> damage to the connected enemy.");
-         def = ScriptableObject.CreateInstance<SkillDef>();
+         def = ScriptableObject.CreateInstance<HookedSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_LOADERELEC";
          (def as ScriptableObject).name = def.skillNameToken;
          def.skillDescriptionToken = "PASSIVEAGRESSION_LOADERELEC_DESC";
@@ -29,6 +29,13 @@ namespace PassiveAgression.Loader{
          def.icon = Util.SpriteFromFile("HookDischarge.png");
          ContentAddition.AddSkillDef(def);
          ContentAddition.AddEntityState(typeof(ElectricState),out _);
+        }
+
+        public class HookedSkillDef : SkillDef{
+            public override bool CanExecute(GenericSkill skillSlot){
+               var state = (skillSlot.characterBody.GetComponents<EntityStateMachine>().First((esm) => esm.customName == "Hook" ).state as FireHook);
+               return base.CanExecute(skillSlot) && state != null && state.hookStickOnImpact.stuck;
+            }
         }
 
 	class ElectricState : BaseSkillState{

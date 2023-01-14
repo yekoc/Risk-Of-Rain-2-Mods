@@ -29,7 +29,7 @@ namespace PassiveAgression.Commando
          def.activationState = new SerializableEntityStateType(typeof(StimState));
          bdef = ScriptableObject.CreateInstance<BuffDef>();
          bdef.buffColor = Color.yellow;
-         bdef.iconSprite = Util.SpriteFromFile("ScepterStim.png");
+         bdef.iconSprite = Util.SpriteFromFile("ScepterStimScepter.png");
          bdef.name = "PASSIVEAGRESSION_COMMANDOSTIM_SCEPTERBUFF";
          bdef.canStack = CommandoStimpack.bdef.canStack;
          

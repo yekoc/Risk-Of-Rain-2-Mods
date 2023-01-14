@@ -36,7 +36,7 @@ namespace PassiveAgression.ModCompat
          def = ScriptableObject.CreateInstance<DoppelSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_PALADINCLONE";
          def.skillDescriptionToken = "PASSIVEAGRESSION_PALADINCLONE_DESC";
-         def.baseRechargeInterval = 60f;
+         def.baseRechargeInterval = 45f;
          def.dontAllowPastMaxStocks = false;
          def.fullRestockOnAssign = true;
          def.rechargeStock = 1;
@@ -68,7 +68,7 @@ namespace PassiveAgression.ModCompat
          RecalculateStatsAPI.GetStatCoefficients += (sender,args) =>{
              if(sender?.master?.GetComponent<PaladinDoppelInputBank>()){
                  args.healthMultAdd -= 0.9f;
-                 
+                 args.regenMultAdd -= 1f; 
              }
          };
          IL.EntityStates.GenericCharacterDeath.OnEnter += (il) =>{
@@ -108,7 +108,7 @@ namespace PassiveAgression.ModCompat
          scepterdef.canceledFromSprinting = false;
          scepterdef.isCombatSkill = false;
          (scepterdef as ScriptableObject).name = scepterdef.skillNameToken;
-         scepterdef.icon = def.icon;
+         scepterdef.icon = Util.SpriteFromFile("GShadowIconScepter.png");
          ContentAddition.AddSkillDef(scepterdef);
          ContentAddition.AddEntityState(typeof(RegrabGlassShadowState),out _);
          AncientScepter.AncientScepterItem.instance.RegisterScepterSkill(scepterdef,"RobPaladinBody",def);

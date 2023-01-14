@@ -24,7 +24,7 @@ namespace PassiveAgression.Croc
          var epiESC = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<EntityStateConfiguration>("RoR2/Base/Croco/EntityStates.Croco.FireDiseaseProjectile.asset");
          
          LanguageAPI.Add("PASSIVEAGRESSION_CROCSPREAD","Carrier Pathogen");
-         LanguageAPI.Add("PASSIVEAGRESSION_CROCSPREAD_DESC","Release a disease that deals <style=cIsDamage> 85% damage </style>. The disease spreads to up to <style=cIsDamage>20</style> targets. <style=cIsUtility>carrying a random debuff with it</style>.");
+         LanguageAPI.Add("PASSIVEAGRESSION_CROCSPREAD_DESC","Release a disease that deals <style=cIsDamage> 85% damage </style>. The disease spreads to up to <style=cIsDamage>20</style> targets. <style=cIsUtility>carrying a random debuff from it's last host</style>.");
          
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_CROCSPREAD";
