@@ -36,10 +36,10 @@ namespace PassiveAgression
     [BepInDependency("com.rob.DiggerUnearthed",BepInDependency.DependencyFlags.SoftDependency)]
 
     //[R2APISubmoduleDependency(nameof(LanguageAPI),nameof(LoadoutAPI),nameof(RecalculateStatsAPI),nameof(DamageAPI))]
-    [BepInPlugin("xyz.yekoc.PassiveAgression", "Passive Agression","1.0.0" )]
+    [BepInPlugin("xyz.yekoc.PassiveAgression", "Passive Agression","1.0.1" )]
     public class PassiveAgressionPlugin : BaseUnityPlugin
     {
-        public static ConfigEntry<bool> unfinishedContent;
+        public static ConfigEntry<bool> unfinishedContent,devIcons;
         internal new static ManualLogSource Logger { get; set; }
         internal static ConfigFile config;
         internal struct ModList{
@@ -57,6 +57,7 @@ namespace PassiveAgression
             Logger = base.Logger;
             config = Config;
             unfinishedContent =  Config.Bind("Configuration","Enable Unfinished Content",false,"Enables Unfinished/Potentially Broken Content");
+            devIcons =  Config.Bind("Configuration","Prefer Dev Icons",false,"Use jank dev-made icons even when better ones are available");
             SetupVanilla();
         }
         private void Start(){
@@ -279,13 +280,13 @@ namespace PassiveAgression
         }
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         private void SetupHenry(){
-          CharacterBody body = HenryMod.Modules.Survivors.Henry.instance.bodyPrefab.GetComponent<CharacterBody>();
+         /* CharacterBody body = HenryMod.Modules.Survivors.Henry.instance.bodyPrefab.GetComponent<CharacterBody>();
           if(unfinishedContent.Value){
              HG.ArrayUtils.ArrayAppend(ref body.skillLocator.secondary.skillFamily.variants,new SkillFamily.Variant{
                 skillDef = ModCompat.HenryYomiJC.def,
                 viewableNode = new ViewablesCatalog.Node(ModCompat.HenryYomiJC.def.skillNameToken,false,null),
              });
-          }
+          }*/
         }
 
 

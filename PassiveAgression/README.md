@@ -2,7 +2,7 @@
 ---
 Adds several new alternate skills to the game,along with new passives and skills for modded characters.
 
-Credit to Hifu for making the good looking icons.(StimShot,Standoff,Pathogen,Rituals,Excise & Snowsculpt)\
+Credit to Hifu for making the good looking icons.(StimShot,Standoff,Starch,Pathogen,Rituals,Excise & Snowsculpt)\
 Credit to the GNU Image Manipulation Program for helping me make the rest of the icons.\
 Credit to cute anime girls for giving me the will to continue living.
 
@@ -159,4 +159,10 @@ Credit to cute anime girls for giving me the will to continue living.
 
 #Changelog
 ---
+1.0.1
+  - Fixed the friendlyInfest config option for Viend's Infestation Passive.
+  - Fixed lysate cell interaction with Paladin Glass Shadow
+  - Added new Starch Bomb Icon
+  - Added config option to enable old icons for skills that get their icons replaced
+
 1.0.0 - Initial Release

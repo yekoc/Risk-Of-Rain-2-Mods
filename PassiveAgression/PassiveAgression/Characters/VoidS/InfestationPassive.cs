@@ -123,6 +123,9 @@ namespace PassiveAgression.VoidSurvivor
         public override void OnEnter(){
            base.OnEnter();
            overCorrupt = voidSurvivorController.minimumCorruption >= voidSurvivorController.maxCorruption;
+           if(friendlyInfest.Value){
+             characterBody.GetComponent<ScriptedCombatEncounter>().teamIndex = teamComponent.teamIndex;
+           }
         }
         public override void FixedUpdate()
         {

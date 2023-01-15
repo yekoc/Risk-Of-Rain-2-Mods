@@ -19,15 +19,15 @@ using R2API;
 namespace PassiveAgression.ModCompat
 {
     public static class PaladinGlassShadow{
-     public static ConditionalWeakTable<CharacterBody,List<CharacterBody>> dopList = new ConditionalWeakTable<CharacterBody, List<CharacterBody>>();
+     public static Dictionary<CharacterBody,List<CharacterBody>> dopList = new Dictionary<CharacterBody,List<CharacterBody>>();
      public static DoppelSkillDef def;
-     public static SkillDef scepterdef;
+     public static AssignableSkillDef scepterdef;
      public static AsyncOperationHandle<Material> glassMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/Brother/maBrotherGlassOverlay.mat"); 
      public static GameObject glassPrefab;
      private class PaladinDoppelInputBank : DoppelInputBank{} //To prevent hooks from affecting anything else that might use the inputbank
-     public class DoppelSkillDef : SkillDef{
+     public class DoppelSkillDef : AssignableSkillDef{
          public override bool IsReady(GenericSkill skillSlot){
-             return base.IsReady(skillSlot) && dopList.GetOrCreateValue(skillSlot.characterBody).Count < skillSlot.stock;
+             return base.IsReady(skillSlot) && dopList[skillSlot.characterBody].Count < skillSlot.maxStock;
          }
      }
      static PaladinGlassShadow(){
@@ -46,7 +46,22 @@ namespace PassiveAgression.ModCompat
          def.canceledFromSprinting = false;
          def.isCombatSkill = false;
          (def as ScriptableObject).name = def.skillNameToken;
-         def.icon = Util.SpriteFromFile("GShadowIcon.png"); 
+         def.icon = Util.SpriteFromFile("GShadowIcon.png");
+         def.onAssign = (slot) =>{
+            if(!dopList.ContainsKey(slot.characterBody)){
+             dopList.Add(slot.characterBody,new List<CharacterBody>());
+            }
+            return null;
+         };
+         def.onUnassign = (slot) =>{
+            if((dopList != null) && slot.characterBody){
+             foreach(var glass in dopList[slot.characterBody]){
+               glass.master.TrueKill();
+             }
+             dopList.Remove(slot.characterBody);
+            }
+         };
+
          ContentAddition.AddSkillDef(def);
          ContentAddition.AddEntityState(typeof(PrepGlassShadowState),out _);
          ContentAddition.AddEntityState(typeof(CastGlassShadowState),out _);
@@ -77,7 +92,7 @@ namespace PassiveAgression.ModCompat
                c.Emit(OpCodes.Ldarg_0);
                c.EmitDelegate<Func<bool,GenericCharacterDeath,bool>>((glass,self) => {
                  if(self.characterBody && self.characterBody.master && self.characterBody.master.GetComponent<PaladinDoppelInputBank>()){
-                   dopList.GetOrCreateValue(self.characterBody.master.minionOwnership.ownerMaster.GetBody()).Remove(self.characterBody);
+                   dopList[self.characterBody.master.minionOwnership.ownerMaster.GetBody()].Remove(self.characterBody);
                    self.characterBody.master.CancelInvoke("RespawnExtraLife");
                    self.characterBody.master.CancelInvoke("PlayExtraLifeSFX");
                    self.characterBody.master.CancelInvoke("RespawnExtraLifeVoid");
@@ -94,7 +109,7 @@ namespace PassiveAgression.ModCompat
      public static void SetUpScepter(){
          LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE_SCEPTER","True Reflection");
          LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE_SCEPTERDESC","Summon an <color=#d299ff>invincible</color> glass copy that mimics your moves,<style=cIsUtility>recast to resummon it to yourself with a new delay.</style>");
-         scepterdef = ScriptableObject.CreateInstance<SkillDef>();
+         scepterdef = ScriptableObject.CreateInstance<AssignableSkillDef>();
          scepterdef.skillNameToken = "PASSIVEAGRESSION_PALADINCLONE_SCEPTER";
          scepterdef.skillDescriptionToken = "PASSIVEAGRESSION_PALADINCLONE_SCEPTERDESC";
          scepterdef.baseRechargeInterval = 0f;
@@ -107,6 +122,8 @@ namespace PassiveAgression.ModCompat
          scepterdef.cancelSprintingOnActivation = false;
          scepterdef.canceledFromSprinting = false;
          scepterdef.isCombatSkill = false;
+         scepterdef.onUnassign = def.onUnassign;
+         scepterdef.onAssign = def.onAssign;
          (scepterdef as ScriptableObject).name = scepterdef.skillNameToken;
          scepterdef.icon = Util.SpriteFromFile("GShadowIconScepter.png");
          ContentAddition.AddSkillDef(scepterdef);
@@ -184,7 +201,7 @@ namespace PassiveAgression.ModCompat
                               body.outOfDanger = characterBody.outOfDanger;
                               body.gameObject.layer = LayerIndex.fakeActor.intVal;
                               body.characterMotor.Motor.RebuildCollidableLayers();
-                              dopList.GetOrCreateValue(characterBody).Add(body);
+                              dopList[characterBody].Add(body);
                             };
                             master.inventory.onInventoryChanged +=  () =>{
                                 master.luck = -10f;
@@ -230,7 +247,7 @@ namespace PassiveAgression.ModCompat
                   muzzleString = "HandL";
                   muzzleflashEffectPrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Brother/MuzzleflashLunarShard.prefab").WaitForCompletion(); 
 		  base.OnEnter();
-                  var list = dopList.GetOrCreateValue(characterBody);
+                  var list = dopList[characterBody];
                   if(list.Count <= 0){
                     new MasterSummonClient{
                         position = characterBody.transform.position,
@@ -262,7 +279,7 @@ namespace PassiveAgression.ModCompat
                               body.outOfDanger = characterBody.outOfDanger;
                               body.gameObject.layer = LayerIndex.fakeActor.intVal;
                               body.characterMotor.Motor.RebuildCollidableLayers();
-                              dopList.GetOrCreateValue(characterBody).Add(body);
+                              dopList[characterBody].Add(body);
                               body.healthComponent.godMode = true;
                             };
                             master.inventory.onInventoryChanged +=  () =>{
@@ -280,7 +297,9 @@ namespace PassiveAgression.ModCompat
                         if(RoR2.Util.HasEffectiveAuthority(body.gameObject)){
                          TeleportHelper.TeleportBody(body,characterBody.footPosition);
                         }
-                        body.master.GetComponent<PaladinDoppelInputBank>().updateDelay = delay;
+                        var inp = body.master.GetComponent<PaladinDoppelInputBank>();
+                        inp.updateDelay = delay;
+                        inp.inputBuffer.Clear();
                         if(NetworkServer.active){
                          body.inventory.CopyItemsFrom(characterBody.inventory);
                         }

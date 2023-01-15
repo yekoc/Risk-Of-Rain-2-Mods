@@ -30,7 +30,7 @@ namespace PassiveAgression.Bandit
          def.activationStateMachineName = "Stealth";
          def.keywordTokens = new string[]{"KEYWORD_STUNNING"};
          def.activationState = new SerializableEntityStateType(typeof(StarchState));
-         def.icon = Util.SpriteFromFile("StarchIcon.png");
+         def.icon = Util.SpriteFromFile(PassiveAgressionPlugin.devIcons.Value ? "StarchIconOld.png" : "StarchIcon.png");
          ContentAddition.AddSkillDef(def);
          ContentAddition.AddEntityState(typeof(StarchState),out _);
          }
