@@ -159,6 +159,8 @@ Credit to cute anime girls for giving me the will to continue living.
 
 #Changelog
 ---
+1.0.2
+  - Fixed Engineer Passive breaking pickups + scrap contribution not being redacted correctly on body change
 1.0.1
   - Fixed the friendlyInfest config option for Viend's Infestation Passive.
   - Fixed lysate cell interaction with Paladin Glass Shadow

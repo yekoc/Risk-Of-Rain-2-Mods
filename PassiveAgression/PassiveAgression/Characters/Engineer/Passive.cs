@@ -62,6 +62,29 @@ namespace PassiveAgression.Engineer
 
      public class ScrapTracker : SkillDef.BaseSkillInstanceData{
          public float contribution = 0f;
+         public TeamIndex team;
+     }
+     public static void ScrapTrack(CharacterBody body){
+        if(!def.IsAssigned(body)){
+          return;
+        }
+        var scrapTracker = body.skillLocator.FindSkillByFamilyName("EngiBodyPassive").skillInstanceData as ScrapTracker;
+        scrapTracker.team = body.teamComponent.teamIndex;
+        scrapPower[(int)body.teamComponent.teamIndex] -= scrapTracker.contribution; 
+        var scrapPercent = 0f;
+        foreach(var index in body.inventory.itemAcquisitionOrder){
+           var item = ItemCatalog.GetItemDef(index);
+           if(item.tags.Contains(ItemTag.PriorityScrap) || item.tags.Contains(ItemTag.Scrap)){
+             scrapPercent += body.inventory.GetItemCount(index) * item.deprecatedTier switch{
+                ItemTier.Tier2 => 0.03f,
+                ItemTier.Tier3 => 0.09f,
+                ItemTier.Boss => 0.10f,
+                _ => 0.01f
+             };
+           }
+        }
+        scrapTracker.contribution = scrapPercent;
+        scrapPower[(int)body.teamComponent.teamIndex] += scrapTracker.contribution; 
      }
 
      static ScrapPassive(){
@@ -79,29 +102,7 @@ namespace PassiveAgression.Engineer
              if(!isHooked){
                 isHooked = true;
                 RecalculateStatsAPI.GetStatCoefficients += ScrapBuffTeam;
-                var inv = slot.characterBody.master.inventory;
-                inv.onInventoryChanged += () =>{
-                    var scrapTracker = slot.skillInstanceData as ScrapTracker;
-                    scrapPower[(int)slot.characterBody.teamComponent.teamIndex] -= scrapTracker.contribution; 
-                    var scrapPercent = 0f;
-                    foreach(var index in inv.itemAcquisitionOrder){
-                       var item = ItemCatalog.GetItemDef(index);
-                       if(item.tags.Contains(ItemTag.PriorityScrap) || item.tags.Contains(ItemTag.Scrap)){
-                         scrapPercent += inv.GetItemCount(index) * item.deprecatedTier switch{
-                            ItemTier.Tier2 => 0.03f,
-                            ItemTier.Tier3 => 0.09f,
-                            ItemTier.Boss => 0.10f,
-                            _ => 0.01f
-                         };
-                       }
-                    }
-                    scrapTracker.contribution = scrapPercent;
-                    scrapPower[(int)slot.characterBody.teamComponent.teamIndex] += scrapTracker.contribution; 
-                 };
-                slot.characterBody.master.onBodyDestroyed += (body) =>{ 
-                    var scrapTracker = slot.skillInstanceData as ScrapTracker;
-                    scrapPower[(int)slot.characterBody.teamComponent.teamIndex] -= scrapTracker.contribution; 
-                };
+                CharacterBody.onBodyInventoryChangedGlobal += ScrapTrack;
                 Run.onRunDestroyGlobal += unsub;
              }
 
@@ -109,10 +110,13 @@ namespace PassiveAgression.Engineer
              void unsub(Run run){
                 Run.onRunDestroyGlobal -= unsub;
                 RecalculateStatsAPI.GetStatCoefficients -= ScrapBuffTeam;
+                CharacterBody.onBodyInventoryChangedGlobal -= ScrapTrack;
                 isHooked = false;
              }
          };
          def.onUnassign = (GenericSkill slot) =>{
+            var scrapTracker = slot.skillInstanceData as ScrapTracker;
+            scrapPower[(int)scrapTracker.team] -= scrapTracker.contribution; 
          };
          def.icon = Util.SpriteFromFile("ScrapWrench.png"); 
          def.activationStateMachineName = "Body";
