@@ -13,9 +13,9 @@ namespace PassiveAgression{
 
     static Util(){
       Run.onRunStartGlobal += (run) => {
-          miscRNG = new Xoroshiro128Plus(run.runRNG);
+          if(NetworkServer.active)
+            miscRNG = new Xoroshiro128Plus(run.runRNG);
       };
-
     }
     public static void OnStateWorkFinished(EntityStateMachine machine,EntityStateMachine.ModifyNextStateDelegate del,List<Type> additionalStops = null){
         if(!machine) return;

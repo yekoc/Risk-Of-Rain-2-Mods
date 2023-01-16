@@ -50,7 +50,7 @@ namespace PassiveAgression.Bandit
          }
          public override void OnEnter(){
              duration = ThrowSmokebomb.duration;
-             blastAttackRadius = StealthMode.blastAttackRadius;
+             blastAttackRadius = StealthMode.blastAttackRadius = 1.5f;
              blastAttackProcCoefficient = StealthMode.blastAttackProcCoefficient;
              blastAttackDamageCoefficient = 0.75f;
              blastAttackForce = StealthMode.blastAttackForce;

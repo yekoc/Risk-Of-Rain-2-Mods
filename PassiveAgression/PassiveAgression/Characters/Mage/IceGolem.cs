@@ -21,7 +21,7 @@ namespace PassiveAgression.Mage
 
      static IceGolemSpecial(){
          LanguageAPI.Add("PASSIVEAGRESSION_MAGEICEARMOR","Snowsculpt");
-         LanguageAPI.Add("PASSIVEAGRESSION_MAGEICEARMOR_DESC","Encase yourself in a body of snow,protecting you from harm until it is broken or you leave it.");
+         LanguageAPI.Add("PASSIVEAGRESSION_MAGEICEARMOR_DESC","Encase yourself in a body of snow,protecting you from harm until it is broken or you burst out in a wave of frost.");
 
          var mat = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<Material>("RoR2/Base/Common/VFX/matIsFrozen.mat");
 
@@ -63,7 +63,7 @@ namespace PassiveAgression.Mage
                  if(c.TryGotoNext(x => x.MatchCallOrCallvirt<GlobalEventManager>("OnPlayerCharacterDeath")) && c.TryGotoPrev(x => x.MatchCallOrCallvirt(typeof(UnityEngine.Object).GetMethod("op_Implicit",(System.Reflection.BindingFlags)(-1))),x => x.MatchBrfalse(out _))){
                     c.Index++;
                     c.Emit(OpCodes.Ldarg_1);
-                    c.EmitDelegate<Func<DamageReport,bool>>((report) => report.victimBody.gameObject.GetComponent<GolemMechBehaviour>());
+                    c.EmitDelegate<Func<DamageReport,bool>>((report) => !report.victimBody.gameObject.GetComponent<GolemMechBehaviour>());
                     c.Emit(OpCodes.And);
                  }
               };
@@ -98,6 +98,7 @@ namespace PassiveAgression.Mage
 
      public class GolemMechBehaviour : MonoBehaviour {
         VehicleSeat seat;
+        CharacterBody pilotBody;
 
         public void Awake(){
           seat = GetComponent<VehicleSeat>();
@@ -106,38 +107,60 @@ namespace PassiveAgression.Mage
           seat.passengerState = new SerializableEntityStateType(typeof(Idle));
 
           seat.onPassengerEnter += (pass) =>{
-            CharacterBody body = pass.GetComponent<CharacterBody>();
-            if(body){
-              body.healthComponent.godMode = true;
+            pilotBody = pass.GetComponent<CharacterBody>();
+            if(pilotBody){
+              pilotBody.healthComponent.godMode = true;
               pass.GetComponent<Collider>().enabled = false;
             }
             foreach(var cam in CameraRigController.readOnlyInstancesList){
               if(cam.target == pass){
                 cam.target = gameObject;
+                cam.hud.targetBodyObject.GetComponent<InteractionDriver>().interactableOverride = gameObject;
               }
             }
          };
          seat.onPassengerExit += (pass) =>{
-            CharacterBody body = pass.GetComponent<CharacterBody>();
-            if(body){
-              body.healthComponent.godMode = false;
+            pilotBody = pass.GetComponent<CharacterBody>();
+            if(pilotBody){
+              pilotBody.healthComponent.godMode = false;
               pass.GetComponent<Collider>().enabled = true;
               EntityStateMachine.FindByCustomName(pass,"Body")?.SetNextStateToMain();
             }
             foreach(var cam in CameraRigController.readOnlyInstancesList){
               if(cam.target == gameObject){
                 cam.target = pass;
+                cam.hud.targetBodyObject.GetComponent<InteractionDriver>().interactableOverride = null;
               }
             }
-            if(NetworkServer.active)
+            if(NetworkServer.active){
+              var body = GetComponent<CharacterBody>();
+              if(body.healthComponent.alive){
+                  EffectManager.SpawnEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/AffixWhiteExplosion"),new EffectData{
+                    origin = transform.position,
+                    rotation = RoR2.Util.QuaternionSafeLookRotation(transform.forward),
+                    scale = 12 + body.radius
+                  },transmit : true);
+                  new BlastAttack{
+                    position = transform.position,
+                    attacker = pilotBody.gameObject,
+                    teamIndex = pilotBody.teamComponent.teamIndex,
+                    radius = 12+body.radius,
+                    crit = RoR2.Util.CheckRoll(pilotBody.crit,pilotBody.master),
+                    baseDamage = pilotBody.damage * 0.9f,
+                    damageType = DamageType.Freeze2s
+                  }.Fire();
+              }
               GetComponent<CharacterBody>().healthComponent.Suicide();
+              Destroy(gameObject);
+            }
          };
         }
         
         public void FixedUpdate(){
             var body = GetComponent<CharacterBody>();
-            if(body && body.inputBank.interact.justPressed)
-              seat.EjectPassenger();
+            if(pilotBody && body && body.inputBank.interact.justPressed){
+              pilotBody.GetComponent<Interactor>().AttemptInteraction(gameObject);
+            }  
         }
 
      }
@@ -171,7 +194,7 @@ namespace PassiveAgression.Mage
                 var seat = gameObject.GetComponent<VehicleSeat>();
                 gameObject.GetComponent<TeamComponent>().teamIndex = teamComponent.teamIndex;
                 var body = gameObject.GetComponent<CharacterBody>();
-                var master = gameObject.GetComponent<CharacterMaster>();
+                var master = gameObject.GetComponent<CharacterMaster>(); 
                 //master.bodyInstanceObject = gameObject;
                 //body.masterObject = gameObject;
                 //body.inventory = characterBody.inventory;

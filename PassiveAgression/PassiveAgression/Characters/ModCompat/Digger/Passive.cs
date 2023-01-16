@@ -1,3 +1,4 @@
+using BepInEx.Configuration;
 using RoR2;
 using RoR2.Skills;
 using EntityStates;
@@ -18,6 +19,7 @@ namespace PassiveAgression.ModCompat{
     public static class DiggerBlacksmithPassive{
      public static AssignableSkillDef def;
      public static CustomPassiveSlot slot;
+     public static ConfigEntry<bool> aspectlessFlame;
      public static bool isHooked;
      internal static Hook diggerhook;
 
@@ -25,6 +27,7 @@ namespace PassiveAgression.ModCompat{
          slot = new CustomPassiveSlot(DiggerPlugin.DiggerPlugin.characterBodyPrefab);
          LanguageAPI.Add("PASSIVEAGRESSION_DIGGERFLAME",(UnityEngine.Random.value > 0.5)?"Heart of the Forge" :"Heat of the Forge");
          LanguageAPI.Add("PASSIVEAGRESSION_DIGGERFLAME_DESC","Each one of your attacks deal <style=cIsHealth>BLAZING</style> damage.");
+         aspectlessFlame = PassiveAgression.PassiveAgressionPlugin.config.Bind("DiggerBlacksmith","CompatMode",false,"Changes the way Heart of the Forge triggers fire damage,turn on if the passive isn't working as it should.");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_DIGGERFLAME";
          (def as ScriptableObject).name = def.skillNameToken;
@@ -34,7 +37,12 @@ namespace PassiveAgression.ModCompat{
              if(!isHooked){
                 isHooked = true;
                 diggerhook = new Hook(typeof(DiggerMain).GetMethod("OnEnter"),(Action<Action<DiggerMain>,DiggerMain>)UnAdrenalinize);
-                IL.RoR2.GlobalEventManager.OnHitEnemy += TreatAsAspect;
+                if(!aspectlessFlame.Value){
+                    IL.RoR2.GlobalEventManager.OnHitEnemy += TreatAsAspect;
+                }
+                else{
+                    On.RoR2.GlobalEventManager.OnHitEnemy += FlameWithNoAspect;
+                }
                 RoR2.Run.onRunDestroyGlobal += unhooker;
              }
              return null;
@@ -42,6 +50,7 @@ namespace PassiveAgression.ModCompat{
                 if(isHooked){
                   diggerhook.Free();
                   IL.RoR2.GlobalEventManager.OnHitEnemy -= TreatAsAspect;
+                  On.RoR2.GlobalEventManager.OnHitEnemy -= FlameWithNoAspect;
                   isHooked = false;
                 }
                 RoR2.Run.onRunDestroyGlobal -= unhooker;
@@ -74,6 +83,11 @@ namespace PassiveAgression.ModCompat{
           c.EmitDelegate<Func<bool,DamageInfo,bool>>((orig,damageinfo) => orig || (damageinfo.procChainMask.mask == default(uint) && def.IsAssigned(damageinfo.attacker.GetComponent<CharacterBody>()))); 
         }
      }
-
+     public static void FlameWithNoAspect(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig,GlobalEventManager self,DamageInfo info,GameObject victim){
+        if(def.IsAssigned(info.attacker.GetComponent<CharacterBody>()) && info.procChainMask.mask == default(uint)){
+          info.damageType = info.damageType | DamageType.IgniteOnHit;
+        }
+        orig(self,info,victim);
+     }
     }
 }

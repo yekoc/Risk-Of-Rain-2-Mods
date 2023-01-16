@@ -36,7 +36,7 @@ namespace PassiveAgression
     [BepInDependency("com.rob.DiggerUnearthed",BepInDependency.DependencyFlags.SoftDependency)]
 
     //[R2APISubmoduleDependency(nameof(LanguageAPI),nameof(LoadoutAPI),nameof(RecalculateStatsAPI),nameof(DamageAPI))]
-    [BepInPlugin("xyz.yekoc.PassiveAgression", "Passive Agression","1.0.2" )]
+    [BepInPlugin("xyz.yekoc.PassiveAgression", "Passive Agression","1.0.3" )]
     public class PassiveAgressionPlugin : BaseUnityPlugin
     {
         public static ConfigEntry<bool> unfinishedContent,devIcons;

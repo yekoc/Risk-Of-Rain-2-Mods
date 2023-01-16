@@ -26,10 +26,11 @@ namespace PassiveAgression.Commando
          def.cancelSprintingOnActivation = false;
          def.activationStateMachineName = "Weapon";
          def.keywordTokens = new string[]{"PASSIVEAGRESSION_COMMANDOSTIM_KEYWORD"};
+         def.icon = Util.SpriteFromFile("StimShotScepter.png");
          def.activationState = new SerializableEntityStateType(typeof(StimState));
          bdef = ScriptableObject.CreateInstance<BuffDef>();
          bdef.buffColor = Color.yellow;
-         bdef.iconSprite = Util.SpriteFromFile("ScepterStimScepter.png");
+         bdef.iconSprite = Util.SpriteFromFile("ScepterStim.png");
          bdef.name = "PASSIVEAGRESSION_COMMANDOSTIM_SCEPTERBUFF";
          bdef.canStack = CommandoStimpack.bdef.canStack;
          

@@ -59,7 +59,7 @@ namespace PassiveAgression.Mage
          muzzleFlash.transform.localScale /= 10;
          muzzleFlash.AddComponent<EffectComponent>();
          muzzleFlash.AddComponent<DestroyOnParticleEnd>();
-         muzzleFlash.AddComponent<DestroyOnTimer>().duration = 1f;
+         muzzleFlash.AddComponent<DestroyOnTimer>().duration = 0.25f;
 
          ContentAddition.AddEffect(muzzleFlash);
          ContentAddition.AddProjectile(proPrefab);
@@ -67,8 +67,11 @@ namespace PassiveAgression.Mage
      }
 
      public static float regenBlock(On.RoR2.HealthComponent.orig_Heal orig,HealthComponent self,float amount,ProcChainMask proc,bool nonRegen){
-          if(!nonRegen && !((self.body.skillLocator.FindSkillByDef(def)?.IsReady()).GetValueOrDefault())){
-            amount = 0;
+          if(!nonRegen){
+            var skill = self.body.skillLocator.FindSkillByDef(def);
+            if(skill && !skill.IsReady()){
+             amount = 0;
+            }
           }
           return orig(self,amount,proc,nonRegen);
      }
