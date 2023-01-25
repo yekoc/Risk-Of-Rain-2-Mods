@@ -1,6 +1,6 @@
 {
     "name": "PassiveAgression",
-    "version_number": "1.0.2",
+    "version_number": "1.0.4",
     "website_url": "https://github.com/yekoc/Risk-Of-Rain-2-Mods/tree/master/PassiveAgression/",
     "description": "Mod that adds alternate skills (including passives,as well as modded chars).\nTheoretically Multiplayer Compatible,not tested.",
     "dependencies": [

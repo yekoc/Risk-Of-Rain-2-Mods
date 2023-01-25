@@ -198,6 +198,7 @@ namespace PassiveAgression.Mage
                 //master.bodyInstanceObject = gameObject;
                 //body.masterObject = gameObject;
                 //body.inventory = characterBody.inventory;
+                foreach(var l in body.modelLocator.modelTransform.gameObject.GetComponentsInChildren<Light>()){l.color = Color.blue;}
                 body.masterObject = characterBody.masterObject;
 
                 if(seat){

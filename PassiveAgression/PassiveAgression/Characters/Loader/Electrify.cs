@@ -15,7 +15,7 @@ namespace PassiveAgression.Loader{
 
         static ElectrifySpecial(){
          LanguageAPI.Add("PASSIVEAGRESSION_LOADERELEC","Power Pack Discharge");
-         LanguageAPI.Add("PASSIVEAGRESSION_LOADERELEC_DESC","<style=cIsDamage>Shocking.</style> Unload stored charge through the gauntlet,draining all barrier and dealing <style=cIsDamage>400%-1400%</style> damage to the connected enemy.");
+         LanguageAPI.Add("PASSIVEAGRESSION_LOADERELEC_DESC","<style=cIsDamage>Shocking.</style> Unload stored charge through the gauntlet,draining all barrier and dealing <style=cIsDamage>400%-4000%</style> damage to the connected enemy.");
          def = ScriptableObject.CreateInstance<HookedSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_LOADERELEC";
          (def as ScriptableObject).name = def.skillNameToken;
@@ -56,11 +56,9 @@ namespace PassiveAgression.Loader{
                          attacker = base.gameObject,
                          inflictor = base.gameObject,
                          damageType = DamageType.Shock5s,
-                         damage = damageStat * (4f + (healthComponent.barrier/healthComponent.fullBarrier)*10f)
+                         damage = damageStat * (4f * Mathf.Max(1f,(healthComponent.barrier/healthComponent.fullBarrier)*10f))
                      };
                      hookState.hookStickOnImpact.stuckBody.healthComponent.TakeDamage(info);
-                    }
-                    if(isAuthority){
                      healthComponent.barrier = 0;
                     }
                 }

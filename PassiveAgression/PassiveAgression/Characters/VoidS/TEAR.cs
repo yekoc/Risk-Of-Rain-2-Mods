@@ -24,12 +24,12 @@ namespace PassiveAgression.VoidSurvivor
      static TearUtil(){
          LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEAR","「T?ea?r】");
          LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEAR_DESC","Tear open a portal through the void,leading to the target location.");
-         LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEARCORRUPT_DESC","Haphazardly open a tear to the void,exposing the surrounding area to it's atmosphere");
+         LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEARCORRUPT_DESC","Haphazardly open a tear to the void,filling the surrounding area with fog.");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_VIENDTEAR";
          (def as ScriptableObject).name = def.skillNameToken;
          def.skillDescriptionToken = "PASSIVEAGRESSION_VIENDTEAR_DESC";
-         def.baseRechargeInterval = 6f;
+         def.baseRechargeInterval = 12f;
          def.canceledFromSprinting = false;
          def.cancelSprintingOnActivation = false;
          def.activationStateMachineName = "Body";
@@ -53,8 +53,19 @@ namespace PassiveAgression.VoidSurvivor
             On.EntityStates.VoidSurvivor.CorruptMode.CorruptMode.OnEnter += (orig,self) =>{
                 if(def.IsAssigned(self.characterBody,SkillSlot.Utility)){
                    self.utilityOverrideSkillDef = cdef;
-                } 
+                }
                 orig(self);
+            };
+            IL.RoR2.FogDamageController.EvaluateTeam += (il) => {
+                ILCursor c = new ILCursor(il);
+                ILLabel lab = c.DefineLabel();
+                if(c.TryGotoNext(x => x.MatchBr(out lab)) && c.TryGotoNext(MoveType.After,x => x.MatchStloc(2))){
+                    c.Emit(OpCodes.Ldloc,2);
+                    c.EmitDelegate<Func<CharacterBody,bool>>((cb) => cb);
+                    c.Emit(OpCodes.Brfalse,lab);
+                    return;
+                }
+                 Debug.Log("VoidFog fix hook failed,viend corrupted tear might not work depending on other mods");
             };
             isHooked = true;
             }
@@ -63,8 +74,30 @@ namespace PassiveAgression.VoidSurvivor
 
          ContentAddition.AddSkillDef(def);
          ContentAddition.AddEntityState(typeof(TearState),out _);
+         
+         var obj = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/gauntlets/GauntletEntranceOrb.prefab").WaitForCompletion(),"TearPrefab");
+         GameObject.Destroy(obj.GetComponent<VoidRaidGauntletEntranceController>());
+         GameObject.Destroy(obj.GetComponent<VoidRaidGauntletExitController>());
+         obj.AddComponent<TriggerStayToTriggerEnter>();
+         var col = obj.GetComponentInChildren<CapsuleCollider>();
+         col.radius /= 10;
+         col.height /= 10;
+         col.height += 2;
+         obj.AddComponent<DestroyOnTimer>().duration = 4f;
+         TearState.prefab = obj;
+         var card = ScriptableObject.CreateInstance<SpawnCard>();
+         card.prefab = obj;
+         card.nodeGraphType = RoR2.Navigation.MapNodeGroup.GraphType.Ground;
+         card.sendOverNetwork = true;
+         TearState.card = card;
+         
      }
 
+     public class TriggerStayToTriggerEnter : MonoBehaviour {
+         public void OnTriggerStay(Collider col){
+            gameObject.SendMessage("OnTriggerEnter",col);
+         }
+     }
 
      public class TearState : GenericCharacterMain,ISkillState {
 
@@ -77,32 +110,20 @@ namespace PassiveAgression.VoidSurvivor
          public Vector3 initialPos;
 
          public GenericSkill activatorSkillSlot {get;set;}
-         
 
-         static TearState(){
-             var obj = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/gauntlets/GauntletEntranceOrb.prefab").WaitForCompletion(),"TearPrefab");
-             Destroy(obj.GetComponent<VoidRaidGauntletEntranceController>());
-             Destroy(obj.GetComponent<VoidRaidGauntletExitController>());
-             var col = obj.GetComponentInChildren<CapsuleCollider>();
-             col.radius /= 10;
-             col.height /= 10;
-             obj.AddComponent<DestroyOnTimer>().duration = 4f;
-             prefab = obj;
-             card = ScriptableObject.CreateInstance<SpawnCard>();
-             card.prefab = prefab;
-             card.nodeGraphType = RoR2.Navigation.MapNodeGroup.GraphType.Ground;
-             card.sendOverNetwork = true;
-         }
          public override void OnEnter(){
              var origState = new SwingMelee2();
              StartAimMode();
              PlayAnimation(origState.animationLayerName,origState.animationStateName,origState.animationPlaybackRateParameter,1f);
              initialPos = transform.position;
              base.OnEnter();
+             if(isAuthority && characterMotor.velocity.sqrMagnitude > 0){
+                movetoggle = 0f;
+             }
          }
          public override void FixedUpdate(){
              base.FixedUpdate();
-             if(fixedAge >= movetoggle && !instance){
+             if(fixedAge >= 0.5f && !instance){
                  instance = GameObject.Instantiate(prefab,initialPos,base.transform.rotation);
                  instance.transform.localScale /= 10;
                  var zone1 = instance.GetComponentInChildren<MapZone>();
@@ -123,13 +144,19 @@ namespace PassiveAgression.VoidSurvivor
                      NetworkServer.Spawn(instance2);
                  }
              }
+             else if(fixedAge >= movetoggle && !instance && Vector3.Distance(initialPos,transform.position) > (characterBody.radius * 3)){
+                initialPos = transform.position;
+             }
              if(fixedAge > duration || (instance && instance2 && (transform.position - instance.transform.position).sqrMagnitude > (transform.position - instance2.transform.position).sqrMagnitude)){
                  outer.SetNextStateToMain();
              }
          }
         public override void HandleMovements(){
-             if(fixedAge < movetoggle){
+             if(isAuthority && fixedAge < movetoggle){
                  characterMotor.moveDirection = (-0.75f) * characterDirection.forward;
+             }
+             else{
+                base.HandleMovements();
              }
          }
          public override void OnExit(){
@@ -157,8 +184,9 @@ namespace PassiveAgression.VoidSurvivor
 
          static TearCorruptState(){
              var obj = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/gauntlets/GauntletEntranceOrb.prefab").WaitForCompletion(),"TearCPrefab");
-             var obj2 = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidCamp/VoidCamp.prefab").WaitForCompletion(),"TearCAreaattempt",false);
-             indicator = obj2.transform.Find("mdlVoidFogEmitter/RangeIndicator").gameObject;
+             indicator = PrefabAPI.InstantiateClone(Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidCamp/VoidCamp.prefab").WaitForCompletion().transform.Find("mdlVoidFogEmitter/RangeIndicator").gameObject,"TearCAreaattempt");
+             indicator.AddComponent<NetworkIdentity>();
+             PrefabAPI.RegisterNetworkPrefab(indicator);
              Destroy(obj.GetComponent<VoidRaidGauntletEntranceController>());
              Destroy(obj.GetComponent<VoidRaidGauntletExitController>());
              Destroy(obj.GetComponentInChildren<MapZone>());
@@ -174,7 +202,7 @@ namespace PassiveAgression.VoidSurvivor
              zone.radius = 20f;
              zone.isInverted = true;
              //zone.rangeIndicator = indicator.transform;
-             
+
              fog.initialSafeZones = new BaseZoneBehavior[]{zone};
              obj.AddComponent<DestroyOnTimer>().duration = 10f;
              prefab = obj;
@@ -207,5 +235,5 @@ namespace PassiveAgression.VoidSurvivor
          }
      }
 
-    } 
+    }
 }

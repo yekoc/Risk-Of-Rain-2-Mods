@@ -23,12 +23,14 @@ namespace PassiveAgression.VoidSurvivor
      public static AssignableSkillDef def;
      public static bool isHooked = false;
      public static ConfigEntry<bool> friendlyInfest;
+     public static ConfigEntry<int> maxInfestors;
      private static SpawnInfo[] spawns = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidChest/VoidChest.prefab").WaitForCompletion().GetComponent<ScriptedCombatEncounter>().spawns;
      private static List<CombatSquad> squads = new List<CombatSquad>();
 
 
      static InfestationPassive(){
          friendlyInfest = PassiveAgression.PassiveAgressionPlugin.config.Bind("ViendBug","Friendly Infestors",false,"Makes the infestors spawned by Incessant Infestation friendly to their creator");
+         maxInfestors = PassiveAgression.PassiveAgressionPlugin.config.Bind("ViendBug","Infestor Limit",-1,"Maximum amount of spawned infestors that can be out at once,-1 for limitless");
          LanguageAPI.Add("PASSIVEAGRESSION_VIENDBUG","『Incessant Infestation】");
          LanguageAPI.Add("PASSIVEAGRESSION_VIENDBUG_DESC","At full <style=cIsVoid>Corruption</style>, burst out a gaggle of Infestors.");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
@@ -130,8 +132,9 @@ namespace PassiveAgression.VoidSurvivor
         public override void FixedUpdate()
         {
                 base.FixedUpdate();
+                var squad = characterBody.gameObject.GetComponent<ScriptedCombatEncounter>().combatSquad;
                 if (base.isAuthority){
-                    if(voidSurvivorController && !overCorrupt && voidSurvivorController.corruption >= voidSurvivorController.maxCorruption && (bool)voidSurvivorController.bodyStateMachine)
+                    if(voidSurvivorController && !overCorrupt && voidSurvivorController.corruption >= voidSurvivorController.maxCorruption && (maxInfestors.Value == (-1) || squad.memberCount < maxInfestors.Value) && (bool)voidSurvivorController.bodyStateMachine)
                     {
                         voidSurvivorController.bodyStateMachine.SetInterruptState(new ExpelInfestation(), InterruptPriority.Skill);
                     }
@@ -139,7 +142,7 @@ namespace PassiveAgression.VoidSurvivor
                       overCorrupt = false;
                     }
                 }
-                if(NetworkServer.active && overCorrupt && characterBody.gameObject.GetComponent<ScriptedCombatEncounter>().combatSquad.defeatedServer){
+                if(NetworkServer.active && overCorrupt && squad.defeatedServer){
                         voidSurvivorController.bodyStateMachine.SetInterruptState(new ExpelInfestation(), InterruptPriority.Skill); 
                 }
         }
@@ -181,9 +184,11 @@ namespace PassiveAgression.VoidSurvivor
         {
                 base.OnFinishAuthority();
                 var infests = characterBody.gameObject.GetComponent<ScriptedCombatEncounter>();
-                infests.BeginEncounter();
-                infests.hasSpawnedServer = false;
-                infests.combatSquad.defeatedServer = false;
+                if(NetworkServer.active){
+                 infests.BeginEncounter();
+                 infests.hasSpawnedServer = false;
+                 infests.combatSquad.defeatedServer = false;
+                }
                 if ((bool)voidSurvivorController)
                 {
                         voidSurvivorController.corruptionModeStateMachine.SetNextState(new InfestedMode());

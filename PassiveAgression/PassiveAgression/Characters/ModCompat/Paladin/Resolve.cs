@@ -1,6 +1,7 @@
 
 using RoR2;
 using RoR2.Skills;
+using RoR2.UI;
 using EntityStates;
 using RoR2.CharacterAI;
 using System;
@@ -17,12 +18,14 @@ using Mono.Cecil.Cil;
 using PaladinMod.States;
 using R2API;
 
+using static RoR2.UI.HealthBar;
+
 namespace PassiveAgression.ModCompat
 {
     public static class PaladinResolve{
      public static AssignableSkillDef def;
      public static SkillDef scepterdef;
-     public static BuffDef  bdef;//,sbdef;
+     public static BuffDef  bdef;
      public static BuffDef hiddenbdef,hiddensbdef;
      public static bool isHooked;
      public static float resolveMult = 0.8f;
@@ -48,6 +51,8 @@ namespace PassiveAgression.ModCompat
                 isHooked = true;
                 On.RoR2.OverlapAttack.ProcessHits += OverlapFire;
                 Run.onRunDestroyGlobal += unsub;
+               // IL.RoR2.UI.HealthBar.UpdateBarInfos += ApplyCullStyle;
+               // IL.RoR2.HealthComponent.TakeDamage += ApplyCullBonus;
                 RecalculateStatsAPI.GetStatCoefficients += (sender,args) =>{
                   if(sender.HasBuff(hiddenbdef)){
                     args.damageMultAdd += resolveMult;
@@ -65,6 +70,7 @@ namespace PassiveAgression.ModCompat
          bdef = ScriptableObject.CreateInstance<BuffDef>();
          (bdef as ScriptableObject).name = "PASSIVEAGRESSION_RESOLVE_BUFF";
          bdef.buffColor = Color.gray;
+         bdef.canStack = false;
          bdef.iconSprite = Util.SpriteFromFile("ResolveBuffIcon.png");
          hiddenbdef = ScriptableObject.CreateInstance<BuffDef>();
          (hiddenbdef as ScriptableObject).name = "PASSIVEAGRESSION_RESOLVE_BUFF_ACTUAL";
@@ -80,6 +86,8 @@ namespace PassiveAgression.ModCompat
          void unsub(Run run){ 
             On.RoR2.OverlapAttack.ProcessHits -= OverlapFire;
             Run.onRunDestroyGlobal -= unsub;
+           // IL.RoR2.UI.HealthBar.UpdateBarInfos -= ApplyCullStyle;
+           // IL.RoR2.HealthComponent.TakeDamage -= ApplyCullBonus;
             isHooked = false;
          }
      }
@@ -103,13 +111,10 @@ namespace PassiveAgression.ModCompat
          scepterdef.isCombatSkill = false;
          (scepterdef as ScriptableObject).name = scepterdef.skillNameToken;
          scepterdef.icon = Util.SpriteFromFile("ResolveIconScepter.png");;
-/*       sbdef = GameObject.Instantiate(bdef);
-         (sbdef as ScriptableObject).name = "PASSIVEAGRESSION_RESOLVE_BUFFSCEPTER";*/
          hiddensbdef = GameObject.Instantiate(hiddenbdef);
          (hiddensbdef as ScriptableObject).name = "PASSIVEAGRESSION_RESOLVE_BUFFSCEPTER_ACTUAL";
          hiddensbdef.buffColor = new Color32(0xd2,0x99,0xff,0xff);
 
-         //ContentAddition.AddBuffDef(sbdef);
          ContentAddition.AddBuffDef(hiddensbdef);
          ContentAddition.AddSkillDef(scepterdef);
          AncientScepter.AncientScepterItem.instance.RegisterScepterSkill(scepterdef,"RobPaladinBody",def);
@@ -142,6 +147,42 @@ namespace PassiveAgression.ModCompat
          orig(self,list);
      }
 
+     public static void ApplyCullStyle(ILContext il){
+         var c = new ILCursor(il);
+         var ind = -1;
+         if(c.TryGotoNext(MoveType.After,x => x.MatchLdloc(out ind),x => x.MatchLdarg(0),x => x.MatchLdfld(out _),x => x.MatchCallOrCallvirt(out _),x => x.MatchCallOrCallvirt(typeof(Mathf).GetMethod("Max",new Type[]{typeof(float),typeof(float)})),x => x.MatchStloc(ind))){
+            c.MoveAfterLabels();
+            c.Emit(OpCodes.Ldloc,ind);
+            c.Emit(OpCodes.Ldarg_0);
+            c.EmitDelegate<Func<float,HealthBar,float>>((orig,self) => (self.viewerBody && (self.viewerBody.HasBuff(hiddenbdef) || self.viewerBody.HasBuff(hiddensbdef)))? orig + 0.1f  : orig);
+            c.Emit(OpCodes.Stloc,ind);
+         }
+         else{
+           PassiveAgressionPlugin.Logger.LogError("CullStyle Fail");
+         }
+     }
+     public static void ApplyCullBonus(ILContext il){
+         var c = new ILCursor(il);
+         var ind = -1;
+         if(c.TryGotoNext(x => x.MatchCallOrCallvirt(typeof(CharacterBody).GetProperty("executeEliteHealthFraction").GetGetMethod())) && c.TryGotoNext(x => x.MatchLdloc(out ind),x => x.MatchLdcR4(0f),x => x.MatchBleUn(out _)) ){
+            c.Emit(OpCodes.Ldloc,ind);
+            c.Emit(OpCodes.Ldarg_1);
+            c.EmitDelegate<Func<float,DamageInfo,float>>((orig,damage) => {
+              if(damage.attacker){
+               var body = damage.attacker.GetComponent<CharacterBody>();
+               if(body && (body.HasBuff(hiddenbdef) || body.HasBuff(hiddensbdef))){
+                  return orig + 0.1f;
+               }
+              }
+              return orig;
+            });
+            c.Emit(OpCodes.Stloc,ind);
+         }
+         else{
+           PassiveAgressionPlugin.Logger.LogError("CullBonus Fail");
+         }
+     }
+
      public class PrepResolveState : BaseChannelSpellState{
             public override void OnEnter(){
                     baseDuration = 1f;
@@ -161,11 +202,9 @@ namespace PassiveAgression.ModCompat
            
             
             public override void OnEnter(){
+                baseDuration = 0.1f;
                 base.OnEnter();
-              /*  if(activatorSkillSlot.skillDef = scepterdef){
-                  characterBody.AddBuff(sbdef);
-                }
-                else*/
+                if(NetworkServer.active)
                   characterBody.AddBuff(bdef);
             }
 	    public override InterruptPriority GetMinimumInterruptPriority(){

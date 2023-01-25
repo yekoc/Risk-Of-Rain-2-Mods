@@ -159,19 +159,4 @@ Credit to cute anime girls for giving me the will to continue living.
 
 #Changelog
 ---
-1.0.3
-  - Heat of the Forge : Added a config option to enable an alternate implementation,since the normal one is sensitive to potential mod conflicts.
-  - Snowsculpt : Networking Fix,Exiting the skill early now triggers a freezing blast.
-  - Starch : Increased Radius
-  - Misc Changes (Networking,rng)
-
-1.0.2
-  - Fixed Engineer Passive breaking pickups + scrap contribution not being redacted correctly on body change
-
-1.0.1
-  - Fixed the friendlyInfest config option for Viend's Infestation Passive.
-  - Fixed lysate cell interaction with Paladin Glass Shadow
-  - Added new Starch Bomb Icon
-  - Added config option to enable old icons for skills that get their icons replaced
-
-1.0.0 - Initial Release
+ Moved Changelog to CHANGELOG.md

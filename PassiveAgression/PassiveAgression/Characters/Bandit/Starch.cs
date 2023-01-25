@@ -50,7 +50,7 @@ namespace PassiveAgression.Bandit
          }
          public override void OnEnter(){
              duration = ThrowSmokebomb.duration;
-             blastAttackRadius = StealthMode.blastAttackRadius = 1.5f;
+             blastAttackRadius = StealthMode.blastAttackRadius * 1.5f;
              blastAttackProcCoefficient = StealthMode.blastAttackProcCoefficient;
              blastAttackDamageCoefficient = 0.75f;
              blastAttackForce = StealthMode.blastAttackForce;
@@ -83,7 +83,6 @@ namespace PassiveAgression.Bandit
 			crit = RoR2.Util.CheckRoll(base.characterBody.crit, base.characterBody.master),
 			baseDamage = base.characterBody.damage * blastAttackDamageCoefficient,
 			falloffModel = BlastAttack.FalloffModel.None,
-			damageType = DamageType.Stun1s,
 			baseForce = blastAttackForce,
                         attackerFiltering = AttackerFiltering.Default,
                         teamIndex = base.GetTeam()
@@ -95,8 +94,9 @@ namespace PassiveAgression.Bandit
                      origin = base.transform.position,
                      queryTriggerInteraction = QueryTriggerInteraction.UseGlobal,
                      mask = LayerIndex.entityPrecise.mask
-                 }.RefreshCandidates().FilterCandidatesByDistinctHurtBoxEntities().FilterCandidatesByHurtBoxTeam(new TeamMask{a = (byte)(1L << (int)teamComponent.teamIndex)}).GetHurtBoxes();
+                 }.RefreshCandidates().FilterCandidatesByDistinctHurtBoxEntities().GetHurtBoxes();
                  foreach(var body in starchy.Select((s) => s.healthComponent.body)){
+                     if(body.teamComponent.teamIndex == teamComponent.teamIndex){
                      DotController.DotStack dot;
                      BuffIndex debuff;
                      if(PassiveAgression.Util.GetRandomDebuffOrDot(body,out debuff,out dot)){
@@ -111,10 +111,22 @@ namespace PassiveAgression.Bandit
                           DotController.dotStackPool.Return(dot);
                         }
                      }
+                     }
+                     else if(TeamMask.GetEnemyTeams(teamComponent.teamIndex).HasTeam(body.teamComponent.teamIndex)){
+                        var onHurt = body.GetComponent<SetStateOnHurt>();
+                        if(onHurt){
+                          onHurt.SetStun(2.5f);
+                        }
+                     }
                  }
              }
              if(smokeBombEffect)
-                EffectManager.SimpleMuzzleFlash(smokeBombEffect, base.gameObject, smokeBombMuzzleString, transmit: false);
+                EffectManager.SpawnEffect(smokeBombEffect,new EffectData{
+                   rootObject = base.gameObject,
+                   scale = 1.5f,
+                   origin = modelLocator.modelTransform.GetComponent<ChildLocator>().FindChild(smokeBombMuzzleString).transform.position
+                },transmit: false);
+                //EffectManager.SimpleMuzzleFlash(smokeBombEffect, base.gameObject, smokeBombMuzzleString, transmit: false);
              if(base.characterMotor)
              	base.characterMotor.velocity = new Vector3(base.characterMotor.velocity.x, shortHopVelocity, base.characterMotor.velocity.z);
          }

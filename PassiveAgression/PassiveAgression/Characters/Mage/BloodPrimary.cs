@@ -46,20 +46,22 @@ namespace PassiveAgression.Mage
         
          proPrefab = PrefabAPI.InstantiateClone((GameObject)epiESC.WaitForCompletion().serializedFieldsCollection.GetOrCreateField("projectilePrefab").fieldValue.GetValue(typeof(FireFireBolt).GetField("projectilePrefab")),"MageBloodBoltProjectile");
          proPrefab.GetComponent<ProjectileDamage>().damageType = DamageType.BleedOnHit;
-         var ghost = PrefabAPI.InstantiateClone(UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Mage/MageLightningboltGhost.prefab").WaitForCompletion(),"MageBloodBoltProjectileGhost",false);
+         var ghost = PrefabAPI.InstantiateClone(UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ImpBoss/ImpVoidspikeProjectileGhost.prefab").WaitForCompletion(),"MageBloodBoltProjectileGhost",false);
          //ghost.GetComponentInChildren<Light>().color = Color.red;
-         var mrend = ghost.transform.GetChild(3).GetComponent<MeshRenderer>();
-         mrend.material = GameObject.Instantiate(mrend.material);
-         mrend.material.SetColor("_Color",Color.red);
-         foreach(var rend in ghost.GetComponentsInChildren<ParticleSystemRenderer>()){rend.material = GameObject.Instantiate(mrend.material); rend.material.SetColor("_Color",Color.red);}
-         foreach(var rend in ghost.GetComponentsInChildren<ParticleSystem>()){var m = rend.main; m.startColor = Color.red;}
+         ghost.GetComponentInChildren<MeshRenderer>().material = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<Material>("RoR2/Base/moon2/matBloodSiphon.mat").WaitForCompletion();
+         ghost.GetComponentInChildren<TrailRenderer>().material = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<Material>("RoR2/Base/moon2/matBloodSiphon.mat").WaitForCompletion();
          proPrefab.GetComponent<ProjectileController>().ghostPrefab = ghost;
-
+         var exp = proPrefab.GetComponent<ProjectileImpactExplosion>();
+         exp.explosionEffect = null;
+         exp.impactEffect = null;
          muzzleFlash = PrefabAPI.InstantiateClone(UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Common/VFX/BleedEffect.prefab").WaitForCompletion(),"MuzzleFlashMageBlood",false);
-         muzzleFlash.transform.localScale /= 10;
          muzzleFlash.AddComponent<EffectComponent>();
+         var vfx = muzzleFlash.AddComponent<VFXAttributes>();
+         vfx.vfxPriority = VFXAttributes.VFXPriority.Medium;
+         vfx.vfxIntensity = VFXAttributes.VFXIntensity.Medium;
          muzzleFlash.AddComponent<DestroyOnParticleEnd>();
-         muzzleFlash.AddComponent<DestroyOnTimer>().duration = 0.25f;
+         muzzleFlash.AddComponent<DestroyOnTimer>().duration = 0.2f;
+         GameObject.Destroy(muzzleFlash.transform.GetChild(0).gameObject);
 
          ContentAddition.AddEffect(muzzleFlash);
          ContentAddition.AddProjectile(proPrefab);
@@ -67,11 +69,8 @@ namespace PassiveAgression.Mage
      }
 
      public static float regenBlock(On.RoR2.HealthComponent.orig_Heal orig,HealthComponent self,float amount,ProcChainMask proc,bool nonRegen){
-          if(!nonRegen){
-            var skill = self.body.skillLocator.FindSkillByDef(def);
-            if(skill && !skill.IsReady()){
-             amount = 0;
-            }
+          if(!nonRegen && self.body.HasBuff(BloodSiphonSkillDef.bdef)){
+              amount = 0f;
           }
           return orig(self,amount,proc,nonRegen);
      }
@@ -80,7 +79,7 @@ namespace PassiveAgression.Mage
 
          public override void OnEnter(){
              var firebolt = new FireFireBolt();
-             baseDuration = firebolt.baseDuration;
+             baseDuration = firebolt.baseDuration * 1.5f;
              projectilePrefab = proPrefab;
              muzzleflashEffectPrefab = muzzleFlash;
              damageCoefficient = 1f;
@@ -94,6 +93,17 @@ namespace PassiveAgression.Mage
 
      public class BloodSiphonSkillDef : SteppedSkillDef {
 
+         public static BuffDef bdef; 
+
+         static BloodSiphonSkillDef(){
+            bdef = ScriptableObject.CreateInstance<BuffDef>();
+            bdef.buffColor = Color.red;
+            bdef.canStack = false;
+            bdef.isCooldown = true;
+            bdef.iconSprite = Util.SpriteFromFile("SiphonedBuff.png");
+            (bdef as ScriptableObject).name = "PASSIVEAGRESSION_MAGEBLOODBOLT_DEBUFF";
+            ContentAddition.AddBuffDef(bdef);
+         }
          public class BInstanceData : SteppedSkillDef.InstanceData {
              public float currentcooldown;
          }
@@ -138,6 +148,14 @@ namespace PassiveAgression.Mage
              if(HasRequiredStockAndDelay(skillSlot)){
               BInstanceData instanceData = (BInstanceData)skillSlot.skillInstanceData;
               instanceData.currentcooldown = 0;
+              if(NetworkServer.active && skillSlot.characterBody.HasBuff(bdef)){
+                skillSlot.characterBody.RemoveBuff(bdef);
+              }
+             }
+             else{
+               if(NetworkServer.active && !skillSlot.characterBody.HasBuff(bdef)){
+                skillSlot.characterBody.AddBuff(bdef);
+               }
              }
          }
      }
