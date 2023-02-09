@@ -1,6 +1,9 @@
 
 #Changelog
 ---
+1.0.5
+  - Made description more consistent with base game. Fixed Unorthodox Rituals' description.
+
 1.0.4
   - Networking fixes.
   - Fixed potential compatibility issues preventing corrupted tear from working.
