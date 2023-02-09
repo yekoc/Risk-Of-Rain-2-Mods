@@ -25,8 +25,8 @@ namespace PassiveAgression.Mage
          var epiESC = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<EntityStateConfiguration>("RoR2/Base/Mage/EntityStates.Mage.Weapon.FireFireBolt.asset");
          
          LanguageAPI.Add("PASSIVEAGRESSION_MAGEBLOODBOLT","Excise");
-         LanguageAPI.Add("PASSIVEAGRESSION_MAGEBLOODBOLT_DESC","<style=cDeath>Blood Siphon</style>. Fire a bolt for <style=cIsDamage>100%</style> damage that <style=cIsDamage>bleeds</style> enemies.");
-         LanguageAPI.Add("PASSIVEAGRESSION_MAGEBLOODBOLT_KEYWORD","<style=cKeywordName>Blood Siphon</style><style=cSub>This skill can be used at all times,however, <style=cIsHealth> You cannot regenerate health </style> while it is on cooldown.</style>");
+         LanguageAPI.Add("PASSIVEAGRESSION_MAGEBLOODBOLT_DESC","<style=cDeath>Blood Siphon</style>. Fire a bolt for <style=cIsDamage>100% damage</style> that <style=cIsDamage>bleeds</style> enemies.");
+         LanguageAPI.Add("PASSIVEAGRESSION_MAGEBLOODBOLT_KEYWORD","<style=cKeywordName>Blood Siphon</style><style=cSub>This skill can be used at all times. However, <style=cDeath>You cannot regenerate health</style> while it is on cooldown.</style>");
          
          def = ScriptableObject.CreateInstance<BloodSiphonSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_MAGEBLOODBOLT";

@@ -22,7 +22,7 @@ namespace PassiveAgression.Bandit
 
      static ChainSpecial(){
          LanguageAPI.Add("PASSIVEAGRESSION_BANDITREFRESH","Six Soulshooter");
-         LanguageAPI.Add("PASSIVEAGRESSION_BANDITREFRESH_DESC","<style=cIsDamage>Slayer</style>,replace your primary with 6 revolver shots for <style=cIsDamage>400% damage</style>. Kills <style=cIsUtility>grant more shots</style>.");
+         LanguageAPI.Add("PASSIVEAGRESSION_BANDITREFRESH_DESC","<style=cIsDamage>Slayer</style>, replace your primary with 6 revolver shots for <style=cIsDamage>400% damage</style>. Kills <style=cIsUtility>grant more shots</style>.");
          def = ScriptableObject.CreateInstance<SkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_BANDITREFRESH";
          (def as ScriptableObject).name = def.skillNameToken;

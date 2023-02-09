@@ -21,7 +21,7 @@ namespace PassiveAgression.Mage
 
      static IceGolemSpecial(){
          LanguageAPI.Add("PASSIVEAGRESSION_MAGEICEARMOR","Snowsculpt");
-         LanguageAPI.Add("PASSIVEAGRESSION_MAGEICEARMOR_DESC","Encase yourself in a body of snow,protecting you from harm until it is broken or you burst out in a wave of frost.");
+         LanguageAPI.Add("PASSIVEAGRESSION_MAGEICEARMOR_DESC","Encase yourself in a body of snow, protecting you from harm until it is broken or you burst out in a wave of frost.");
 
          var mat = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<Material>("RoR2/Base/Common/VFX/matIsFrozen.mat");
 

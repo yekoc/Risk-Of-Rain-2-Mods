@@ -19,7 +19,7 @@ namespace PassiveAgression.Bandit
 
      static StarchUtil(){
          LanguageAPI.Add("PASSIVEAGRESSION_BANDITSTARCH","Starch Bomb");
-         LanguageAPI.Add("PASSIVEAGRESSION_BANDITSTARCH_DESC","<style=cIsDamage>Stunning.</style> Deal 75% damage, allies in area are <style=cIsUtility>cleansed from a debuff</style>.");
+         LanguageAPI.Add("PASSIVEAGRESSION_BANDITSTARCH_DESC","<style=cIsDamage>Stunning</style>. Deal 75% damage. Nearby allies are <style=cIsUtility>cleansed from a debuff</style>.");
          def = ScriptableObject.CreateInstance<SkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_BANDITSTARCH";
          (def as ScriptableObject).name = def.skillNameToken;

@@ -24,7 +24,7 @@ namespace PassiveAgression.Merc
      static FlickerPassive(){
          slot = new CustomPassiveSlot("RoR2/Base/Merc/MercBody.prefab");
          LanguageAPI.Add("PASSIVEAGRESSION_MERCFLICKER","Flickering Blade");
-         LanguageAPI.Add("PASSIVEAGRESSION_MERCFLICKER_DESC","All attacks are delayed by 1s,attacks on exposed enemies .");
+         LanguageAPI.Add("PASSIVEAGRESSION_MERCFLICKER_DESC","All attacks are delayed by 1s, <style=cIsUtility>attacks on exposed enemies</style>.");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_MERCFLICKER";
          (def as ScriptableObject).name = def.skillNameToken;

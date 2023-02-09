@@ -34,7 +34,7 @@ namespace PassiveAgression.Commando
          bdef.name = "PASSIVEAGRESSION_COMMANDOSTIM_SCEPTERBUFF";
          bdef.canStack = CommandoStimpack.bdef.canStack;
          
-         LanguageAPI.Add("PASSIVEAGRESSION_COMMANDOSTIM_SCEPTERDESC",Language.GetString("PASSIVEAGRESSION_COMMANDOSTIM_DESC") + "\n<color=#d299ff>SCEPTER: Proprietary Stimulant MAX™ formula now includes skin hardening xenominerals and ocular-hemo-attractors!.</color>");
+         LanguageAPI.Add("PASSIVEAGRESSION_COMMANDOSTIM_SCEPTERDESC",Language.GetString("PASSIVEAGRESSION_COMMANDOSTIM_DESC") + "\n<color=#d299ff>SCEPTER: Proprietary Stimulant MAX™ formula now includes skin hardening xenominerals and ocular-hemo-attractors!</color>");
          R2API.ContentAddition.AddBuffDef(bdef);
          ContentAddition.AddSkillDef(def);
          ContentAddition.AddEntityState(typeof(StimState),out _);

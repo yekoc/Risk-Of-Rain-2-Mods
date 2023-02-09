@@ -18,7 +18,7 @@ namespace PassiveAgression.Captain{
         static IntegratedBeacon(){
          var asset = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/QuestVolatileBattery/QuestVolatileBatteryAttachment.prefab");
          LanguageAPI.Add("PASSIVEAGRESSION_CAPTAINSELFBEACON","Self Integrated Beacon");
-         LanguageAPI.Add("PASSIVEAGRESSION_CAPTAINSELFBEACON_DESC","<style=cIsDamage>Stunning.</style> Deal 75% damage,allies in area are <style=cIsUtility>cleansed from a debuff</style>.");
+         LanguageAPI.Add("PASSIVEAGRESSION_CAPTAINSELFBEACON_DESC","<style=cIsDamage>Stunning</style>. Deal 75% damage. Nearby allies are <style=cIsUtility>cleansed from a debuff</style>.");
          def = ScriptableObject.CreateInstance<RoR2.Skills.CaptainSupplyDropSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_CAPTAINSELFBEACON";
          (def as ScriptableObject).name = def.skillNameToken;
