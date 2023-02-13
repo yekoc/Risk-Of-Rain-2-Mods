@@ -18,6 +18,6 @@ Credit to cute anime girls for giving me the will to continue living.
 
 #Changelog
 ---
-Readme Update to signify that this wasn't broken by SOTV
-
+1.0.2 - Skills that interrupt themselves are no longer eligible for being snappier,fixing some jank interactions.\
+Readme Update to signify that this wasn't broken by SOTV\
 1.0.0 - Initial Release
