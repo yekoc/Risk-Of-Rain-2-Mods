@@ -24,7 +24,7 @@ namespace PassiveAgression.Mage
      static FloatingChaos(){
          
          LanguageAPI.Add("PASSIVEAGRESSION_MAGEFLAMETURRET","Lifespark");
-         LanguageAPI.Add("PASSIVEAGRESSION_MAGEFLAMETURRET_DESC","Charge up a living flame that automatically shoots at enemies,<style=cIsDamage>igniting</style> them.");
+         LanguageAPI.Add("PASSIVEAGRESSION_MAGEFLAMETURRET_DESC","Charge up a living flame that automatically shoots at enemies, <style=cIsDamage>igniting</style> them.");
          def = ScriptableObject.CreateInstance<SkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_MAGEFLAMETURRET";
          (def as ScriptableObject).name = def.skillNameToken;

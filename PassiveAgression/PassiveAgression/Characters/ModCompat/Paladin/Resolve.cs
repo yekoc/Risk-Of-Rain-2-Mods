@@ -33,7 +33,7 @@ namespace PassiveAgression.ModCompat
 
      static PaladinResolve(){
          LanguageAPI.Add("PASSIVEAGRESSION_PALADINRESOLVE","Steel Resolve");
-         LanguageAPI.Add("PASSIVEAGRESSION_PALADINRESOLVE_DESC","Raise your sword high and steel your Resolve. \n Your next accurate sword attack will hit for <style=cIsDamage>80% more total damage</style>.");
+         LanguageAPI.Add("PASSIVEAGRESSION_PALADINRESOLVE_DESC","Raise your sword high and steel your resolve. \nYour next accurate sword attack will hit for <style=cIsDamage>80% more TOTAL damage</style>.");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_PALADINRESOLVE";
          def.skillDescriptionToken = "PASSIVEAGRESSION_PALADINRESOLVE_DESC";
@@ -95,7 +95,7 @@ namespace PassiveAgression.ModCompat
      [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining | System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
      public static void SetUpScepter(){
          LanguageAPI.Add("PASSIVEAGRESSION_PALADINRESOLVE_SCEPTER","Royal Resolve");
-         LanguageAPI.Add("PASSIVEAGRESSION_PALADINRESOLVE_SCEPTERDESC","Raise your sword high and steel your Resolve. \n Your next accurate sword attack will hit for <color=#d299ff>3000% total damage</color>.");
+         LanguageAPI.Add("PASSIVEAGRESSION_PALADINRESOLVE_SCEPTERDESC","Raise your sword high and steel your resolve. \nYour next accurate sword attack will hit for <color=#d299ff>3000% TOTAL damage</color>.");
          scepterdef = ScriptableObject.CreateInstance<SkillDef>();
          scepterdef.skillNameToken = "PASSIVEAGRESSION_PALADINRESOLVE_SCEPTER";
          scepterdef.skillDescriptionToken = "PASSIVEAGRESSION_PALADINRESOLVE_SCEPTERDESC";

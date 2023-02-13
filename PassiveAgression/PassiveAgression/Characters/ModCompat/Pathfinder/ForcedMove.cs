@@ -14,7 +14,7 @@ namespace PassiveAgression.ModCompat
 
      static PathfinderForcedMove(){
          LanguageAPI.Add("PASSIVEAGRESSION_PATHFCARRY","Forced Move");
-         LanguageAPI.Add("PASSIVEAGRESSION_PATHFCARRY_DESC","<style=cIsDamage>Stunning.</style> Deal 75% damage,allies in area are <style=cIsUtility>cleansed from a debuff</style>.");
+         LanguageAPI.Add("PASSIVEAGRESSION_PATHFCARRY_DESC","<style=cIsDamage>Stunning</style>. Deal 75% damage, nearby allies are <style=cIsUtility>cleansed from a debuff</style>.");
          def = ScriptableObject.CreateInstance<SkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_BANDITSTARCH";
          (def as ScriptableObject).name = def.skillNameToken;

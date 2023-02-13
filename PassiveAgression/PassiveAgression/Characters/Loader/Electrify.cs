@@ -15,7 +15,7 @@ namespace PassiveAgression.Loader{
 
         static ElectrifySpecial(){
          LanguageAPI.Add("PASSIVEAGRESSION_LOADERELEC","Power Pack Discharge");
-         LanguageAPI.Add("PASSIVEAGRESSION_LOADERELEC_DESC","<style=cIsDamage>Shocking.</style> Unload stored charge through the gauntlet,draining all barrier and dealing <style=cIsDamage>400%-4000%</style> damage to the connected enemy.");
+         LanguageAPI.Add("PASSIVEAGRESSION_LOADERELEC_DESC","<style=cIsDamage>Shocking</style>. Unload stored charge through the gauntlet, draining all barrier and dealing <style=cIsDamage>400%-4000% damage</style> to the connected enemy.");
          def = ScriptableObject.CreateInstance<HookedSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_LOADERELEC";
          (def as ScriptableObject).name = def.skillNameToken;

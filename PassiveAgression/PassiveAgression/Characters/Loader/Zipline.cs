@@ -17,7 +17,7 @@ namespace PassiveAgression.Loader{
      static LoaderZipline(){
          var proj = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Loader/LoaderHook.prefab");  
          LanguageAPI.Add("PASSIVEAGRESSION_LOADERZIP","Detachable Abseil");
-         LanguageAPI.Add("PASSIVEAGRESSION_LOADERZIP_DESC","Fire your gauntlet forward,let go to launch the rope,<style=cIsUtility>attaching</style> the two ends.");
+         LanguageAPI.Add("PASSIVEAGRESSION_LOADERZIP_DESC","Fires your gauntlet forward. Let go to launch the rope, <style=cIsUtility>attaching</style> the two ends.");
          def = ScriptableObject.CreateInstance<SkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_LOADERZIP";
          (def as ScriptableObject).name = def.skillNameToken;

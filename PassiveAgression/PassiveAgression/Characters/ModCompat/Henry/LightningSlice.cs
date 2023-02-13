@@ -19,7 +19,7 @@ namespace PassiveAgression.ModCompat
 
      static HenryYomiJC(){
          LanguageAPI.Add("PASSIVEAGRESSION_HENRYYOMIJC","Lightning Slice");
-         LanguageAPI.Add("PASSIVEAGRESSION_HENRYYOMIJC_DESC","Strike through space itself,dealing <style=cIsDamage>400% damage</style>.");
+         LanguageAPI.Add("PASSIVEAGRESSION_HENRYYOMIJC_DESC","Strike through space itself, dealing <style=cIsDamage>400% damage</style>.");
          def = ScriptableObject.CreateInstance<SkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_HENRYYOMIJC";
          (def as ScriptableObject).name = def.skillNameToken;

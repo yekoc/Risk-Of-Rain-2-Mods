@@ -19,7 +19,7 @@ namespace PassiveAgression.ModCompat
 
      static HenryDTExplosion(){
          LanguageAPI.Add("PASSIVEAGRESSION_HENRYDTE","Furious Burst");
-         LanguageAPI.Add("PASSIVEAGRESSION_HENRYDTE_DESC","Hold to charge your Fury into a large explosion,dealing <style=cIsDamage>immense damage</style>.");
+         LanguageAPI.Add("PASSIVEAGRESSION_HENRYDTE_DESC","Hold to charge your Fury into a large explosion, dealing <style=cIsDamage>immense damage</style>.");
          def = ScriptableObject.CreateInstance<SkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_HENRYDTE";
          (def as ScriptableObject).name = def.skillNameToken;

@@ -90,7 +90,7 @@ namespace PassiveAgression.Engineer
      static ScrapPassive(){
          slot = new CustomPassiveSlot("RoR2/Base/Engi/EngiBody.prefab");
          LanguageAPI.Add("PASSIVEAGRESSION_ENGISCRAP","Field Tinkering");
-         LanguageAPI.Add("PASSIVEAGRESSION_ENGISCRAP_DESC","Scrap in inventory provides <style=cIsUtility>mechanical</style> allies with increased stats.");
+         LanguageAPI.Add("PASSIVEAGRESSION_ENGISCRAP_DESC","Scraps provide <style=cIsUtility>mechanical</style> allies with increased stats.");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_ENGISCRAP";
          (def as ScriptableObject).name = def.skillNameToken;

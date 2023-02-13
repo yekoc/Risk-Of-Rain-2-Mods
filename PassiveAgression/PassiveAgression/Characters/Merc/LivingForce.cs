@@ -21,7 +21,7 @@ namespace PassiveAgression.Bandit
 
      static LivingForce(){
          LanguageAPI.Add("PASSIVEAGRESSION_MERCLIVING","Living Force");
-         LanguageAPI.Add("PASSIVEAGRESSION_MERCLIVING_DESC","<style=cIsDamage>Slayer.</style> Unleash a finishing blow for <style=cIsDamage>350% damage</syle>.Hold to release your swords current aspect.Kills <style=cIsUtility>absorb the targets aspect into your blade</style>.");
+         LanguageAPI.Add("PASSIVEAGRESSION_MERCLIVING_DESC","<style=cIsDamage>Slayer</style>. Unleash a finishing blow for <style=cIsDamage>350% damage</syle>. Hold to release your swords current aspect. Kills <style=cIsUtility>absorb the targets aspect into your blade</style>.");
          def = ScriptableObject.CreateInstance<SkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_MERCLIVING";
          (def as ScriptableObject).name = def.skillNameToken;
