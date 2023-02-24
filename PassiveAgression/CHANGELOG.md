@@ -1,6 +1,10 @@
 
 #Changelog
 ---
+1.0.5
+  - Bug Fixes:
+    - Fixed Glass Shadow interaction with Ancient Scepter
+
 1.0.4
   - Networking fixes.
   - Fixed potential compatibility issues preventing corrupted tear from working.
@@ -9,7 +13,7 @@
     - Excise : Increased duration to hopefully reduce the effect of stacking attack speed.
     - Starch : Actually increased radius (oops), Increased amount of time enemies are stunned **1** -> **2.5**.
     - Infestation : Added config option for max amount of spawns active,corruption will wait if over the setting,default is still infinite.
-    - Tear : No longer locked into movement if skill is used while moving, uncorrupted cooldown **6** -> **10**
+    - Tear : No longer locked into movement if skill is used while moving, uncorrupted cooldown **6** -> **10**, corrupted cooldown **6** -> **12**
     - Pack Discharge : Changed barrier to damage scaling from additive to multiplicative,greatly increasing potential damage. **400-1400** -> **400-4000**
 
 1.0.3

@@ -121,6 +121,8 @@ namespace PassiveAgression.Engineer
          def.icon = Util.SpriteFromFile("ScrapWrench.png"); 
          def.activationStateMachineName = "Body";
          def.activationState = EntityStateMachine.FindByCustomName(slot.bodyPrefab,"Body").mainStateType;
+         def.canceledFromSprinting = false;
+         def.cancelSprintingOnActivation = false;
          def.baseRechargeInterval = 0f;
          ContentAddition.AddSkillDef(def);
      }

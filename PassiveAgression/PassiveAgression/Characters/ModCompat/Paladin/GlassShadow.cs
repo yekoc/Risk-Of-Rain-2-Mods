@@ -56,6 +56,7 @@ namespace PassiveAgression.ModCompat
          def.onUnassign = (slot) =>{
             if((dopList != null) && slot.characterBody){
              foreach(var glass in dopList[slot.characterBody]){
+               glass.healthComponent.godMode = false;
                glass.master.TrueKill();
              }
              dopList.Remove(slot.characterBody);
@@ -136,6 +137,11 @@ namespace PassiveAgression.ModCompat
                     baseDuration = 0.25f;
                     if(characterBody.master.GetComponent<PaladinDoppelInputBank>()){
                         outer.SetNextStateToMain();
+                        outer.nextStateModifier += (EntityStateMachine esm,ref EntityState nextState) =>{
+                          if(nextState is PrepGlassShadowState){
+                            nextState = null;
+                          }
+                        }; 
                     }
 		    base.OnEnter();
                     areaIndicatorInstance = null;
