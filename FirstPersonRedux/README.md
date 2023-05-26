@@ -15,5 +15,6 @@ Credit to cute anime girls for giving me the will to continue living.
 
 #Changelog
 ---
+1.1.0 - Made inputs more responsive in unstable/too fast framerates,exiting a stage with first person enabled now auto-enables it next stage.\
 1.0.1 - Fixed Mul-T's Power Mode taking you out of first person.\
 1.0.0 - Initial Release
