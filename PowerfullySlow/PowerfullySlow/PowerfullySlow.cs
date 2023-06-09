@@ -14,7 +14,7 @@ using System.Reflection;
 
 namespace PowerfullySlow
 {
-    [BepInPlugin("xyz.yekoc.PowerfullySlow", "Powerfully Slow Moon","1.1.0" )]
+    [BepInPlugin("xyz.yekoc.PowerfullySlow", "Powerfully Slow Moon","1.2.1" )]
     [BepInIncompatibility("com.xoxfaby.UnlockAll")]
     [BepInDependency("com.KingEnderBrine.InLobbyConfig",BepInDependency.DependencyFlags.SoftDependency)]
     public class PowerfullySlowPlugin : BaseUnityPlugin
@@ -31,6 +31,7 @@ namespace PowerfullySlow
 	    HandleLobbyConfigCompat();
 	
 	  Run.onRunStartGlobal += (run) => {
+                SceneCatalog.GetSceneDefFromSceneName("moon").sceneType = SceneType.Stage;
 		if(!hookSet && NetworkServer.active && Util.CheckRoll(repeatChance.Value)){
 		  On.EntityStates.LunarTeleporter.Active.OnEnter += EmpowerMoon;
 		  void Cleanup(Run run2){ 

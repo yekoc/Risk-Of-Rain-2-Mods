@@ -20,6 +20,7 @@ Credit to cute anime girls for giving me the will to continue living.
 
 #Changelog
 ---
+1.2.1 - Fixed Old Moon's stopwatch\
 1.2.0 - Added InLobbyConfig Support\
 1.1.0 - Added config for chance to visit old moon on repeat runs\
 1.0.0 - Initial Release
