@@ -111,7 +111,7 @@ namespace PassiveAgression.ModCompat{
          On.RoR2.CharacterBody.OnBuffFinalStackLost += (orig,self,buff) => {
            orig(self,buff);
            if(buff == activebdef && self.HasBuff(Modules.Buffs.protectAndServeBuff)){
-             EntityStateMachine.FindByCustomName(self.gameObject,"Weapon").SetInterruptState(new EnforcerSundownerState(),InterruptPriority.Frozen);
+             EntityStateMachine.FindByCustomName(self.gameObject,"Weapon").SetInterruptState(new EnforcerSundownerState(){activatorSkillSlot = self.skillLocator.special},InterruptPriority.Frozen);
            }
          };
          new Hook(typeof(EnforcerWeaponComponent).GetMethod("GetShield",(BindingFlags)(-1)),typeof(EnforcerSundowner).GetMethod("GetShieldHook"));

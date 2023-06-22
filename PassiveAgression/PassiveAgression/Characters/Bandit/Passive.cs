@@ -77,6 +77,8 @@ namespace PassiveAgression.Bandit
          def.activationStateMachineName = "Body";
          def.activationState = EntityStateMachine.FindByCustomName(slot.bodyPrefab,"Body").mainStateType;
          def.icon = Util.SpriteFromFile("Standoff.png");
+         def.canceledFromSprinting = false;
+         def.cancelSprintingOnActivation = false;
          def.baseRechargeInterval = 0f;
          ContentAddition.AddSkillDef(def);
      }

@@ -36,7 +36,7 @@ namespace PassiveAgression.Mage
          def.canceledFromSprinting = false;
          def.cancelSprintingOnActivation = false;
          def.stockToConsume = 1;
-         def.keywordTokens = new string[]{"PASSIVEAGRESSION_MAGEBLOODBOLT_KEYWORD"};
+         def.keywordTokens = new string[]{"PASSIVEAGRESSION_MAGEBLOODBOLT_KEYWORD",};
          def.activationStateMachineName = "Weapon";
          def.activationState = new SerializableEntityStateType(typeof(BloodPrimaryState));
          def.stepGraceDuration = 3f;
@@ -132,7 +132,7 @@ namespace PassiveAgression.Mage
          public override void OnExecute(GenericSkill skillSlot){
              base.OnExecute(skillSlot);
              BInstanceData instanceData = (BInstanceData)skillSlot.skillInstanceData;
-             instanceData.currentcooldown += baseRechargeInterval;
+             instanceData.currentcooldown = Mathf.Min(999f,instanceData.currentcooldown + baseRechargeInterval);
              skillSlot.RecalculateFinalRechargeInterval();
              if(skillSlot.stock < 0){
                skillSlot.stock = 0;

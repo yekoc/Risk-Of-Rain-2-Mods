@@ -16,7 +16,9 @@ namespace PassiveAgression
     public class DoppelInputBank : MonoBehaviour
     {
         internal static bool ExtraSSInputs = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.KingEnderBrine.ExtraSkillSlots");
+        //internal static bool EmoteAPIInputs = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.weliveinasociety.CustomEmotesAPI");
         internal Queue<bool[]> ExtraInputBuffer = ExtraSSInputs ? new Queue<bool[]>() : null;
+        //internal Queue<string> EmoteInputBuffer = EmoteAPIInputs ? new() : null;
         public Queue<BodyInputs> inputBuffer = new Queue<BodyInputs>(5);
         public CharacterMaster master {get; private set;}
         public InputBankTest bodyInputs;
@@ -30,6 +32,8 @@ namespace PassiveAgression
         public void Start(){
             bodyInputs = master.GetBody().inputBank;
             ownerInputs = master.minionOwnership.ownerMaster.GetBody().inputBank;
+          //  if(EmoteAPIInputs)
+          //    HandleEmoteInputs(true,true);
         }
         public void FixedUpdate(){
            if(ownerInputs) 
@@ -46,6 +50,8 @@ namespace PassiveAgression
             });
             if(ExtraSSInputs)
               HandleExtraSlots(true);
+           // if(EmoteAPIInputs)
+           //   HandleEmoteInputs(true);
             if(master.hasEffectiveAuthority && bodyInputs && inputBuffer.Count >= updateDelay){
                 BodyInputs current = inputBuffer.Dequeue();
 		bodyInputs.skill1.PushState(current.pressSkill1);
@@ -59,6 +65,8 @@ namespace PassiveAgression
                 bodyInputs.aimDirection = current.desiredAimDirection;                
                 if(ExtraSSInputs)
                     HandleExtraSlots(false);
+            //    if(EmoteAPIInputs)
+            //        HandleEmoteInputs(false);
             }
         }
 
@@ -86,6 +94,27 @@ namespace PassiveAgression
               }
             }
         }
+
+       /* [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        internal void HandleEmoteInputs(bool record,bool setup = false){
+            if(setup){
+              EmotesAPI.CustomEmotesAPI.animChanged += (a,b) =>{
+                if(b.mapperBody.inputBank == ownerInputs){
+                  if(b.currentClip.joinSpots.Length > 0){
+                    var selfB = master.GetBody().modelLocator.modelTransform.GetComponentInChildren<BoneMapper>();
+                    EmotesAPI.CustomEmotesAPI.ReserveJoinSpot(b.currentClip.joinSpots[0],selfB);
+                    EmoteInputBuffer.Enqueue("JoinSpot");
+                  }
+                }
+              };
+            }
+            else if(record){
+
+            }
+            else{
+             
+            }
+        }*/
 
     }
 }

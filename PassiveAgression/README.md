@@ -1,6 +1,7 @@
 #What
 ---
 Adds several new alternate skills to the game,along with new passives and skills for modded characters.
+Icon submissions that look better than what I already have are accepted.
 
 Credit to Hifu for making the good looking icons.(StimShot,Standoff,Starch,Pathogen,Rituals,Excise & Snowsculpt)\
 Credit to the GNU Image Manipulation Program for helping me make the rest of the icons.\
@@ -58,14 +59,6 @@ Credit to cute anime girls for giving me the will to continue living.
 				All Mechanical Allies (including other players) gain bonus stats for each stack of scrap in your inventory.
 			</td>
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/ScrapWrench.png" width=128></td>
-		</tr>
-		<tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/2/25/Loader.png/revision/latest?cb=20200129235338" width=128></td>			
-			<td>
-				<b>Special:</b> Power Pack Discharge <br>
-				Shocking. Unload all of your barrier into the enermy your gauntlet is embedded in,dealing between 400% and 1400% damage.
-			</td>
-                        <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/HookDischarge.png" width=128></td>
 		</tr>
 		<tr>
                         <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/9/98/Artificer.png/revision/latest?cb=20200129200643" width=128></td>			
@@ -153,6 +146,14 @@ Credit to cute anime girls for giving me the will to continue living.
 				All your attacks deal Blazing damage.(It's Blacksmith ror1).
 			</td>
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/HForgeIcon.png" width=128></td>
+		</tr>
+		<tr>
+                        <td><img src="https://user-images.githubusercontent.com/55299061/216585851-c6588d0c-18a1-4357-905e-79fb3b1c7fcd.png" width=128></td>			
+			<td>
+				<b>Passive:</b> Jangling Spurs <br>
+				You can still sprint in all directions.Jump again while touching an enemy midair to bounce up off of them.
+			</td>
+                        <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/SpursIcon.png" width=128></td>
 		</tr>
 	</tbody>
 </table>

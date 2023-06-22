@@ -113,6 +113,8 @@ namespace PassiveAgression.VoidSurvivor
          def.baseRechargeInterval = 0f;
          def.activationState = new SerializableEntityStateType(typeof(InfestedMode));
          def.activationStateMachineName = "CorruptMode";
+         def.canceledFromSprinting = false;
+         def.cancelSprintingOnActivation = false;
 
          ContentAddition.AddSkillDef(def);
          ContentAddition.AddEntityState(typeof(InfestedMode),out _);
@@ -178,20 +180,17 @@ namespace PassiveAgression.VoidSurvivor
                 {
                         voidSurvivorController.AddCorruption(-100f);
                 }
-        }
-
-        public override void OnFinishAuthority()
-        {
-                base.OnFinishAuthority();
-                var infests = characterBody.gameObject.GetComponent<ScriptedCombatEncounter>();
-                if(NetworkServer.active){
-                 infests.BeginEncounter();
-                 infests.hasSpawnedServer = false;
-                 infests.combatSquad.defeatedServer = false;
-                }
-                if ((bool)voidSurvivorController)
-                {
-                        voidSurvivorController.corruptionModeStateMachine.SetNextState(new InfestedMode());
+                if(fixedAge >= duration){
+                    var infests = characterBody.gameObject.GetComponent<ScriptedCombatEncounter>();
+                    if(NetworkServer.active){
+                     infests.BeginEncounter();
+                     infests.hasSpawnedServer = false;
+                     infests.combatSquad.defeatedServer = false;
+                    }
+                    if ((bool)voidSurvivorController)
+                    {
+                            voidSurvivorController.corruptionModeStateMachine.SetNextState(new InfestedMode());
+                    }
                 }
         }
 

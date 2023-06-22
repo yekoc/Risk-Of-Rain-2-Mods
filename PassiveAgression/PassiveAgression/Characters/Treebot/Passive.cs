@@ -142,6 +142,8 @@ namespace PassiveAgression.Treebot{
          def.baseRechargeInterval = 0f;
          def.activationState = EntityStateMachine.FindByCustomName(slot.bodyPrefab,"Body").mainStateType;
          def.activationStateMachineName = "Body";
+         def.canceledFromSprinting = false;
+         def.cancelSprintingOnActivation = false;
          ContentAddition.AddSkillDef(def);
      }
     }

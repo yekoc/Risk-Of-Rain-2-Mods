@@ -12,7 +12,7 @@ using MonoMod.Cil;
 using Mono.Cecil.Cil;
 using EntityStates.Merc;
 
-namespace PassiveAgression.Bandit
+namespace PassiveAgression.Merc
 {
     public static class SpotDodge{
      public static SkillDef def;

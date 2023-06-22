@@ -27,6 +27,9 @@
     <Reference Include="Pathfinder">
       <HintPath>..\libs\Pathfinder.dll</HintPath>
     </Reference>
+    <Reference Include="Deputy">
+      <HintPath>..\libs\Deputy.dll</HintPath>
+    </Reference>
     <Reference Include="ExtraSkillSlots">
       <HintPath>..\libs\ExtraSkillSlots.dll</HintPath>
     </Reference>
@@ -47,6 +50,15 @@
     </Reference>
     <Reference Include="Enforcer">
       <HintPath>..\libs\Enforcer.dll</HintPath>
+    </Reference>
+    <Reference Include="GanondorfMod">
+       <HintPath>..\libs\GanondorfMod.dll</HintPath>
+    </Reference>
+    <Reference Include="HouseMod">
+        <HintPath>..\libs\HouseMod.dll</HintPath>
+    </Reference>
+    <Reference Include="CustomEmotesAPI">
+        <HintPath>..\libs\CustomEmotesAPI.dll</HintPath>
     </Reference>
 
     <PackageReference Include="R2API" Version="*"/>

@@ -1,9 +1,16 @@
 
 #Changelog
 ---
-1.0.5
+1.1.0
+  - Added Jingling Spurs,an alt passive for Deputy.
+  - Moved Power Pack Discharge behind unfinished config,as it was reported to feel incomplete.(The skill it was meant to synergise with _is_,so it counts).
+  - Tear: Added Corrupted version tooltip.
+  - Misc Unfinished Content (a lot)
   - Bug Fixes:
-    - Fixed Glass Shadow interaction with Ancient Scepter
+    - Glass Shadow: Fixed interaction with Ancient Scepter
+    - Fixed ExtraSkillSlot compatibility.
+    - "Fixed" HuntressBuffUltimate compatibility.(It was actually working as intended on HBU's side,just that the intention was not foreseen/isn't consistent with the vanilla game.)
+    - Misc Fixes.
 
 1.0.4
   - Networking fixes.

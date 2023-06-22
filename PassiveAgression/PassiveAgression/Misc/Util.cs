@@ -72,6 +72,15 @@ namespace PassiveAgression{
          }
          return Sprite.Create(texture,new Rect(0f,0f,texture.height,texture.width),new Vector2(0.5f,0.5f),100); 
     }
-
+     public static void recursebull(Transform transform,int acc = 0){
+        string log = "";
+        for(int i = 0; i<acc;i++){
+            log += "-";
+        }
+        Debug.Log(log + transform);
+        for(int i = 0;i < transform.childCount;i++){
+          recursebull(transform.GetChild(i),acc +1);
+        }
+     }
  }
 }

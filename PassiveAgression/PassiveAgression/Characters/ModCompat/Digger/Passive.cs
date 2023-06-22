@@ -63,6 +63,8 @@ namespace PassiveAgression.ModCompat{
          def.baseRechargeInterval = 0f;
          def.activationStateMachineName = "Body";
          def.activationState = EntityStateMachine.FindByCustomName(slot.bodyPrefab,"Body").mainStateType;
+         def.canceledFromSprinting = false;
+         def.cancelSprintingOnActivation = false;
          ContentAddition.AddSkillDef(def);
      }
 

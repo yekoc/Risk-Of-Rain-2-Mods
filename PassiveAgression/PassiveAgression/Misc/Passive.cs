@@ -41,6 +41,11 @@ namespace PassiveAgression{
                  if(label)
                   label.GetComponent<LanguageTextMeshController>().token = "Passive";
              }
+             else if((slot.skillFamily as ScriptableObject).name.Contains("Deck")){
+                 Transform label = row.rowPanelTransform.Find("SlotLabel") ?? row.rowPanelTransform.Find("LabelContainer").Find("SlotLabel");
+                 if(label)
+                  label.GetComponent<LanguageTextMeshController>().token = "Deck";
+             }
              return row;
             };
            IL.RoR2.UI.CharacterSelectController.BuildSkillStripDisplayData += (il) => {
@@ -67,15 +72,13 @@ namespace PassiveAgression{
            };
            IL.RoR2.UI.LoadoutPanelController.Rebuild += (il) => {
                ILCursor c = new ILCursor(il);
-               if(c.TryGotoNext(MoveType.After,x=>x.MatchLdloc(0),x=>x.MatchCallOrCallvirt(out _),x=>x.MatchCallOrCallvirt(out _),x => x.MatchStloc(1))){
-                   c.Emit(OpCodes.Ldloc_1);
-                   c.Emit(OpCodes.Ldarg_0);
-                   c.EmitDelegate<System.Action<List<GenericSkill>,LoadoutPanelController>>((list,self) => {
-                    foreach(var slot in list.Where((slot) => {return slot != list.First() && (slot.skillFamily as ScriptableObject).name.Contains("Passive") ;})){
-                      self.rows.Add(LoadoutPanelController.Row.FromSkillSlot(self,self.currentDisplayData.bodyIndex,list.FindIndex((skill) => skill == slot),slot));
-                    }
-                    list.RemoveAll((slot) => {return slot != list.First() && (slot.skillFamily as ScriptableObject).name.Contains("Passive");});
-                   });
+               if(c.TryGotoNext(MoveType.After,x=>x.MatchCallOrCallvirt(typeof(LoadoutPanelController.Row).GetMethod(nameof(LoadoutPanelController.Row.FromSkillSlot),(System.Reflection.BindingFlags)(-1))))){
+                 c.EmitDelegate<System.Func<LoadoutPanelController.Row,LoadoutPanelController.Row>>((orig) =>{
+                   if(orig.rowPanelTransform.Find("LabelContainer").Find("SlotLabel").GetComponent<LanguageTextMeshController>().token == "Passive"){
+                     orig.rowPanelTransform.SetSiblingIndex(0);
+                   }
+                   return orig;
+                 });
                }
            };
         }

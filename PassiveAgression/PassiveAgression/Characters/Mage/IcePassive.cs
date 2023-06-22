@@ -16,36 +16,11 @@ using static RoR2.DotController;
 
 namespace PassiveAgression.Mage
 {
-    public static class BleedPassive{
+    public static class IcePassive{
      public static AssignableSkillDef def;
      public static CustomPassiveSlot slot;
      public static bool isHooked = false;
 
-     private static void dotDamageHook(ILContext il){
-         ILCursor c = new ILCursor(il);
-         if(c.TryGotoNext(MoveType.After,x => x.MatchCallOrCallvirt(typeof(HealthComponent).GetMethod(nameof(HealthComponent.TakeDamage))))){
-             c.MoveBeforeLabels();
-             c.Emit(OpCodes.Ldarg_0);
-             c.Emit(OpCodes.Ldarg_1);
-             c.EmitDelegate<Action<DotController,DotIndex>>((self,index) =>{
-                if((index != DotIndex.Bleed && index != DotIndex.SuperBleed) || (self.victimHealthComponent && !self.victimHealthComponent.alive)){
-                  return;
-                }
-                var pos = self.victimBody.transform.position;
-                foreach(var state in BleedRitualState.instances.Where((state) => state.characterBody != self.victimBody && inRange(state.characterBody.transform.position,pos))){
-                  RoR2.Orbs.OrbManager.instance.AddOrb(new RoR2.Orbs.HealOrb{
-                    origin = pos,
-                    healValue = 1f,
-                    target = state.characterBody.mainHurtBox
-                  });
-                } 
-             });
-         }
-         bool inRange(Vector3 origin,Vector3 target){
-             var vec = target - origin;
-             return vec.sqrMagnitude <= 1600;
-         }
-     }
      private static void unJetHook(ILContext il){
          ILCursor c = new ILCursor(il);
          if(c.TryGotoNext(MoveType.After,x => x.MatchCallOrCallvirt(typeof(CharacterMotor).GetProperty(nameof(CharacterMotor.isGrounded)).GetGetMethod()))){
@@ -55,23 +30,22 @@ namespace PassiveAgression.Mage
      }
 
 
-     static BleedPassive(){
+     static IcePassive(){
          slot = new CustomPassiveSlot("RoR2/Base/Mage/MageBody.prefab");
-         LanguageAPI.Add("PASSIVEAGRESSION_MAGEBLOODRITE","Unorthodox Rituals");
-         LanguageAPI.Add("PASSIVEAGRESSION_MAGEBLOODRITE_DESC","Whenever another's <style=cDeath>blood is spilled</style> nearby,heal <style=cIsHealing>1</style> health.");
+         LanguageAPI.Add("PASSIVEAGRESSION_MAGEFROSTRITE","Hoarfrost");
+         LanguageAPI.Add("PASSIVEAGRESSION_MAGEFROSTRITE_DESC","<style=cIsUtility>Frozen</style> enemies emit an aura which slows and damages enemies.");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
-         def.skillNameToken = "PASSIVEAGRESSION_MAGEBLOODRITE";
+         def.skillNameToken = "PASSIVEAGRESSION_MAGEFROSTRITE";
          (def as ScriptableObject).name = def.skillNameToken;
-         def.skillDescriptionToken = "PASSIVEAGRESSION_MAGEBLOODRITE_DESC";
+         def.skillDescriptionToken = "PASSIVEAGRESSION_MAGEFROSTRITE_DESC";
          def.onAssign = (GenericSkill slot) => {
              if(!isHooked){
                 isHooked = true;
-                IL.RoR2.DotController.EvaluateDotStacksForType += dotDamageHook;
                 IL.EntityStates.Mage.MageCharacterMain.ProcessJump += unJetHook;
              }
              var jetMachine = EntityStateMachine.FindByCustomName(slot.characterBody.gameObject,"Jet");
              if(jetMachine){
-              jetMachine.SetNextState(new BleedRitualState());
+              jetMachine.SetNextState(new IceRitualState());
               jetMachine.nextStateModifier += unJetLocal;
              }
              return null;
@@ -86,21 +60,21 @@ namespace PassiveAgression.Mage
          def.icon = Util.SpriteFromFile("UnorthodoxIcon.png"); 
          def.baseRechargeInterval = 0f;
          def.activationStateMachineName = "Jet";
-         def.activationState = new SerializableEntityStateType(typeof(BleedRitualState));
+         def.activationState = new SerializableEntityStateType(typeof(IceRitualState));
          def.canceledFromSprinting = false;
          def.cancelSprintingOnActivation = false;
          ContentAddition.AddSkillDef(def);
-         ContentAddition.AddEntityState(typeof(BleedRitualState),out _);
+         ContentAddition.AddEntityState(typeof(IceRitualState),out _);
 
          void unJetLocal(EntityStateMachine esm,ref EntityState s){
              if(s.GetType() == typeof(Idle)){
-                s = new BleedRitualState();
+                s = new IceRitualState();
              }
          }
      }
 
-     public class BleedRitualState : BaseState{
-         public static List<BleedRitualState> instances = new List<BleedRitualState>();
+     public class IceRitualState : BaseState{
+         public static List<IceRitualState> instances = new List<IceRitualState>();
 
          public override void OnEnter(){
             base.OnEnter();
@@ -113,6 +87,10 @@ namespace PassiveAgression.Mage
          public override InterruptPriority GetMinimumInterruptPriority(){
              return InterruptPriority.Death;
          }
+     }
+
+     public class FrozenTotemState : FrozenState{
+         public BuffWard ward;
      }
     }
 }

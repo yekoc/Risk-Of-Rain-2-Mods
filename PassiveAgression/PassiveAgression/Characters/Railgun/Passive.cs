@@ -54,6 +54,8 @@ namespace PassiveAgression.Railgunner{
          def.baseRechargeInterval = 0f;
          def.activationStateMachineName = "Body";
          def.activationState = new SerializableEntityStateType(typeof(GenericCharacterMain));
+         def.canceledFromSprinting = false;
+         def.cancelSprintingOnActivation = false;
          ContentAddition.AddSkillDef(def);
      }
 

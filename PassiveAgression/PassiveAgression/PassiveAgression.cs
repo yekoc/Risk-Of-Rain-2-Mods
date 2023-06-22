@@ -28,15 +28,17 @@ namespace PassiveAgression
     [BepInDependency("com.DestroyedClone.AncientScepter", BepInDependency.DependencyFlags.SoftDependency)] 
     [BepInDependency("com.KingEnderBrine.ExtraSkillSlots", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.rob.Paladin",BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInDependency("com.Moffein.SniperClassic",BepInDependency.DependencyFlags.SoftDependency)]
+    //[BepInDependency("com.Moffein.SniperClassic",BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.EnforcerGang.Enforcer",BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInDependency("com.rob.HenryMod",BepInDependency.DependencyFlags.SoftDependency)]
+    //[BepInDependency("com.rob.HenryMod",BepInDependency.DependencyFlags.SoftDependency)]
     //[BepInDependency("com.Gnome.ChefMod",BepInDependency.DependencyFlags.SoftDependency)]
     //[BepInDependency("com.Bog.Pathfinder",BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.rob.DiggerUnearthed",BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("com.Bog.Deputy",BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("com.JavAngle.HouseMod",BepInDependency.DependencyFlags.SoftDependency)]
 
     //[R2APISubmoduleDependency(nameof(LanguageAPI),nameof(LoadoutAPI),nameof(RecalculateStatsAPI),nameof(DamageAPI))]
-    [BepInPlugin("xyz.yekoc.PassiveAgression", "Passive Agression","1.0.4" )]
+    [BepInPlugin("xyz.yekoc.PassiveAgression", "Passive Agression","1.1.0" )]
     public class PassiveAgressionPlugin : BaseUnityPlugin
     {
         public static ConfigEntry<bool> unfinishedContent,devIcons;
@@ -51,8 +53,11 @@ namespace PassiveAgression
             internal bool Sniper;
             internal bool Digger;
             internal bool Henry;
+            internal bool Deputy;
+            internal bool Ganon;
+            internal bool House;
         };
-        internal ModList modCompat;
+        internal static ModList modCompat;
         private void Awake(){
             Logger = base.Logger;
             config = Config;
@@ -75,6 +80,12 @@ namespace PassiveAgression
                 SetupDigger();
             if(modCompat.Henry = Chainloader.PluginInfos.ContainsKey("com.rob.HenryMod"))
                 SetupHenry();
+            if(modCompat.Deputy = Chainloader.PluginInfos.ContainsKey("com.Bog.Deputy"))
+                SetupDeputy();
+            if(modCompat.Ganon = Chainloader.PluginInfos.ContainsKey("com.Ethanol10.Ganondorf"))
+                SetupGanon();
+            if(modCompat.House = Chainloader.PluginInfos.ContainsKey("com.JavAngle.HouseMod"))
+                SetupHouse();
             if(modCompat.Scepter = Chainloader.PluginInfos.ContainsKey("com.DestroyedClone.AncientScepter"))
                 SetupScepter();
 
@@ -114,12 +125,17 @@ namespace PassiveAgression
          #endregion
 
          #region Captain
-         body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Captain/CaptainBody.prefab").WaitForCompletion();
-         if(unfinishedContent.Value)
+         body = Captain.RadiusPassive.slot.bodyPrefab; 
+         if(unfinishedContent.Value){
+         HG.ArrayUtils.ArrayAppend(ref Captain.RadiusPassive.slot.family.variants,new SkillFamily.Variant{
+            skillDef = Captain.RadiusPassive.def,
+            viewableNode = new ViewablesCatalog.Node(Captain.RadiusPassive.def.skillNameToken,false,null)
+         });
          HG.ArrayUtils.ArrayAppend(ref body.GetComponent<SkillLocator>().special.skillFamily.variants,new SkillFamily.Variant{
             skillDef = Captain.IntegratedBeacon.def,
             viewableNode = new ViewablesCatalog.Node(Captain.IntegratedBeacon.def.skillNameToken,false,null)
          });
+         }
 
          #endregion
 
@@ -151,7 +167,7 @@ namespace PassiveAgression
 
          #region Loader
          body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Loader/LoaderBody.prefab").WaitForCompletion();
-         if(unfinishedContent.Value)
+         if(unfinishedContent.Value){
          HG.ArrayUtils.ArrayAppend(ref body.GetComponent<SkillLocator>().secondary.skillFamily.variants,new SkillFamily.Variant{
             skillDef = Loader.LoaderZipline.def,
             viewableNode = new ViewablesCatalog.Node(Loader.LoaderZipline.def.skillNameToken,false,null)
@@ -160,6 +176,7 @@ namespace PassiveAgression
             skillDef = Loader.ElectrifySpecial.def,
             viewableNode = new ViewablesCatalog.Node(Loader.ElectrifySpecial.def.skillNameToken,false,null)
          });
+         }
          #endregion
         
          #region Mage
@@ -184,12 +201,13 @@ namespace PassiveAgression
          #endregion
 
          #region Merc
-         if(unfinishedContent.Value)
+         if(unfinishedContent.Value){
          body = Merc.FlickerPassive.slot.bodyPrefab;
-         /*HG.ArrayUtils.ArrayAppend(ref Merc.FlickerPassive.slot.family.variants ,new SkillFamily.Variant{
+         HG.ArrayUtils.ArrayAppend(ref Merc.FlickerPassive.slot.family.variants ,new SkillFamily.Variant{
             skillDef = Merc.FlickerPassive.def,
             viewableNode = new ViewablesCatalog.Node(Merc.FlickerPassive.def.skillNameToken,false,null)
-         });*/
+         });
+         }
          #endregion
 
          #region Treebot
@@ -224,7 +242,15 @@ namespace PassiveAgression
         }
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         private void SetupPaladin(){
-            var skillFamily = PaladinMod.Modules.Prefabs.paladinPrefab.GetComponent<SkillLocator>()?.special?.skillFamily;
+            var body = ModCompat.PaladinDesignPassive.slot.bodyPrefab;
+            if(unfinishedContent.Value){
+            HG.ArrayUtils.ArrayAppend(ref ModCompat.PaladinDesignPassive.slot.family.variants,new SkillFamily.Variant{
+                    skillDef = ModCompat.PaladinDesignPassive.def,
+                    viewableNode = new ViewablesCatalog.Node(ModCompat.PaladinDesignPassive.def.skillNameToken,false,null),
+                    unlockableDef = PaladinMod.Modules.Unlockables.paladinLunarShardSkillDef
+            });
+            }
+            var skillFamily = body.GetComponent<SkillLocator>()?.special?.skillFamily;
             if(skillFamily){
             HG.ArrayUtils.ArrayAppend(ref skillFamily.variants, new SkillFamily.Variant{
                     skillDef = ModCompat.PaladinGlassShadow.def,
@@ -264,11 +290,27 @@ namespace PassiveAgression
         }
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         private void SetupSniper(){
-            Coin.SetMarksman(SniperClassic.SniperClassic.SniperBody,SkillSlot.Utility);
+            //Coin.SetMarksman(SniperClassic.SniperClassic.SniperBody,SkillSlot.Utility);
         }
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         private void SetupPathfinder(){
 
+        }
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        private void SetupDeputy(){  
+         HG.ArrayUtils.ArrayAppend(ref ModCompat.DeputyPassive.slot.family.variants,new SkillFamily.Variant{
+            skillDef = ModCompat.DeputyPassive.def,
+            viewableNode = new ViewablesCatalog.Node(ModCompat.DeputyPassive.def.skillNameToken,false,null),
+         });
+        }
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        private void SetupGanon(){ 
+         if(unfinishedContent.Value){
+         HG.ArrayUtils.ArrayAppend(ref ModCompat.GanonPassive.slot.family.variants,new SkillFamily.Variant{
+            skillDef = ModCompat.GanonPassive.def,
+            viewableNode = new ViewablesCatalog.Node(ModCompat.GanonPassive.def.skillNameToken,false,null),
+         });
+         }
         }
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         private void SetupDigger(){
@@ -277,6 +319,20 @@ namespace PassiveAgression
             viewableNode = new ViewablesCatalog.Node(ModCompat.DiggerBlacksmithPassive.def.skillNameToken,false,null),
             unlockableDef = DiggerPlugin.Unlockables.blacksmithUnlockableDef
          });
+        }
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        private void SetupHouse(){
+          var body = HouseMod.Modules.Survivors.House.characterPrefab;
+          var deckFam = body.GetComponent<GenericSkill>().skillFamily;
+          (deckFam as ScriptableObject).name += "HouseDeck"; 
+          if(unfinishedContent.Value){  
+          foreach(var deck in ModCompat.HousePassive.defs){
+            HG.ArrayUtils.ArrayAppend(ref deckFam.variants,new SkillFamily.Variant{
+               skillDef = deck,
+               viewableNode = new ViewablesCatalog.Node(deck.skillNameToken,false,null),
+            });
+          }
+          }
         }
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         private void SetupHenry(){

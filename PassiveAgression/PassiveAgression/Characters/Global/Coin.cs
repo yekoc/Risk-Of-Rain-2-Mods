@@ -161,23 +161,29 @@ namespace PassiveAgression
            for(int i = instances.Count -1 ; i >= 0; i--){
              var other = instances[i];
              if(other == this) continue;
-             var dir = transform.position - other.transform.position;
+             var dir = other.transform.position - transform.position;
              if(!Physics.Raycast(transform.position,dir,out var hitInfo,dir.magnitude,LayerIndex.world.mask,0)){
-               attack.origin = transform.position;
-               attack.aimVector = dir;
-               attack.damage *= 2f;
-               attack.bulletCount = 1;
-               attack.stopperMask = LayerIndex.world.mask;
-               attack.tracerEffectPrefab ??= coinTracerPrefab;
-               attack.weapon = this.gameObject;
-               attack.Fire();
+               new BulletAttack{
+                   origin = transform.position,
+                   aimVector = dir,
+                   owner = attack.owner,
+                   weapon = this.gameObject,
+                   procCoefficient = attack.procCoefficient,
+                   procChainMask = attack.procChainMask,
+                   hitCallback = attack.hitCallback,
+                   modifyOutgoingDamageCallback = attack.modifyOutgoingDamageCallback,
+                   tracerEffectPrefab = attack.tracerEffectPrefab ? attack.tracerEffectPrefab : coinTracerPrefab,
+                   minSpread = 0,
+                   maxSpread = 0,
+                   hitEffectPrefab = attack.hitEffectPrefab
+               }.Fire();
                Destroy(this.gameObject);
                return;
              }
            }
            if((redAttack == attack) || playerHit){
-
-            Destroy(this.gameObject);
+               
+             Destroy(this.gameObject);
            }
            else{
              redState = true;

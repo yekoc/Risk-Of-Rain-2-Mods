@@ -15,18 +15,18 @@ using static R2API.DamageAPI;
 
 namespace PassiveAgression.Merc
 {
-    public static class LivingForce{
+    public static class PetalReap{
      public static SkillDef def;
      public static ModdedDamageType damageType;
      public static BuffDef bdef;
 
-     static LivingForce(){
-         LanguageAPI.Add("PASSIVEAGRESSION_MERCLIVING","Living Force");
-         LanguageAPI.Add("PASSIVEAGRESSION_MERCLIVING_DESC","<style=cIsDamage>Slayer.</style> Unleash a finishing blow for <style=cIsDamage>350% damage</syle>.Hold to release your swords current aspect.Kills <style=cIsUtility>absorb the targets aspect into your blade</style>.");
+     static PetalReap(){
+         LanguageAPI.Add("PASSIVEAGRESSION_MERCREAP","Living Force");
+         LanguageAPI.Add("PASSIVEAGRESSION_MERCREAP_DESC","<style=cIsDamage>Slayer.</style> Unleash a finishing blow for <style=cIsDamage>350% damage</syle>.Hold to release your swords current aspect.Kills <style=cIsUtility>absorb the targets aspect into your blade</style>.");
          def = ScriptableObject.CreateInstance<SkillDef>();
-         def.skillNameToken = "PASSIVEAGRESSION_MERCLIVING";
+         def.skillNameToken = "PASSIVEAGRESSION_MERCREAP";
          (def as ScriptableObject).name = def.skillNameToken;
-         def.skillDescriptionToken = "PASSIVEAGRESSION_MERCLIVING_DESC";
+         def.skillDescriptionToken = "PASSIVEAGRESSION_MERCREAP_DESC";
          def.baseRechargeInterval = 6f;
          def.canceledFromSprinting = false;
          def.cancelSprintingOnActivation = false;
@@ -35,7 +35,7 @@ namespace PassiveAgression.Merc
          def.activationState = new SerializableEntityStateType(typeof(ForceAttackState));
          def.icon = Util.SpriteFromFile("Showdown.png");
          bdef = ScriptableObject.CreateInstance<BuffDef>();
-         (bdef as ScriptableObject).name = "PASSIVEAGRESSION_MERCLIVING_BUFF";
+         (bdef as ScriptableObject).name = "PASSIVEAGRESSION_MERCREAP_BUFF";
          bdef.canStack = false;
          ContentAddition.AddSkillDef(def);
          ContentAddition.AddEntityState(typeof(ForceAttackState),out _);

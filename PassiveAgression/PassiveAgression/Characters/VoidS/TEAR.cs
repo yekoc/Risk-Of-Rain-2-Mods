@@ -25,6 +25,7 @@ namespace PassiveAgression.VoidSurvivor
          LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEAR","「T?ea?r】");
          LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEAR_DESC","Tear open a portal through the void,leading to the target location.");
          LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEARCORRUPT_DESC","Haphazardly open a tear to the void,filling the surrounding area with fog.");
+         LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEARCORRUPT_KEYWORD","<style=cKeywordName>【Corruption Upgrade】</style><style=cSub>Transform to fill an area with void fog instead.</style>");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_VIENDTEAR";
          (def as ScriptableObject).name = def.skillNameToken;
@@ -44,7 +45,7 @@ namespace PassiveAgression.VoidSurvivor
          cdef.canceledFromSprinting = false;
          cdef.cancelSprintingOnActivation = false;
          cdef.activationStateMachineName = "Weapon";
-         cdef.keywordTokens = new string[]{};
+         cdef.keywordTokens = new string[]{"PASSIVEAGRESSION_VIENDTEARCORRUPT_KEYWORD"};
          cdef.activationState = new SerializableEntityStateType(typeof(TearCorruptState));
          cdef.icon = Util.SpriteFromFile("TEARC.png");
 
@@ -133,7 +134,9 @@ namespace PassiveAgression.VoidSurvivor
                  if(!(zone1 && instance2 && instance2.transform)){
                     Destroy(instance);
                     outer.SetNextStateToMain();
-                    activatorSkillSlot.AddOneStock();
+                    if(isAuthority){
+                     activatorSkillSlot.AddOneStock();
+                    }
                     return;
                  }
                  instance2.transform.localScale /= 10;
@@ -227,6 +230,9 @@ namespace PassiveAgression.VoidSurvivor
                  }
                  instance.transform.localScale /= 10;
                  instance.GetComponent<SphereZone>().rangeIndicator = radiusInstance.transform;
+                 if(Captain.RadiusPassive.supportPower != null && Captain.RadiusPassive.supportPower.Length > 0){
+                   instance.GetComponent<SphereZone>().radius *= Captain.RadiusPassive.supportPower[(int)teamComponent.teamIndex];
+                 }
                  //instance.GetComponent<SphereZone>().rangeIndicator.localPosition = new Vector3(0,0,0);
              }
              if(fixedAge > duration){
