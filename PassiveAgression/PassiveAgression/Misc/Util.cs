@@ -62,7 +62,7 @@ namespace PassiveAgression{
     }
 
     public static Sprite SpriteFromFile(string name){
-         var texture = new Texture2D(2,2);
+         var texture = new Texture2D(2,2,TextureFormat.RGBA32,mipChain: false);
          try{
          texture.LoadImage(System.IO.File.ReadAllBytes(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),"Assets/" + name)));
          }
