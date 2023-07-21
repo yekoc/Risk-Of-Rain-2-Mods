@@ -118,7 +118,7 @@ namespace PassiveAgression.Engineer
             var scrapTracker = slot.skillInstanceData as ScrapTracker;
             scrapPower[(int)scrapTracker.team] -= scrapTracker.contribution; 
          };
-         def.icon = Util.SpriteFromFile("ScrapWrench.png"); 
+         def.icon = PassiveAgressionPlugin.devIcons.Value ? Util.SpriteFromFile("ScrapWrenchOld.png") : Util.SpriteFromFile("ScrapWrench.png"); 
          def.activationStateMachineName = "Body";
          def.activationState = EntityStateMachine.FindByCustomName(slot.bodyPrefab,"Body").mainStateType;
          def.canceledFromSprinting = false;
