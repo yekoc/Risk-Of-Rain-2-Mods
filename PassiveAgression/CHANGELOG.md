@@ -1,6 +1,11 @@
 
 #Changelog
 ---
+1.2.0
+  - Added new Field Tinkering Icon
+  - Added Cascading Resonance,an alt primary for Engineer.
+  - Added ScrollableLobbyUI dependency,fixing potential issue with passives breaking the loadout panel.
+
 1.1.0
   - Added Jingling Spurs,an alt passive for Deputy.
   - Moved Power Pack Discharge behind unfinished config,as it was reported to feel incomplete.(The skill it was meant to synergise with _is_,so it counts).

@@ -74,7 +74,8 @@ namespace PassiveAgression{
                ILCursor c = new ILCursor(il);
                if(c.TryGotoNext(MoveType.After,x=>x.MatchCallOrCallvirt(typeof(LoadoutPanelController.Row).GetMethod(nameof(LoadoutPanelController.Row.FromSkillSlot),(System.Reflection.BindingFlags)(-1))))){
                  c.EmitDelegate<System.Func<LoadoutPanelController.Row,LoadoutPanelController.Row>>((orig) =>{
-                   if(orig.rowPanelTransform.Find("LabelContainer").Find("SlotLabel").GetComponent<LanguageTextMeshController>().token == "Passive"){
+                   var label = orig.rowPanelTransform.Find("SlotLabel") ?? orig.rowPanelTransform.Find("LabelContainer").Find("SlotLabel");
+                   if(label && label.GetComponent<LanguageTextMeshController>().token == "Passive"){
                      orig.rowPanelTransform.SetSiblingIndex(0);
                    }
                    return orig;

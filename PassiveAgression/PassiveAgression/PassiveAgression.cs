@@ -38,7 +38,7 @@ namespace PassiveAgression
     [BepInDependency("com.JavAngle.HouseMod",BepInDependency.DependencyFlags.SoftDependency)]
 
     //[R2APISubmoduleDependency(nameof(LanguageAPI),nameof(LoadoutAPI),nameof(RecalculateStatsAPI),nameof(DamageAPI))]
-    [BepInPlugin("xyz.yekoc.PassiveAgression", "Passive Agression","1.1.0" )]
+    [BepInPlugin("xyz.yekoc.PassiveAgression", "Passive Agression","1.2.0" )]
     public class PassiveAgressionPlugin : BaseUnityPlugin
     {
         public static ConfigEntry<bool> unfinishedContent,devIcons;
@@ -153,6 +153,10 @@ namespace PassiveAgression
          HG.ArrayUtils.ArrayAppend(ref Engineer.ScrapPassive.slot.family.variants,new SkillFamily.Variant{
             skillDef = Engineer.ScrapPassive.def,
             viewableNode = new ViewablesCatalog.Node(Engineer.ScrapPassive.def.skillNameToken,false,null)
+         });
+         HG.ArrayUtils.ArrayAppend(ref body.GetComponent<SkillLocator>().primary.skillFamily.variants,new SkillFamily.Variant{
+            skillDef = Engineer.ResonancePrimary.def,
+            viewableNode = new ViewablesCatalog.Node(Engineer.ResonancePrimary.def.skillNameToken,false,null)
          });
          #endregion
 

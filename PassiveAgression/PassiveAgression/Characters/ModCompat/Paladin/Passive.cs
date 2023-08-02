@@ -26,7 +26,7 @@ namespace PassiveAgression.ModCompat{
      static PaladinDesignPassive(){
          slot = new CustomPassiveSlot(PaladinMod.PaladinPlugin.characterPrefab);
          LanguageAPI.Add("PASSIVEAGRESSION_PALADINDESIGN","Sovereign's Design");
-         LanguageAPI.Add("PASSIVEAGRESSION_PALADINDESIGN_DESC","Gain <style=cIsHealing>adaptive armor</style>. While having full <style=cIsHealth>shields</style>, the Paladin is <style=cIsHealing>blessed</style>, empowering all sword skills.");
+         LanguageAPI.Add("PASSIVEAGRESSION_PALADINDESIGN_DESC","Gain <style=cIsHealing>adaptive armor</style> and 1 Shield. While having full <style=cIsHealth>shields</style>, the Paladin is <style=cIsHealing>blessed</style>, empowering all sword skills.");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_PALADINDESIGN";
          (def as ScriptableObject).name = def.skillNameToken;
@@ -41,6 +41,7 @@ namespace PassiveAgression.ModCompat{
              }
              slot.characterBody.levelArmor = 0;
              slot.characterBody.master.inventory.GiveItem(RoR2Content.Items.AdaptiveArmor);
+             slot.characterBody.baseMaxShield += 1;
              return null;
              void unhooker(Run run){
                 if(isHooked){
@@ -53,6 +54,7 @@ namespace PassiveAgression.ModCompat{
          };
          def.onUnassign = (GenericSkill slot) =>{
             slot.characterBody.levelArmor = PaladinDesignPassive.slot.bodyPrefab.GetComponent<CharacterBody>().levelArmor;
+            slot.characterBody.baseMaxShield -= 1;
             slot.characterBody.master?.inventory?.RemoveItem(RoR2Content.Items.AdaptiveArmor);
             (slot.stateMachine.state as PaladinMain)?.OnEnter();
          };
