@@ -37,27 +37,55 @@ namespace PassiveAgression.Merc
          bdef = ScriptableObject.CreateInstance<BuffDef>();
          (bdef as ScriptableObject).name = "PASSIVEAGRESSION_MERCLIVING_BUFF";
          bdef.canStack = false;
+         bdef.iconSprite = Util.SpriteFromFile("nonedef.png");
          ContentAddition.AddSkillDef(def);
          ContentAddition.AddEntityState(typeof(ForceAttackState),out _);
+         ContentAddition.AddBuffDef(bdef);
          damageType = ReserveDamageType();
 
          GlobalEventManager.onCharacterDeathGlobal += (report)=>{
            if(report.victimIsElite && DamageAPI.HasModdedDamageType(report.damageInfo,damageType)){
-             var comp = report.attackerBody.GetComponent<BladeForceComponent>();
+             var comp = report?.attackerBody?.GetComponent<BladeForceComponent>();
              if(comp){
                  report.attackerBody.AddBuff(bdef);
                  comp.curElite = EliteCatalog.eliteDefs.First((el) => report.victimBody.GetBuffCount(el.eliteEquipmentDef.passiveBuffDef) > 0);
+                 Debug.Log(comp.curElite);
                  comp.buffColor = comp.curElite.eliteEquipmentDef.passiveBuffDef.buffColor;
              }
            }
          };
          On.RoR2.GlobalEventManager.OnHitAll += (orig,self,info,hObj) =>{
-            var body = info.attacker.GetComponent<CharacterBody>();
+            var body = info?.attacker?.GetComponent<CharacterBody>();
             var comp = body?.GetComponent<BladeForceComponent>();
             if(comp && comp.curElite){
                 body.AddBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
+                Debug.Log(body.HasBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef));
             }
             orig(self,info,hObj);
+            if(comp && comp.curElite){
+                body.RemoveBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
+            }
+         };
+         On.RoR2.GlobalEventManager.OnHitEnemy += (orig,self,info,hObj) =>{
+            var body = info?.attacker?.GetComponent<CharacterBody>();
+            var comp = body?.GetComponent<BladeForceComponent>();
+            if(comp && comp.curElite){
+                body.AddBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
+                Debug.Log(body.HasBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef));
+            }
+            orig(self,info,hObj);
+            if(comp && comp.curElite){
+                body.RemoveBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
+            }
+         };
+         On.RoR2.HealthComponent.TakeDamage += (orig,self,info) =>{
+            var body = info?.attacker?.GetComponent<CharacterBody>();
+            var comp = body?.GetComponent<BladeForceComponent>();
+            if(comp && comp.curElite){
+                body.AddBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
+                Debug.Log(body.HasBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef));
+            }
+            orig(self,info);
             if(comp && comp.curElite){
                 body.RemoveBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
             }
@@ -67,9 +95,19 @@ namespace PassiveAgression.Merc
      public class BladeForceComponent : MonoBehaviour {
          public EliteDef curElite = null;
          public Color buffColor = Color.white;
+         Renderer renderer = null;
 
+         public void Start(){
+            renderer = GetComponent<CharacterBody>().modelLocator.modelTransform.GetComponent<CharacterModel>().baseRendererInfos[1].renderer;
+         }
          public void Update(){
             bdef.buffColor = buffColor;
+            if(renderer && curElite){
+              var index = curElite? curElite.shaderEliteRampIndex : -1;
+              MaterialPropertyBlock props = new MaterialPropertyBlock();
+              renderer.GetPropertyBlock(props);
+              props?.SetFloat(CommonShaderProperties._EliteIndex,curElite.shaderEliteRampIndex +1);
+            }
          }
      }
 
@@ -95,6 +133,15 @@ namespace PassiveAgression.Merc
              {
                      PlayAnimation("FullBody, Override", "GroundLight3", "GroundLight.playbackRate", duration);
              }
+             overlapAttack = new OverlapAttack{
+                attacker = base.gameObject,
+                damage = damageStat,
+                hitBoxGroup = FindHitBoxGroup("SwordLarge"),
+                isCrit = RollCrit(),
+                teamIndex = GetTeam(),
+                damageType = DamageType.BonusToLowHealth
+             };
+             DamageAPI.AddModdedDamageType(overlapAttack,damageType);
              //slashChildName = "GroundLight3Slash";
              //swingEffectPrefab = finisherSwingEffectPrefab;
              //hitEffectPrefab = finisherHitEffectPrefab;
@@ -103,6 +150,7 @@ namespace PassiveAgression.Merc
          public override void FixedUpdate(){
              base.FixedUpdate();
              if(base.fixedAge >= duration){
+                 overlapAttack.Fire();
                  outer.SetNextStateToMain();
              }
          }

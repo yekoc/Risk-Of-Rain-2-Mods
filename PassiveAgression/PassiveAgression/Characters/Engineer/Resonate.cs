@@ -15,6 +15,7 @@ namespace PassiveAgression.Engineer
         public static GameObject resonanceAttachment;
         public static SkillDef def;
         public static ConfigEntry<float> maxDamageCoef;
+        public static ConfigEntry<bool> teamlessResonance;
 
         static ResonancePrimary(){
          var basePrefab = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/QuestVolatileBattery/QuestVolatileBatteryAttachment.prefab");
@@ -22,6 +23,7 @@ namespace PassiveAgression.Engineer
          var explosionPrefab = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/QuestVolatileBattery/VolatileBatteryExplosion.prefab");
          LanguageAPI.Add("PASSIVEAGRESSION_ENGIRESO","Cascading Resonance");
          maxDamageCoef = PassiveAgression.PassiveAgressionPlugin.config.Bind("EngiResonance","Maximum Damage Coefficient",4000f,$"Maximum damage that can be dealt by {Language.GetString("PASSIVEAGRESSION_ENGIRESO")} as a percentage of base damage.");
+         teamlessResonance = PassiveAgression.PassiveAgressionPlugin.config.Bind("EngiResonance","Universal Friendly Fire",false,"Whether the resonance can be used on friendly targets as well.");
          LanguageAPI.Add("PASSIVEAGRESSION_ENGIRESO_DESC",$"Focus on an enemy to blow them up for up to <style=cIsDamage>{maxDamageCoef.Value}% damage</style>,requires unbroken line of sight.");
          def = ScriptableObject.CreateInstance<SkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_ENGIRESO";
@@ -51,16 +53,21 @@ namespace PassiveAgression.Engineer
         }
         public class ResonanceState : BaseSkillState
         {
-                private List<NetworkedBodyAttachment> possible = new(); 
+                private List<NetworkedBodyAttachment> possible = new();
+                private int animTimer = 0;
                 public override void OnEnter(){
                         base.OnEnter(); 
+		        PlayCrossfade("Gesture Left Cannon, Additive", "FireGrenadeLeft",0.1f);
+		        PlayCrossfade("Gesture Right Cannon, Additive", "FireGrenadeRight",0.1f);
                 }
                 public override void FixedUpdate(){
                     base.FixedUpdate();
                     StartAimMode();
-                    if(fixedAge % 2 == 0){
+                    animTimer++;
+                    if(animTimer > 25){
 		     PlayCrossfade("Gesture Left Cannon, Additive", "FireGrenadeLeft",0.1f);
 		     PlayCrossfade("Gesture Right Cannon, Additive", "FireGrenadeRight",0.1f);
+                     animTimer = 0;
                     }
                     new BulletAttack{
                         damage = 0f,
@@ -72,7 +79,7 @@ namespace PassiveAgression.Engineer
                                     result = ((1 << hitInfo.collider.gameObject.layer) & (int)bulletAttack.stopperMask) == 0;
                             }
                             GameObject entity = hitInfo.entityObject;
-                            if(entity && entity.GetComponent<CharacterBody>()){
+                            if(entity && entity.GetComponent<CharacterBody>() && (teamlessResonance.Value || FriendlyFireManager.ShouldDirectHitProceed(hitInfo.hitHurtBox.healthComponent,bulletAttack.owner.GetComponent<TeamComponent>().teamIndex))){
                               NetworkedBodyAttachment.FindBodyAttachments(entity.GetComponent<CharacterBody>(),possible);
                               var index = possible.FindIndex((n) => n.name.Contains("ResonatingNetworkAttachment"));
                               var attach = (index == -1) ? GameObject.Instantiate(resonanceAttachment) : possible[index].gameObject;
@@ -129,14 +136,15 @@ namespace PassiveAgression.Engineer
               attacker = gameObject.GetComponent<GenericOwnership>().ownerObject;
               attackerBody = attacker.GetComponent<CharacterBody>();
               bones = base.GetComponent<JitterBones>();
+              if(bones){
               bones.skinnedMeshRenderer = attachedBody.modelLocator.modelTransform.GetComponent<CharacterModel>()?.mainSkinnedMeshRenderer;
               bones.perlinNoiseFrequency = 1f;
               bones.headBonusStrength = 40f;
+              }
               vfx = UnityEngine.Object.Instantiate(vfxEffectPrefab, attachedBody.corePosition,Quaternion.identity);
               vfx.transform.parent = (attachedBody.coreTransform) ? attachedBody.coreTransform : attachedBody.transform;
               vfx.transform.localPosition = Vector3.zero;
               vfx.transform.localRotation = Quaternion.identity;
-              Debug.Log(vfx.transform.localScale);
               vfx.transform.localScale *= attachedBody.radius;
               if(attachedBody.isChampion){
                 progressTarget = 20f;
@@ -146,18 +154,21 @@ namespace PassiveAgression.Engineer
             public override void FixedUpdate(){
                 if(progress >= progressTarget){
                     Detonate();
-                    bones.perlinNoiseStrength = 0f;
                 }
                 if(oldProgress >= progress){
-                    bones.perlinNoiseStrength = 0f;
                     outer.SetNextState(new Idle());
                 }
-                bones.perlinNoiseStrength = progress / progressTarget;
+                if(bones){
+                  bones.perlinNoiseStrength = progress / progressTarget;
+                }
                 oldProgress = progressBufferFrame;
                 progressBufferFrame = progress;
             }
             public override void OnExit(){
                Destroy(vfx);
+               if(bones){
+                 bones.perlinNoiseStrength = 0f;
+               }
             }
 
             public void Detonate()

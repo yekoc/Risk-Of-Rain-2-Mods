@@ -63,7 +63,7 @@ Credit to cute anime girls for giving me the will to continue living.
 		<tr>
                         <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/d/d8/Engineer.png/revision/latest?cb=20200129200649" width=128></td>			
 			<td>
-				<b>Passive:</b> Resonance Cascade<br>
+				<b>Primary:</b> Resonance Cascade<br>
 				Keep your focus on an enemy for some time to destablize their body,causing an explosion for up to 4000% damage.
 			</td>
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/ResonanceJitter.png" width=128></td>

@@ -38,7 +38,7 @@ namespace PassiveAgression
     [BepInDependency("com.JavAngle.HouseMod",BepInDependency.DependencyFlags.SoftDependency)]
 
     //[R2APISubmoduleDependency(nameof(LanguageAPI),nameof(LoadoutAPI),nameof(RecalculateStatsAPI),nameof(DamageAPI))]
-    [BepInPlugin("xyz.yekoc.PassiveAgression", "Passive Agression","1.2.0" )]
+    [BepInPlugin("xyz.yekoc.PassiveAgression", "Passive Agression","1.2.1" )]
     public class PassiveAgressionPlugin : BaseUnityPlugin
     {
         public static ConfigEntry<bool> unfinishedContent,devIcons;
@@ -205,11 +205,15 @@ namespace PassiveAgression
          #endregion
 
          #region Merc
-         if(unfinishedContent.Value){
          body = Merc.FlickerPassive.slot.bodyPrefab;
+         if(unfinishedContent.Value){
          HG.ArrayUtils.ArrayAppend(ref Merc.FlickerPassive.slot.family.variants ,new SkillFamily.Variant{
             skillDef = Merc.FlickerPassive.def,
             viewableNode = new ViewablesCatalog.Node(Merc.FlickerPassive.def.skillNameToken,false,null)
+         });
+         HG.ArrayUtils.ArrayAppend(ref body.GetComponent<SkillLocator>().special.skillFamily.variants ,new SkillFamily.Variant{
+            skillDef = Merc.LivingForce.def,
+            viewableNode = new ViewablesCatalog.Node(Merc.LivingForce.def.skillNameToken,false,null)
          });
          }
          #endregion

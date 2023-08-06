@@ -1,6 +1,12 @@
 
 #Changelog
 ---
+1.2.1
+  - Cascading Resonance changes:
+   * Fixed NRE spam in multiplayer
+   * Fixed Cascading Resonance affecting allies,old behavior can now be turned on from config for turret resonating reasons.
+   * Fixed animation speed/looping.
+
 1.2.0
   - Added new Field Tinkering Icon
   - Added Cascading Resonance,an alt primary for Engineer.
