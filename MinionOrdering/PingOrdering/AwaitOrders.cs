@@ -25,9 +25,51 @@ namespace PingOrdering{
 
 		public float sprintThreshold;
 
+                public PingIndicator ping;
+
+                public AwaitOrders(PingIndicator ing = null){
+                   ping = ing;
+                }
 
 		public override void OnEnter(){
 			base.OnEnter();
+                        if(!ping){
+                           ping = UnityEngine.Object.Instantiate(LegacyResourcesAPI.Load<GameObject>("Prefabs/PingIndicator")).GetComponent<PingIndicator>();
+                           ping.pingOwner = characterMaster.minionOwnership?.ownerMaster?.gameObject;
+                           ping.pingOrigin = body.transform.position;
+                           ping.pingNormal = Vector3.zero;
+                           ping.pingTarget = body.gameObject;
+                           ping.transform.position = body.transform.position;
+                           ping.positionIndicator.targetTransform = body.transform;
+                           ping.positionIndicator.defaultPosition = body.transform.position;
+                           ping.targetTransformToFollow = body.coreTransform;
+                           ping.pingDuration = float.PositiveInfinity;
+                           ping.fixedTimer = float.PositiveInfinity;
+                           ping.pingColor = Color.cyan;
+                           ping.pingText.color = ping.textBaseColor * ping.pingColor;
+                           ping.pingText.text = Util.GetBestMasterName(characterMaster.minionOwnership?.ownerMaster);
+                           ping.pingObjectScaleCurve.enabled = false;
+                           ping.pingObjectScaleCurve.enabled = true;
+                           ping.pingHighlight.highlightColor = (Highlight.HighlightColor)(451);
+                           ping.pingHighlight.targetRenderer = body.modelLocator?.modelTransform?.GetComponentInChildren<CharacterModel>()?.baseRendererInfos?.First((r) => !r.ignoreOverlays).renderer;
+                           ping.pingHighlight.strength = 1f;
+                           ping.pingHighlight.isOn = true;
+                           foreach(var o in ping.enemyPingGameObjects){
+                             o.SetActive(true);
+                             var sprit = o.GetComponent<SpriteRenderer>();
+                             if(sprit){
+                               sprit.color = Color.cyan;
+                             }
+                             var part = o.GetComponent<ParticleSystem>();
+                             if(part){
+                               var main = part.main;
+                               var sC = main.startColor;
+                               sC.colorMax = Color.cyan;
+                               sC.colorMin = Color.cyan;
+                               sC.color = Color.cyan;
+                             }
+                           }
+                        }
 			sprintThreshold = ai.skillDrivers.FirstOrDefault((drive) => drive.shouldSprint)?.minDistanceSqr ?? float.PositiveInfinity;	
 		}
 
@@ -51,9 +93,11 @@ namespace PingOrdering{
                             }
 			    BroadNavigationSystem.Agent agent = ai.broadNavigationAgent;
 			    agent.currentPosition = ai.body.footPosition;
+                            ai.SetGoalPosition(targetPosition);
 			    ai.localNavigator.targetPosition = agent.output.nextPosition ?? ai.localNavigator.targetPosition; 
-			    if(!agent.output.targetReachable)
+			    if(!agent.output.targetReachable){
 				agent.InvalidatePath();
+                            }
 			    ai.localNavigator.Update(cvAIUpdateInterval.value);
 			    bodyInputs.moveVector = ai.localNavigator.moveVector;
 			    float sqrMagnitude = (base.body.footPosition - targetPosition.Value).sqrMagnitude;
@@ -77,7 +121,9 @@ namespace PingOrdering{
 
 		public override void OnExit(){
 			base.OnExit();
-
+                        if(ping){
+                          ping.fixedTimer = 0f;
+                        }
 		}
 		public void SubmitOrder(Orders command,GameObject target,Vector3? targetPosition = null){
 			 order = command;
