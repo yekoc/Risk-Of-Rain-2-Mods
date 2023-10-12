@@ -25,7 +25,7 @@ using RoR2BepInExPack.Utilities;
 
 namespace DetailPicker
 {
-    [BepInPlugin("xyz.yekoc.DetailPicker", "Skin Detail Picker","1.0.0" )]    
+    [BepInPlugin("xyz.yekoc.DetailPicker", "Skin Detail Picker","1.0.1" )]
     [BepInDependency("com.bepis.r2api")]
     [R2API.Utils.NetworkCompatibility(R2API.Utils.CompatibilityLevel.EveryoneMustHaveMod)]
     public class SkinDetailPickerPlugin : BaseUnityPlugin{
@@ -177,7 +177,7 @@ namespace DetailPicker
                       int locRowCount = (int)rowcount;
                       var count = 0;
                       string disableList = String.Empty;
-                      foreach(var skin in skins.Where(s => s.gameObjectActivations.Any(a => a.gameObject == mesh.gameObject && a.shouldActivate == false))){
+                      foreach(var skin in skins.Where(s => s.gameObjectActivations.Contains(new GameObjectActivation{gameObject = mesh.gameObject,shouldActivate = false}))){
                          disableList += Language.GetString(skin.nameToken) + '\n';
                       }
                       if(!(skins[0].meshReplacements.Any(m => m.mesh == mesh))){
@@ -190,13 +190,16 @@ namespace DetailPicker
                             if(skins[0].gameObjectActivations.Any(g => g.gameObject == mesh)){
                              ArrayUtils.ArrayAppend(ref oSkin.rSkin.gameObjectActivationTemplates,new GameObjectActivationTemplate{path = path,shouldActivate = skins[0].gameObjectActivations.First(a => a.gameObject == mesh).shouldActivate});
                             }
+                            else if(oSkin.rSkin.gameObjectActivationTemplates.Contains(new GameObjectActivationTemplate{path = path,shouldActivate =false})){
+                             ArrayUtils.ArrayAppend(ref oSkin.rSkin.gameObjectActivationTemplates,new GameObjectActivationTemplate{path = path,shouldActivate = true});
+                            }
                             row.UpdateHighlightedChoice();
                             diorama.loadoutDirty = true;
                          },skins[0].unlockableDef?.cachedName ?? "",null);
                          count++;
                       }
                       foreach(var skin in skins.Where(s => s.meshReplacements.Any(m => m.renderer == mesh))){
-                        if(skin.meshReplacements.Any(s => s.renderer == mesh && s.mesh == null)){
+                        if(skin.meshReplacements.Contains(new MeshReplacement{mesh = null,renderer = mesh})){
                           disableList += Language.GetString(skin.nameToken) + '\n';
                           count++;
                           continue;
@@ -215,7 +218,10 @@ namespace DetailPicker
                                    list.RemoveAll(m => m.path == path);
                                    oSkin.rSkin.meshReplacementTemplates = list.ToArray();
                                  }
-                                 ArrayUtils.ArrayAppend(ref oSkin.rSkin.gameObjectActivationTemplates,new GameObjectActivationTemplate{path = path,shouldActivate = true});
+                                 ref var goats = ref oSkin.rSkin.gameObjectActivationTemplates;
+                                 if(goats.Contains(new GameObjectActivationTemplate{path = path,shouldActivate = false})){
+                                  ArrayUtils.ArrayAppend(ref goats,new GameObjectActivationTemplate{path = path,shouldActivate = true});
+                                 }
                                  oSkin.syncInfo[locRowCount] = locCount; 
                                  row.UpdateHighlightedChoice();
                                  diorama.loadoutDirty = true;
@@ -247,7 +253,7 @@ namespace DetailPicker
                       var count = 0; 
                       int locRowCount = rowcount;
                       string disableList = String.Empty;
-                      foreach(var skin in skins.Where(s => s.gameObjectActivations.Any(a => a.gameObject == info.gameObject && a.shouldActivate == false))){
+                      foreach(var skin in skins.Where(s => s.gameObjectActivations.Contains(new GameObjectActivation{gameObject = info.gameObject,shouldActivate = false}))){
                          disableList += Language.GetString(skin.nameToken) + '\n';
                       }
                       if(!skins[0].meshReplacements.Any(m => m.renderer == info ) && !skins[0].rendererInfos.Any(m => m.renderer == info )){
@@ -259,6 +265,9 @@ namespace DetailPicker
                             oSkin.syncInfo[locRowCount] = 0;
                             if(skins[0].gameObjectActivations.Any(g => g.gameObject == info )){
                              ArrayUtils.ArrayAppend(ref oSkin.rSkin.gameObjectActivationTemplates,new GameObjectActivationTemplate{path = path,shouldActivate = skins[0].gameObjectActivations.First(a => a.gameObject == info ).shouldActivate});
+                            }
+                            else if(oSkin.rSkin.gameObjectActivationTemplates.Contains(new GameObjectActivationTemplate{path = path,shouldActivate =false})){
+                             ArrayUtils.ArrayAppend(ref oSkin.rSkin.gameObjectActivationTemplates,new GameObjectActivationTemplate{path = path,shouldActivate = true});
                             }
                             row.UpdateHighlightedChoice();
                             diorama.loadoutDirty = true;
@@ -282,7 +291,10 @@ namespace DetailPicker
                                     defaultShadowCastingMode = rinfo.defaultShadowCastingMode
                                  }});
                                  oSkin.syncInfo[locRowCount] = locCount;
-                                 ArrayUtils.ArrayAppend(ref oSkin.rSkin.gameObjectActivationTemplates,new GameObjectActivationTemplate{path = path,shouldActivate = true});
+                                 ref var goats = ref oSkin.rSkin.gameObjectActivationTemplates;
+                                 if(goats.Contains(new GameObjectActivationTemplate{path = path,shouldActivate = false})){
+                                  ArrayUtils.ArrayAppend(ref goats,new GameObjectActivationTemplate{path = path,shouldActivate = true});
+                                 }
                                  row.UpdateHighlightedChoice();
                                  diorama.loadoutDirty = true;
                                 },skin.unlockableDef?.cachedName ?? "",null);
@@ -331,13 +343,16 @@ namespace DetailPicker
                             if(skins[0].gameObjectActivations.Any(g => g.gameObject == renderer)){
                              ArrayUtils.ArrayAppend(ref oSkin.rSkin.gameObjectActivationTemplates,new GameObjectActivationTemplate{path = path,shouldActivate = skins[0].gameObjectActivations.First(a => a.gameObject == renderer).shouldActivate});
                             }
+                            else if(oSkin.rSkin.gameObjectActivationTemplates.Contains(new GameObjectActivationTemplate{path = path,shouldActivate =false})){
+                             ArrayUtils.ArrayAppend(ref oSkin.rSkin.gameObjectActivationTemplates,new GameObjectActivationTemplate{path = path,shouldActivate = true});
+                            }
                             row.UpdateHighlightedChoice();
                             diorama.loadoutDirty = true;
 
                          },skins[0].unlockableDef?.cachedName ?? "",null);
                          count++;
                       }
-                      foreach(var skin in skins.Where(s => s.gameObjectActivations.Any(a => a.gameObject == renderer.gameObject && a.shouldActivate == false))){
+                      foreach(var skin in skins.Where(s => s.gameObjectActivations.Contains(new GameObjectActivation{gameObject = renderer.gameObject , shouldActivate = false}))){
                          disableList += Language.GetString(skin.nameToken) + '\n';
                       }
                       foreach(var skin in skins.Where(s => s.meshReplacements.Any(m => m.renderer == renderer) || s.rendererInfos.Any(r => r.renderer == renderer))){
@@ -371,7 +386,10 @@ namespace DetailPicker
                                  }
                                  });
                                  }
-                                 ArrayUtils.ArrayAppend(ref oSkin.rSkin.gameObjectActivationTemplates,new GameObjectActivationTemplate{path = path,shouldActivate = true});
+                                 ref var goats = ref oSkin.rSkin.gameObjectActivationTemplates;
+                                 if(goats.Contains(new GameObjectActivationTemplate{path = path,shouldActivate = false})){
+                                  ArrayUtils.ArrayAppend(ref goats,new GameObjectActivationTemplate{path = path,shouldActivate = true});
+                                 }
                                  diorama.loadoutDirty = true;
                                  oSkin.syncInfo[locRowCount] = locCount;
                                  row.UpdateHighlightedChoice();
@@ -574,7 +592,10 @@ namespace DetailPicker
                   }
                   });
                   }
-                  ArrayUtils.ArrayAppend(ref oSkin.rSkin.gameObjectActivationTemplates,new GameObjectActivationTemplate{path = path,shouldActivate = true});
+                 ref var goats = ref oSkin.rSkin.gameObjectActivationTemplates;
+                 if(goats.Contains(new GameObjectActivationTemplate{path = path,shouldActivate = false})){
+                  ArrayUtils.ArrayAppend(ref goats,new GameObjectActivationTemplate{path = path,shouldActivate = true});
+                 }
                   count++;
                 }
                foreach(var renderer in infos){
@@ -598,7 +619,10 @@ namespace DetailPicker
                   }
                   });
                   }
-                  ArrayUtils.ArrayAppend(ref oSkin.rSkin.gameObjectActivationTemplates,new GameObjectActivationTemplate{path = path,shouldActivate = true});
+                 ref var goats = ref oSkin.rSkin.gameObjectActivationTemplates;
+                 if(goats.Contains(new GameObjectActivationTemplate{path = path,shouldActivate = false})){
+                  ArrayUtils.ArrayAppend(ref goats,new GameObjectActivationTemplate{path = path,shouldActivate = true});
+                 }
                   count++;
                }
             }
@@ -643,7 +667,10 @@ namespace DetailPicker
                   }
                   });
                   }
-                  ArrayUtils.ArrayAppend(ref oSkin.rSkin.gameObjectActivationTemplates,new GameObjectActivationTemplate{path = path,shouldActivate = true});
+                 ref var goats = ref oSkin.rSkin.gameObjectActivationTemplates;
+                 if(goats.Contains(new GameObjectActivationTemplate{path = path,shouldActivate = false})){
+                  ArrayUtils.ArrayAppend(ref goats,new GameObjectActivationTemplate{path = path,shouldActivate = true});
+                 }
                   count++;
                 }
             }
