@@ -21,7 +21,7 @@ using System.Runtime.CompilerServices;
 
 namespace PingOrdering
 {
-    [BepInPlugin("xyz.yekoc.PingOrdering", "Ping Ordering","1.1.0" )]
+    [BepInPlugin("xyz.yekoc.PingOrdering", "Ping Ordering","1.1.1" )]
     [BepInDependency("com.rune580.riskofoptions",BepInDependency.DependencyFlags.SoftDependency)]
     public class BetterAIPlugin : BaseUnityPlugin
     {
@@ -35,7 +35,7 @@ namespace PingOrdering
 
                 On.RoR2.PlayerCharacterMasterController.Update += (orig,self) =>{
                   orig(self);
-                  if(attentionButton.Value.IsPressed()){
+                  if(attentionButton.Value.IsPressed() && self.hasEffectiveAuthority){
                    var g = MinionOwnership.MinionGroup.FindGroup(self.master.netId);
                    if(g != null){
                     foreach(var minion in g.members){
