@@ -24,8 +24,8 @@ using ExtraSkillSlots;
 
 namespace HolyHolyHoly
 {
-    [BepInPlugin("xyz.yekoc.Holy", "HolyHolyHOLY","1.0.7" )]
-    [BepInDependency("com.bepis.r2api",BepInDependency.DependencyFlags.HardDependency)]
+    [BepInPlugin("xyz.yekoc.Holy", "HolyHolyHOLY","1.0.9" )]
+    [BepInDependency(RecalculateStatsAPI.PluginGUID,BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("com.KingEnderBrine.ExtraSkillSlots", BepInDependency.DependencyFlags.SoftDependency)]
     public class HolyPlugin : BaseUnityPlugin
     {
@@ -91,10 +91,8 @@ namespace HolyHolyHoly
 	  sprint = new ILHook(typeof(CharacterBody).GetProperty("isSprinting").GetSetMethod(),Taskifier);
           trajGrav = new Hook(typeof(Trajectory).GetProperty("defaultGravity",(BindingFlags)(-1)).GetGetMethod(true),new Func<Func<float>,float>((orig) => currentGrav));
           currentGrav = UnityEngine.Physics.gravity.y;
-	  if(RecalculateStatsAPI.Loaded){
-		ih = new ILHook(typeof(RecalculateStatsAPI).GetMethod("HookRecalculateStats",(System.Reflection.BindingFlags)(-1)),RecalculateStatsAPIRuiner);
-		h = new Hook(typeof(RecalculateStatsAPI).GetMethod("GetStatMods",(System.Reflection.BindingFlags)(-1)),typeof(HolyPlugin).GetMethod("RecalculateStatsAPIRuiner2",(System.Reflection.BindingFlags)(-1)));
-	  }
+          ih = new ILHook(typeof(RecalculateStatsAPI).GetMethod("HookRecalculateStats",(System.Reflection.BindingFlags)(-1)),RecalculateStatsAPIRuiner);
+          h = new Hook(typeof(RecalculateStatsAPI).GetMethod("GetStatMods",(System.Reflection.BindingFlags)(-1)),typeof(HolyPlugin).GetMethod("RecalculateStatsAPIRuiner2",(System.Reflection.BindingFlags)(-1)));
 	  IL.RoR2.CharacterBody.RecalculateStats += UnVisualize;
 	}
 
@@ -105,10 +103,8 @@ namespace HolyHolyHoly
 	  IL.RoR2.CharacterBody.RecalculateStats -= UnVisualize;
 	  trajGrav.Undo();
           sprint.Undo();
-	  if(RecalculateStatsAPI.Loaded){
-	    h.Undo();
-	    ih.Undo();
-	  }
+	  h.Undo();
+	  ih.Undo();
 	}
 
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
@@ -176,7 +172,7 @@ namespace HolyHolyHoly
 				ILLabel label = c.DefineLabel();
                                 if(c.TryGotoNext(MoveType.After,x=> x.MatchCallOrCallvirt(typeof(ILCursor).GetMethod("EmitDelegate").MakeGenericMethod(typeof(Action<CharacterBody>))),x=>x.MatchPop())){
                                  label = c.MarkLabel();
-                                 if(c.TryGotoPrev(MoveType.After,x => x.MatchPop(),x => x.MatchLdloc(out _))){
+                                 if(c.TryGotoPrev(MoveType.After,x => x.MatchLdloc(0),x => x.MatchLdfld(out _))){
 				   c.EmitDelegate<Action<ILCursor>>((cursor) => {cursor.EmitDelegate<Action<CharacterBody>>((body) => {if(!queue.GetOrAdd(body,new HolyData()).statsDirty) RecalculateStatsAPI.GetStatMods(body);});});
                                    c.Emit(OpCodes.Br,label);
                                    c.Emit(OpCodes.Ldloc_0);
@@ -195,9 +191,7 @@ namespace HolyHolyHoly
                     if(queue[body].statsDirty){
                      queue[body].prevMaxHealth = body.maxHealth;
                      queue[body].prevMaxShield = body.maxShield;
-		     if(RecalculateStatsAPI.Loaded){
-		      RecalculateStatsAPI.GetStatMods(body);
-		     }
+		     RecalculateStatsAPI.GetStatMods(body);
                     }
 		   }
 		   else{

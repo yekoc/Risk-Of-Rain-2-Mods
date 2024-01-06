@@ -78,7 +78,7 @@
       <HintPath>..\libs\UnityEngine.UNETModule.dll</HintPath>
     </Reference>
     <Reference Include="R2API">
-	    <HintPath>..\libs\R2API.dll</HintPath>
+	    <HintPath>..\libs\R2API.RecalculateStats.dll</HintPath>
     </Reference>
     <Reference Include="ExtraSkillSlots">
       <HintPath>..\libs\ExtraSkillSlots.dll</HintPath>
