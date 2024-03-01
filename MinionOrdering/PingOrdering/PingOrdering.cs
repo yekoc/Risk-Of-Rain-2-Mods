@@ -21,9 +21,9 @@ using System.Runtime.CompilerServices;
 
 namespace PingOrdering
 {
-    [BepInPlugin("xyz.yekoc.PingOrdering", "Ping Ordering","1.1.1" )]
+    [BepInPlugin("xyz.yekoc.PingOrdering", "Ping Ordering","1.1.2" )]
     [BepInDependency("com.rune580.riskofoptions",BepInDependency.DependencyFlags.SoftDependency)]
-    public class BetterAIPlugin : BaseUnityPlugin
+    public class AIOrdersPlugin : BaseUnityPlugin
     {
 	static public Dictionary<CharacterMaster,List<AwaitOrders>> subordinateDict = new Dictionary<CharacterMaster,List<AwaitOrders>>();
         static public ConfigEntry<KeyboardShortcut> attentionButton;
@@ -92,7 +92,7 @@ namespace PingOrdering
 			c.EmitDelegate<Func<PingIndicator,bool>>((PingIndicator self) => {
 			  CharacterMaster ownerMaster = self.pingOwner.GetComponent<CharacterMaster>();
 			  if(subordinateDict.ContainsKey(ownerMaster)){
-                               subordinateDict[ownerMaster].ForEach((m) => m.SubmitOrder(AwaitOrders.Orders.Move , null,self.pingOrigin));
+                                subordinateDict[ownerMaster].ForEach((m) => m.SubmitOrder(AwaitOrders.Orders.Move , null,self.pingOrigin));
 				subordinateDict.Remove(ownerMaster);
 				//Chat.AddMessage(string.Format(Language.GetString("PING_ORDER_ENEMY"),self.pingText.text,Util.GetBestBodyName(subordinateDict[ownerMaster].characterBody),Util.GetBestBodyName(targetMaster.characterBody));
 				self.pingDuration = 1f;

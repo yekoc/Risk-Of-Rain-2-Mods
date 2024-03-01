@@ -33,10 +33,15 @@ namespace PingOrdering{
 
 		public override void OnEnter(){
 			base.OnEnter();
+                        if(!ai || !body){
+                          outer.SetNextStateToMain();
+                          AIOrdersPlugin.subordinateDict[characterMaster.minionOwnership.ownerMaster].Remove(this);
+                          return;
+                        }
                         if(!ping){
                            ping = UnityEngine.Object.Instantiate(LegacyResourcesAPI.Load<GameObject>("Prefabs/PingIndicator")).GetComponent<PingIndicator>();
                            ping.pingOwner = characterMaster.minionOwnership?.ownerMaster?.gameObject;
-                           ping.pingOrigin = body.transform.position;
+                           ping.pingOrigin = body?.transform?.position ?? base.transform.position;
                            ping.pingNormal = Vector3.zero;
                            ping.pingTarget = body.gameObject;
                            ping.transform.position = body.transform.position;
@@ -75,6 +80,11 @@ namespace PingOrdering{
 
 		public override void FixedUpdate(){
 			base.FixedUpdate();
+                        if(!ai){
+                          outer.SetNextStateToMain();
+                          AIOrdersPlugin.subordinateDict[characterMaster.minionOwnership.ownerMaster].Remove(this);
+                          return;
+                        }
 			if(!target && !targetPosition.HasValue)
 			  AimAt(ref bodyInputs,ai.leader); 
 			switch(order){

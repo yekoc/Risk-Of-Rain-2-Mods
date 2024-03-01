@@ -8,6 +8,9 @@ Credit to cute anime girls for giving me the will to continue living.
 
 #Changelog
 ---
+1.1.2 - Fixed minions that lack AI breaking.\
+Changed internal name of plugin to make more sense.
+
 1.1.1 - Stop server from thinking everyone did the thing it just did.
 
 1.1.0 - Added a button to call the attention of every subordinate. It can be changed in config.\
