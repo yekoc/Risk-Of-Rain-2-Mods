@@ -177,10 +177,11 @@ namespace PassiveAgression{
         }
  }
  public class SingleUseSkillDef : AssignableSkillDef {
+     public GenericSkill.SkillOverridePriority overridePriority = GenericSkill.SkillOverridePriority.Contextual;
      public override void OnExecute(GenericSkill skillSlot){
         base.OnExecute(skillSlot);
         if(skillSlot.stock <= 0){
-          skillSlot.UnsetSkillOverride(skillSlot.gameObject,this,GenericSkill.SkillOverridePriority.Contextual);
+          skillSlot.UnsetSkillOverride(skillSlot.gameObject,this,overridePriority);
         }
      }
  }

@@ -53,6 +53,10 @@ namespace PassiveAgression
 			GameObject gameObject = UnityEngine.Object.Instantiate(masterPrefab, position, rotation);
 			CharacterMaster component = gameObject.GetComponent<CharacterMaster>();
 			component.teamIndex = teamIndex;
+                        if(!NetworkServer.active){
+                           preSpawnSetupCallback.Invoke(component);
+                           return component;
+                        }
 			Loadout loadout = Loadout.RequestInstance();
 			this.loadout?.Copy(loadout);
 			if ((bool)skinDef)

@@ -54,6 +54,7 @@ namespace PassiveAgression.Mage
          var exp = proPrefab.GetComponent<ProjectileImpactExplosion>();
          exp.explosionEffect = null;
          exp.impactEffect = null;
+         /*
          muzzleFlash = PrefabAPI.InstantiateClone(UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Common/VFX/BleedEffect.prefab").WaitForCompletion(),"MuzzleFlashMageBlood",false);
          muzzleFlash.AddComponent<EffectComponent>();
          var vfx = muzzleFlash.AddComponent<VFXAttributes>();
@@ -62,6 +63,9 @@ namespace PassiveAgression.Mage
          muzzleFlash.AddComponent<DestroyOnParticleEnd>();
          muzzleFlash.AddComponent<DestroyOnTimer>().duration = 0.2f;
          GameObject.Destroy(muzzleFlash.transform.GetChild(0).gameObject);
+         */
+         muzzleFlash = PrefabAPI.InstantiateClone(UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Mage/MuzzleflashMageFire.prefab").WaitForCompletion(),"MuzzleFlashMageBlood",false);
+         foreach(var rend in muzzleFlash.GetComponentsInChildren<Renderer>()){rend.material = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<Material>("RoR2/Base/moon2/matBloodSiphon.mat").WaitForCompletion();}
 
          ContentAddition.AddEffect(muzzleFlash);
          ContentAddition.AddProjectile(proPrefab);
@@ -132,7 +136,7 @@ namespace PassiveAgression.Mage
          public override void OnExecute(GenericSkill skillSlot){
              base.OnExecute(skillSlot);
              BInstanceData instanceData = (BInstanceData)skillSlot.skillInstanceData;
-             instanceData.currentcooldown = Mathf.Min(999f,instanceData.currentcooldown + baseRechargeInterval);
+             instanceData.currentcooldown = Mathf.Min(99f,instanceData.currentcooldown + baseRechargeInterval);
              skillSlot.RecalculateFinalRechargeInterval();
              if(skillSlot.stock < 0){
                skillSlot.stock = 0;

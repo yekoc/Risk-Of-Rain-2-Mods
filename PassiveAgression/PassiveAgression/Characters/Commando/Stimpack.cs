@@ -16,7 +16,7 @@ namespace PassiveAgression.Commando
      static CommandoStimpack(){
          LanguageAPI.Add("PASSIVEAGRESSION_COMMANDOSTIM","Stim Shot");
          LanguageAPI.Add("PASSIVEAGRESSION_COMMANDOSTIM_DESC","Administer a standard issue <style=cIsHealing>UES Emergency Stimulant™</style>,guaranteed to boost general health and response speed! \n<style=cSub><size=40%>(side effects may include but are not limited to...)</size></style>");
-         LanguageAPI.Add("PASSIVEAGRESSION_COMMANDOSTIM_KEYWORD","<style=cKeywordName>Stimulated</style><style=cSub>Heals for <style=cIsHealing>20% of missing health</style> and boosts attack and move speed by <style=cIsUtility>+25%</style></style>");
+         LanguageAPI.Add("PASSIVEAGRESSION_COMMANDOSTIM_KEYWORD","<style=cKeywordName>Stimulated</style><style=cSub>Heals for <style=cIsHealing>50% of missing health</style> and boosts attack and move speed by <style=cIsUtility>+30%</style></style>");
          def = ScriptableObject.CreateInstance<SkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_COMMANDOSTIM";
          (def as ScriptableObject).name = def.skillNameToken;
@@ -25,6 +25,7 @@ namespace PassiveAgression.Commando
          def.canceledFromSprinting = false;
          def.cancelSprintingOnActivation = false;
          def.activationStateMachineName = "Weapon";
+         def.isCombatSkill = false;
          def.keywordTokens = new string[]{"PASSIVEAGRESSION_COMMANDOSTIM_KEYWORD"};
          def.activationState = new SerializableEntityStateType(typeof(StimState));
          def.icon = Util.SpriteFromFile("StimShot.png");
@@ -40,8 +41,8 @@ namespace PassiveAgression.Commando
          ContentAddition.AddEntityState(typeof(StimState),out _);
          RecalculateStatsAPI.GetStatCoefficients += (sender,args) =>{
              var stacks = sender.GetBuffCount(bdef);
-             args.attackSpeedMultAdd += 0.25f * stacks;
-             args.moveSpeedMultAdd += 0.25f * stacks;
+             args.attackSpeedMultAdd += 0.3f * stacks;
+             args.moveSpeedMultAdd += 0.3f * stacks;
          };
      }
 
@@ -50,15 +51,26 @@ namespace PassiveAgression.Commando
                 public override void OnEnter(){
                         base.OnEnter();
                         if(NetworkServer.active){
-                         healthComponent.Heal((healthComponent.fullHealth - healthComponent.health) * 0.2f,default(ProcChainMask));
+                         healthComponent.Heal((healthComponent.fullHealth - healthComponent.health) * 0.5f,default(ProcChainMask));
                          characterBody.AddTimedBuff(bdef,5f); 
                         }
+			PlayAnimation("Gesture, Override", "ReloadPistols", "ReloadPistols.playbackRate", 0.1f);
+			PlayAnimation("Gesture, Additive", "ReloadPistols", "ReloadPistols.playbackRate", 0.1f);
+			FindModelChild("GunMeshL")?.gameObject.SetActive(value: false);
+                        FindModelChild("ReloadFXR")?.gameObject.SetActive(value: false);
                 }
                 public override void FixedUpdate(){
                     base.FixedUpdate();
-                    outer.SetNextStateToMain();
+                    if(fixedAge > 0.1f){
+                     outer.SetNextStateToMain();
+                    }
                 }
                 public override void OnExit(){
+			FindModelChild("ReloadFXL")?.gameObject.SetActive(value: false);
+			FindModelChild("ReloadFXR")?.gameObject.SetActive(value: false);
+			FindModelChild("GunMeshL")?.gameObject.SetActive(value: true);
+			PlayAnimation("Gesture, Override", "ReloadPistolsExit");
+			PlayAnimation("Gesture, Additive", "ReloadPistolsExit");
                     base.OnExit();
                 }
                 public override InterruptPriority GetMinimumInterruptPriority(){

@@ -40,8 +40,8 @@ namespace PassiveAgression.Commando
          ContentAddition.AddEntityState(typeof(StimState),out _);
          RecalculateStatsAPI.GetStatCoefficients += (sender,args) =>{
              var stacks = sender.GetBuffCount(bdef);
-             args.attackSpeedMultAdd += 0.25f * stacks;
-             args.moveSpeedMultAdd += 0.25f * stacks;
+             args.attackSpeedMultAdd += 0.3f * stacks;
+             args.moveSpeedMultAdd += 0.3f * stacks;
              if(stacks > 0){
               args.armorAdd += 30f;
               args.critAdd += 10f;
@@ -54,15 +54,26 @@ namespace PassiveAgression.Commando
                 public override void OnEnter(){
                         base.OnEnter();
                         if(NetworkServer.active){
-                         healthComponent.Heal((healthComponent.fullHealth - healthComponent.health) * 0.2f,default(ProcChainMask));
+                         healthComponent.Heal((healthComponent.fullHealth - healthComponent.health) * 0.5f,default(ProcChainMask));
                          characterBody.AddTimedBuff(bdef,5f); 
                         }
+			PlayAnimation("Gesture, Override", "ReloadPistols", "ReloadPistols.playbackRate", 0.1f);
+			PlayAnimation("Gesture, Additive", "ReloadPistols", "ReloadPistols.playbackRate", 0.1f);
+			FindModelChild("GunMeshL")?.gameObject.SetActive(value: false);
+                        FindModelChild("ReloadFXR")?.gameObject.SetActive(value: false);
                 }
                 public override void FixedUpdate(){
                     base.FixedUpdate();
-                    outer.SetNextStateToMain();
+                    if(fixedAge > 0.1f){
+                     outer.SetNextStateToMain();
+                    }
                 }
                 public override void OnExit(){
+			FindModelChild("ReloadFXL")?.gameObject.SetActive(value: false);
+			FindModelChild("ReloadFXR")?.gameObject.SetActive(value: false);
+			FindModelChild("GunMeshL")?.gameObject.SetActive(value: true);
+			PlayAnimation("Gesture, Override", "ReloadPistolsExit");
+			PlayAnimation("Gesture, Additive", "ReloadPistolsExit");
                     base.OnExit();
                 }
                 public override InterruptPriority GetMinimumInterruptPriority(){

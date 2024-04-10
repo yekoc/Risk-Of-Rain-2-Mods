@@ -26,7 +26,7 @@ namespace PassiveAgression.ModCompat{
      static GanonPassive(){
          slot = new CustomPassiveSlot(Ganondorf.instance.bodyPrefab);
          LanguageAPI.Add("PASSIVEAGRESSION_GANONGLOOM", "Secret Stone of Darkness" );
-         LanguageAPI.Add("PASSIVEAGRESSION_GANONGLOOM_DESC","Your steps will spread <style=cDeath>Gloom</style>,draining away the max health of enemies in contact with it.");
+         LanguageAPI.Add("PASSIVEAGRESSION_GANONGLOOM_DESC","Your steps spread <style=cDeath>Gloom</style>,draining away the max health of enemies in contact with it.");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_GANONGLOOM";
          (def as ScriptableObject).name = def.skillNameToken;

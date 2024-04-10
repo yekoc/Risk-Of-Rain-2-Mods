@@ -66,7 +66,7 @@ namespace PassiveAgression.VoidSurvivor
                     c.Emit(OpCodes.Brfalse,lab);
                     return;
                 }
-                 Debug.Log("VoidFog fix hook failed,viend corrupted tear might not work depending on other mods");
+                PassiveAgressionPlugin.Logger.LogError("VoidFog fix hook failed,viend corrupted tear might not work depending on other mods");
             };
             isHooked = true;
             }

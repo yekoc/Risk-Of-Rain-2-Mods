@@ -24,12 +24,19 @@ namespace PassiveAgression.ModCompat
     public static class PaladinBolt{
      public static AssignableSkillDef def;
      public static SkillDef scepterdef;
+     public static BuffDef scepterbuff;
      public static bool isHooked;
+     public static bool paladinUpdatedWhileIWasntLooking = false;
+     private static System.Reflection.FieldInfo updatedLightningTimer;
 
 
      static PaladinBolt(){
+         paladinUpdatedWhileIWasntLooking = BepInEx.Bootstrap.Chainloader.PluginInfos[PaladinMod.PaladinPlugin.MODUID].Metadata.Version.CompareTo(new System.Version(1,6,3)) > 0;
+         if(paladinUpdatedWhileIWasntLooking){
+            updatedLightningTimer = typeof(PaladinMod.Misc.PaladinSwordController).GetField("lightningBuffTimer",(System.Reflection.BindingFlags)(-1));
+         }
          LanguageAPI.Add("PASSIVEAGRESSION_PALADINBOLT","Sunbolt Blessing");
-         LanguageAPI.Add("PASSIVEAGRESSION_PALADINBOLT_DESC","Call down a <style=cIsUtility>lightning bolt</style>, boosting your weapon and armor with lightning.");
+         LanguageAPI.Add("PASSIVEAGRESSION_PALADINBOLT_DESC","Call down a <style=cIsUtility>lightning bolt</style>, boosting your weapon with lightning.");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_PALADINBOLT";
          def.skillDescriptionToken = "PASSIVEAGRESSION_PALADINBOLT_DESC";
@@ -65,8 +72,8 @@ namespace PassiveAgression.ModCompat
 
      [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining | System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
      public static void SetUpScepter(){
-         LanguageAPI.Add("PASSIVEAGRESSION_PALADINBOLT_SCEPTER","Beloved Sunbolt");
-         LanguageAPI.Add("PASSIVEAGRESSION_PALADINBOLT_SCEPTERDESC","Call down a empowering <style=cIsUtility>lightning bolt</style>,boosting your weapon,armor,and body with lightning.");
+         LanguageAPI.Add("PASSIVEAGRESSION_PALADINBOLT_SCEPTER","Beloved's Sunbolt");
+         LanguageAPI.Add("PASSIVEAGRESSION_PALADINBOLT_SCEPTERDESC","Call down an empowering <style=cIsUtility>lightning bolt</style>,boosting your weapon and body with lightning.");
          scepterdef = ScriptableObject.CreateInstance<SkillDef>();
          scepterdef.skillNameToken = "PASSIVEAGRESSION_PALADINBOLT_SCEPTER";
          scepterdef.skillDescriptionToken = "PASSIVEAGRESSION_PALADINBOLT_SCEPTERDESC";
@@ -74,14 +81,18 @@ namespace PassiveAgression.ModCompat
          scepterdef.dontAllowPastMaxStocks = true;
          scepterdef.fullRestockOnAssign = true;
          scepterdef.rechargeStock = 1;
-         scepterdef.requiredStock = 0;
          scepterdef.activationStateMachineName = "Weapon";
          scepterdef.activationState = new SerializableEntityStateType(typeof(PrepBoltState));
          scepterdef.cancelSprintingOnActivation = false;
          scepterdef.canceledFromSprinting = false;
          scepterdef.isCombatSkill = false;
          (scepterdef as ScriptableObject).name = scepterdef.skillNameToken;
-         scepterdef.icon = Util.SpriteFromFile("BoltIconScepter.png");;
+         scepterdef.icon = Util.SpriteFromFile("BoltIconScepter.png");
+
+         scepterbuff = ScriptableObject.CreateInstance<BuffDef>();
+         scepterbuff.buffColor = Color.yellow;
+         scepterbuff.name = "Sun's Beloved";
+         (scepterbuff as ScriptableObject).name = "PASSIVEAGRESSION_PALADINBOLT_SCEPTERBUFF";
 
          ContentAddition.AddSkillDef(scepterdef);
          AncientScepter.AncientScepterItem.instance.RegisterScepterSkill(scepterdef,"RobPaladinBody",def);
@@ -99,27 +110,49 @@ namespace PassiveAgression.ModCompat
 		    return InterruptPriority.PrioritySkill;
 	    }
             public override BaseCastChanneledSpellState GetNextState(){
-                 return new CastBoltState();
-                
+                 return new CastBoltState{
+                     isScepter = (scepterdef && activatorSkillSlot?.skillDef == scepterdef)
+                 };
             }
      }
      public class CastBoltState : BaseCastChanneledSpellState{
-           
-            
-            public override void OnEnter(){
-                baseDuration = 1f;
-                base.OnEnter();
-            }
-            public override void OnExit(){
-               
-                base.OnExit();
-                if(NetworkServer.active){
-                  characterBody.AddTimedBuff(PaladinMod.Modules.Buffs.overchargeBuff,4f);
-                }
-            }
-	    public override InterruptPriority GetMinimumInterruptPriority(){
-		    return InterruptPriority.PrioritySkill;
-	    }
+
+         public bool isScepter = false;
+         public float buffDuration = 6f;
+
+         public override void OnEnter(){
+             baseDuration = 1f;
+             base.OnEnter();
+         }
+         public override void OnExit(){
+             base.OnExit();
+             EffectManager.SpawnEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/LightningStrikeImpact"),new EffectData{
+                     color = Color.yellow,
+                     origin = GetModelChildLocator()?.FindChild(muzzleString)?.position ?? characterBody.corePosition
+             },transmit: true);
+             if(NetworkServer.active){
+               var controller = characterBody.GetComponent<PaladinMod.Misc.PaladinSwordController>();
+               if(controller){
+                   controller.ApplyLightningBuff();
+                   if(paladinUpdatedWhileIWasntLooking){
+                       updatedLightningTimer.SetValue(controller,buffDuration);
+                   }
+                   else{
+                       controller.CancelInvoke();
+                       controller.Invoke("KillLightningBuff", buffDuration);
+                   }
+               }
+               else{
+                   characterBody.AddTimedBuff(PaladinMod.Modules.Buffs.overchargeBuff,buffDuration);
+               }
+               if(isScepter){
+                   characterBody.AddTimedBuff(scepterbuff,buffDuration);
+               }
+             }
+         }
+         public override InterruptPriority GetMinimumInterruptPriority(){
+                 return InterruptPriority.PrioritySkill;
+         }
      }
     }
 }

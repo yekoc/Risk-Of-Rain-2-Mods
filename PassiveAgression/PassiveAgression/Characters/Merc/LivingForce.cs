@@ -16,14 +16,14 @@ using static R2API.DamageAPI;
 namespace PassiveAgression.Merc
 {
     public static class LivingForce{
-     public static SkillDef def;
+     public static AssignableSkillDef def;
      public static ModdedDamageType damageType;
      public static BuffDef bdef;
 
      static LivingForce(){
          LanguageAPI.Add("PASSIVEAGRESSION_MERCLIVING","Living Force");
          LanguageAPI.Add("PASSIVEAGRESSION_MERCLIVING_DESC","<style=cIsDamage>Slayer.</style> Unleash a finishing blow for <style=cIsDamage>350% damage</syle>.Hold to release your swords current aspect.Kills <style=cIsUtility>absorb the targets aspect into your blade</style>.");
-         def = ScriptableObject.CreateInstance<SkillDef>();
+         def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_MERCLIVING";
          (def as ScriptableObject).name = def.skillNameToken;
          def.skillDescriptionToken = "PASSIVEAGRESSION_MERCLIVING_DESC";
@@ -42,53 +42,55 @@ namespace PassiveAgression.Merc
          ContentAddition.AddEntityState(typeof(ForceAttackState),out _);
          ContentAddition.AddBuffDef(bdef);
          damageType = ReserveDamageType();
-
-         GlobalEventManager.onCharacterDeathGlobal += (report)=>{
-           if(report.victimIsElite && DamageAPI.HasModdedDamageType(report.damageInfo,damageType)){
-             var comp = report?.attackerBody?.GetComponent<BladeForceComponent>();
-             if(comp){
-                 report.attackerBody.AddBuff(bdef);
-                 comp.curElite = EliteCatalog.eliteDefs.First((el) => report.victimBody.GetBuffCount(el.eliteEquipmentDef.passiveBuffDef) > 0);
-                 Debug.Log(comp.curElite);
-                 comp.buffColor = comp.curElite.eliteEquipmentDef.passiveBuffDef.buffColor;
-             }
-           }
-         };
-         On.RoR2.GlobalEventManager.OnHitAll += (orig,self,info,hObj) =>{
-            var body = info?.attacker?.GetComponent<CharacterBody>();
-            var comp = body?.GetComponent<BladeForceComponent>();
-            if(comp && comp.curElite){
-                body.AddBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
-                Debug.Log(body.HasBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef));
-            }
-            orig(self,info,hObj);
-            if(comp && comp.curElite){
-                body.RemoveBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
-            }
-         };
-         On.RoR2.GlobalEventManager.OnHitEnemy += (orig,self,info,hObj) =>{
-            var body = info?.attacker?.GetComponent<CharacterBody>();
-            var comp = body?.GetComponent<BladeForceComponent>();
-            if(comp && comp.curElite){
-                body.AddBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
-                Debug.Log(body.HasBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef));
-            }
-            orig(self,info,hObj);
-            if(comp && comp.curElite){
-                body.RemoveBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
-            }
-         };
-         On.RoR2.HealthComponent.TakeDamage += (orig,self,info) =>{
-            var body = info?.attacker?.GetComponent<CharacterBody>();
-            var comp = body?.GetComponent<BladeForceComponent>();
-            if(comp && comp.curElite){
-                body.AddBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
-                Debug.Log(body.HasBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef));
-            }
-            orig(self,info);
-            if(comp && comp.curElite){
-                body.RemoveBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
-            }
+         def.onAssign += (slot) => {
+             GlobalEventManager.onCharacterDeathGlobal += (report)=>{
+               if(report.victimIsElite && DamageAPI.HasModdedDamageType(report.damageInfo,damageType)){
+                 var comp = report?.attackerBody?.GetComponent<BladeForceComponent>();
+                 if(comp){
+                     report.attackerBody.AddBuff(bdef);
+                     comp.curElite = EliteCatalog.eliteDefs.First((el) => report.victimBody.GetBuffCount(el.eliteEquipmentDef.passiveBuffDef) > 0);
+                     Debug.Log(comp.curElite);
+                     comp.buffColor = comp.curElite.eliteEquipmentDef.passiveBuffDef.buffColor;
+                 }
+               }
+             };
+             On.RoR2.GlobalEventManager.OnHitAll += (orig,self,info,hObj) =>{
+                var body = info?.attacker?.GetComponent<CharacterBody>();
+                var comp = body?.GetComponent<BladeForceComponent>();
+                if(comp && comp.curElite){
+                    body.AddBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
+                    Debug.Log(body.HasBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef));
+                }
+                orig(self,info,hObj);
+                if(comp && comp.curElite){
+                    body.RemoveBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
+                }
+             };
+             On.RoR2.GlobalEventManager.OnHitEnemy += (orig,self,info,hObj) =>{
+                var body = info?.attacker?.GetComponent<CharacterBody>();
+                var comp = body?.GetComponent<BladeForceComponent>();
+                if(comp && comp.curElite){
+                    body.AddBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
+                    Debug.Log(body.HasBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef));
+                }
+                orig(self,info,hObj);
+                if(comp && comp.curElite){
+                    body.RemoveBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
+                }
+             };
+             On.RoR2.HealthComponent.TakeDamage += (orig,self,info) =>{
+                var body = info?.attacker?.GetComponent<CharacterBody>();
+                var comp = body?.GetComponent<BladeForceComponent>();
+                if(comp && comp.curElite){
+                    body.AddBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
+                    Debug.Log(body.HasBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef));
+                }
+                orig(self,info);
+                if(comp && comp.curElite){
+                    body.RemoveBuff(comp.curElite.eliteEquipmentDef.passiveBuffDef);
+                }
+             };
+             return null;
          };
      }
 

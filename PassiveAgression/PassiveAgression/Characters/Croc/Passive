@@ -5,18 +5,25 @@ using System;
 using R2API;
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
+using UnityEngine;
 
 namespace PassiveAgression.Croc
 {
+     public class CrocoDamageTypeSkillDef : SkillDef{
+         public DamageAPI.ModdedDamageType damageType;
+
+     }
     public static class BeetlePassive{
      public static AssignableSkillDef def;
      public static SkillFamily slot;
+     public static DamageAPI.ModdedDamageType damageType;
      public static bool isHooked = false;
 
 
      static BeetlePassive(){
          LanguageAPI.Add("PASSIVEAGRESSION_CROCBEETLE","Beetle Juice");
          LanguageAPI.Add("PASSIVEAGRESSION_CROCBEETLE_DESC","Beetlejuice.");
+         damageType = DamageAPI.ReserveDamageType();
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_CROCBEETLE";
          (def as ScriptableObject).name = def.skillNameToken;
@@ -24,13 +31,20 @@ namespace PassiveAgression.Croc
          def.onAssign = (GenericSkill slot) => {
              if(!isHooked){
                 isHooked = true;
+                On.RoR2.HealthComponent.TakeDamage += (orig,self,damage) => {
+                    orig(self,damage);
+                    if(DamageAPI.HasModdedDamageType(damage,damageType)){
+                      self.body.AddTimedBuff(RoR2Content.Buffs.BeetleJuice,5f);
+                    }
+                };
              }
+                DamageAPI.AddModdedDamageType(slot.GetComponent<CrocoDamageTypeController>(),damageType);
              return null;
          };
          def.onUnassign = (GenericSkill slot) =>{
+                DamageAPI.RemoveModdedDamageType(slot.GetComponent<CrocoDamageTypeController>(),damageType);
          };
          def.baseRechargeInterval = 0f;
-         LoadoutAPI.AddSkillDef(def);
      }
     }
 }

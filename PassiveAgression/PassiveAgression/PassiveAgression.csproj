@@ -57,6 +57,15 @@
     <Reference Include="HouseMod">
         <HintPath>..\libs\HouseMod.dll</HintPath>
     </Reference>
+    <Reference Include="RiskOfRuinaMod">
+        <HintPath>..\libs\RiskOfRuinaMod.dll</HintPath>
+    </Reference>
+    <Reference Include="RedGuyMod">
+        <HintPath>..\libs\RedGuyMod.dll</HintPath>
+    </Reference>
+    <Reference Include="DriverMod">
+        <HintPath>..\libs\DriverMod.dll</HintPath>
+    </Reference>
     <Reference Include="CustomEmotesAPI">
         <HintPath>..\libs\CustomEmotesAPI.dll</HintPath>
     </Reference>

@@ -1,6 +1,7 @@
 using RoR2;
 using EntityStates;
 using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections.Generic;
@@ -16,15 +17,20 @@ namespace PassiveAgression
     public class DoppelInputBank : MonoBehaviour
     {
         internal static bool ExtraSSInputs = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.KingEnderBrine.ExtraSkillSlots");
-        //internal static bool EmoteAPIInputs = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.weliveinasociety.CustomEmotesAPI");
+        internal static bool EmoteAPIInputs = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.weliveinasociety.CustomEmotesAPI");
         internal Queue<bool[]> ExtraInputBuffer = ExtraSSInputs ? new Queue<bool[]>() : null;
-        //internal Queue<string> EmoteInputBuffer = EmoteAPIInputs ? new() : null;
+        internal List<EmoteQueueItem> EmoteInputBuffer = EmoteAPIInputs ? new() : null;
         public Queue<BodyInputs> inputBuffer = new Queue<BodyInputs>(5);
         public CharacterMaster master {get; private set;}
         public InputBankTest bodyInputs;
         public InputBankTest ownerInputs;
         public NetworkIdentity networkIdentity { get; protected set; }
         public ushort updateDelay = 0;
+        internal class EmoteQueueItem{
+           internal uint command;
+           internal ushort delay;
+           internal string emoteName;
+        }
 
         public void Awake(){
             master = GetComponent<CharacterMaster>(); 
@@ -32,8 +38,8 @@ namespace PassiveAgression
         public void Start(){
             bodyInputs = master.GetBody().inputBank;
             ownerInputs = master.minionOwnership.ownerMaster.GetBody().inputBank;
-          //  if(EmoteAPIInputs)
-          //    HandleEmoteInputs(true,true);
+            if(EmoteAPIInputs)
+              HandleEmoteInputs(true);
         }
         public void FixedUpdate(){
            if(ownerInputs) 
@@ -50,8 +56,6 @@ namespace PassiveAgression
             });
             if(ExtraSSInputs)
               HandleExtraSlots(true);
-           // if(EmoteAPIInputs)
-           //   HandleEmoteInputs(true);
             if(master.hasEffectiveAuthority && bodyInputs && inputBuffer.Count >= updateDelay){
                 BodyInputs current = inputBuffer.Dequeue();
 		bodyInputs.skill1.PushState(current.pressSkill1);
@@ -65,8 +69,8 @@ namespace PassiveAgression
                 bodyInputs.aimDirection = current.desiredAimDirection;                
                 if(ExtraSSInputs)
                     HandleExtraSlots(false);
-            //    if(EmoteAPIInputs)
-            //        HandleEmoteInputs(false);
+                if(EmoteAPIInputs)
+                    HandleEmoteInputs();
             }
         }
 
@@ -95,26 +99,56 @@ namespace PassiveAgression
             }
         }
 
-       /* [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        internal void HandleEmoteInputs(bool record,bool setup = false){
-            if(setup){
-              EmotesAPI.CustomEmotesAPI.animChanged += (a,b) =>{
-                if(b.mapperBody.inputBank == ownerInputs){
-                  if(b.currentClip.joinSpots.Length > 0){
-                    var selfB = master.GetBody().modelLocator.modelTransform.GetComponentInChildren<BoneMapper>();
-                    EmotesAPI.CustomEmotesAPI.ReserveJoinSpot(b.currentClip.joinSpots[0],selfB);
-                    EmoteInputBuffer.Enqueue("JoinSpot");
-                  }
-                }
-              };
+       [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        internal void HandleEmoteInputs(bool setup = false){
+            var selfB = master?.GetBody()?.modelLocator?.modelTransform.GetComponentInChildren<BoneMapper>();
+            if(!selfB){
+              EmotesAPI.CustomEmotesAPI.animChanged -= animChanged;
+              return;
             }
-            else if(record){
-
+            if(setup){
+              EmotesAPI.CustomEmotesAPI.animChanged += animChanged;
             }
             else{
-             
+              foreach(var emote in EmoteInputBuffer.ToList()){
+                 emote.delay--;
+                 if(emote.delay <= 0){
+                   switch (emote.command){
+                       case 0:
+                          EmotesAPI.CustomEmotesAPI.PlayAnimation(emote.emoteName,selfB);
+                          break;
+                       case 2:
+                          if(selfB.currentEmoteSpot?.GetComponent<EmoteLocation>()?.emoter){
+                            var spots = selfB.currentEmoteSpot.transform.parent.GetComponentsInChildren<EmoteLocation>();
+                            for(int i = 0; i < spots.Length;i++){
+                                 var eloc = spots[i];
+                                 if(!eloc.emoter){
+                                    selfB.currentEmoteSpot = eloc.gameObject;
+                                    break;
+                                 }
+                            }
+                          }
+                          selfB.JoinEmoteSpot();
+                          break;
+                       default:
+                          break;
+                   }
+                   EmoteInputBuffer.Remove(emote);
+                 }
+              }
             }
-        }*/
+
+          void animChanged(string a,BoneMapper b){
+                if(b.mapperBody.inputBank == ownerInputs){
+                  if(a != "none" && b.currentClip.joinSpots != null && b.currentClip.joinSpots.Length > 0){
+                     EmotesAPI.CustomEmotesAPI.ReserveJoinSpot(b.emoteLocations.First().gameObject,selfB);
+                     EmoteInputBuffer.Add(new EmoteQueueItem{command = 2,delay = Math.Max(updateDelay,(ushort)1),emoteName = a});
+                     return;
+                  }
+                  EmoteInputBuffer.Add(new EmoteQueueItem{command = 0,delay = Math.Max(updateDelay,(ushort)1),emoteName = a});
+                }
+          }
+        }
 
     }
 }

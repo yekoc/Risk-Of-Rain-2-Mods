@@ -29,7 +29,7 @@ namespace PassiveAgression.Mage
          def.cancelSprintingOnActivation = true;
          def.activationStateMachineName = "Weapon";
          def.activationState = new SerializableEntityStateType(typeof(NecroState));
-         def.icon = Util.SpriteFromFile("StandoffIcon.png");
+         def.icon = PassiveAgressionPlugin.unfinishedIcon;
 
          def.onAssign += (skill) =>{
             if(!isHooked){

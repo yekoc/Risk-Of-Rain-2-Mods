@@ -24,7 +24,7 @@ namespace PassiveAgression.Croc
          var epiESC = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<EntityStateConfiguration>("RoR2/Base/Croco/EntityStates.Croco.FireDiseaseProjectile.asset");
          
          LanguageAPI.Add("PASSIVEAGRESSION_CROCSPREAD","Carrier Pathogen");
-         LanguageAPI.Add("PASSIVEAGRESSION_CROCSPREAD_DESC","Release a disease that deals <style=cIsDamage> 85% damage </style>. The disease spreads to up to <style=cIsDamage>20</style> targets. <style=cIsUtility>carrying a random debuff from it's last host</style>.");
+         LanguageAPI.Add("PASSIVEAGRESSION_CROCSPREAD_DESC","Release a pathogen that deals <style=cIsDamage> 85% damage </style> and <style=cIsUtility>spawns a disease per every debuff on the target</style>. The disease spreads to up to <style=cIsDamage>20</style> targets,carrying carrying a random debuff from it's last host.");
          
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_CROCSPREAD";
@@ -104,17 +104,12 @@ namespace PassiveAgression.Croc
                DotController.InflictDot(body.gameObject,attacker,dot.dotIndex,5f);
              }
              if(bouncesRemaining > 0){
-             int targets = 2;
-             if(isScepter){
-                 targets = body.activeBuffsListCount;
-                 if(dootc)
+             int targets = body.activeBuffsListCount;
+             if(dootc){
                     targets += dootc.dotStackList?.Count??0;
              }
              for(int i = 0; i < targets ; i++){
-                if(!isScepter){
-                 Util.GetRandomDebuffOrDot(body,out debuff,out dot);
-                }
-                else if(i < body.activeBuffsListCount){
+               if(i < body.activeBuffsListCount){
                  debuff = body.activeBuffsList[i];
                  dot = null;
                 }

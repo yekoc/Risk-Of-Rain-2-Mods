@@ -89,11 +89,30 @@ Credit to cute anime girls for giving me the will to continue living.
 		<tr>
                         <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/9/98/Artificer.png/revision/latest?cb=20200129200643" width=128></td>			
 			<td>
+				<b>Special:</b> Conclude <br>
+                   Trigger all remaining Damage Over Time on an enemy twice.
+                   Can only target enemies with DoT effects on them.
+			</td>
+                        <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/ConcludeIcon.png" width=128></td>
+		</tr>
+		<tr>
+                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/9/98/Artificer.png/revision/latest?cb=20200129200643" width=128></td>			
+			<td>
 				<b>Special:</b> Snowsculpt <br>
                                 Cover yourself within a golem of packed snow,providing protection from attacks.<br>
                                 Press the interact key to burst out with a freezing blast.
 			</td>
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/SnowmanIcon.png" width=128></td>
+		</tr>
+		<tr>
+                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/a/a9/Captain.png/revision/latest?cb=20200811155443" width=128></td>			
+			<td>
+				<b>Special:</b> Integrated Beacons <br>
+                Temporarily Channel the effects of a Supply Beacon through Captain's prosthetics.<br>
+                Can be used twice per stage.<br>
+                Note: The duration is not long enough to hack the legendary chest, don't waste it trying.
+			</td>
+                        <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/IntegratedBeaconIcon.png" width=128></td>
 		</tr>
 		<tr>
                         <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/f/fe/Railgunner.png/revision/latest?cb=20220302014737" width=128></td>			
@@ -121,7 +140,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/TEAR.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://cdn.discordapp.com/attachments/759508646966591528/793757713820811284/texPaladinIcon.png" width=128></td>			
+                        <td><img src="https://raw.githubusercontent.com/ArcPh1r3/PaladinMod/master/PaladinUnityProject/Assets/Paladin/Icons/texPaladinIcon.png" width=128></td>			
 			<td>
 				<b>Special:</b> Glass Shadow <br>
 				Spawn a glass copy which mimicks your actions.Hold Longer to increase delay.<br>
@@ -130,16 +149,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/GShadowIcon.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://cdn.discordapp.com/attachments/759508646966591528/793757713820811284/texPaladinIcon.png" width=128></td>			
-			<td>
-				<b>Special:</b> Steel Resolve <br>
-				Hold up your sword and gather your resolve.Your next melee attack will deal 80% more damage.<br>
-                                <span style="color:#d299ff"><b>Scepter:</b> The Damage of you next melee attack will be tripled.</span>
-			</td>
-                        <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/ResolveIcon.png" width=128></td>
-		</tr>
-		<tr>
-                        <td><img src="https://cdn.discordapp.com/attachments/739696016755785859/828394816986808360/EnfuckerIcon.png" width=128></td>			
+                        <td><img src="https://raw.githubusercontent.com/TheTimeSweeper/EnforcerMod/8817c519fd461e0afbb8920bc6a5d6c40a0dbc40/EnforcerMod_Unity/Enforcer/Assets/Enforcer/Enforcer/Icons/texEnforcerIcon.png" width=128></td>			
 			<td>
 				<b>Special:</b> Giving It a Chance <br>
 				Raise your shield.The next 4 times you block an explosion or melee attack,trigger an explosion for 600% damage.<br>
@@ -148,7 +158,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/SundownShield.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://cdn.discordapp.com/attachments/747757793339244576/787552348523724830/minericon.png" width=128></td>			
+                        <td><img src="https://raw.githubusercontent.com/ArcPh1r3/MinerUnearthed/master/MinerUnityProject/Assets/Miner/texMinerIcon.png" width=128></td>			
 			<td>
 				<b>Passive:</b> Heart of The Forge <br>
 				All your attacks deal Blazing damage.(It's Blacksmith ror1).
@@ -162,6 +172,33 @@ Credit to cute anime girls for giving me the will to continue living.
 				You can still sprint in all directions.Jump again while touching an enemy midair to bounce up off of them.
 			</td>
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/SpursIcon.png" width=128></td>
+		</tr>
+		<tr>
+                        <td><img src="https://i.imgur.com/eqp6HDQ.png" width=128></td>			
+			<td>
+				<b>Passive:</b> Well Stocked Pantry <br>
+				The first stack of any ingredient item reduces the cooldown of CHEF's special skill.
+			</td>
+                        <td><img src="https://raw.githubusercontent.com/GnomeModder/ChefMod/main/thecook-unity/Assets/CHEF/Icons/chef_special.png" width=128></td>
+		</tr>
+		<tr>
+                        <td><img src="https://user-images.githubusercontent.com/55299061/216585851-c6588d0c-18a1-4357-905e-79fb3b1c7fcd.png" width=128></td>			
+			<td>
+				<b>Passive:</b> Faint Reverberation <br>
+				All Attack Speed and Movement Speed bonuses are converted to block chance for long range attacks.<br>
+                An attack is considered long range if the attacker is standing more than 13m away.
+			</td>
+                        <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/ArgaliaPassiveIcon.png" width=128></td>
+		</tr>
+		<tr>
+                        <td><img src="https://raw.githubusercontent.com/ArcPh1r3/RedGuyMod/main/RedGuyUnityProject/Assets/Ravager/Icons/texRavagerIcon.png" width=128></td>			
+			<td>
+				<b>Passive (Blood Well):</b> Coldblood <br>
+				Store blood into 3 pips that won't decay once filled<br>
+                a pip can be spent to empower a skill<br>
+                or to survive a lethal attack.
+			</td>
+                        <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/ColdbloodIcon.png" width=128></td>
 		</tr>
 	</tbody>
 </table>

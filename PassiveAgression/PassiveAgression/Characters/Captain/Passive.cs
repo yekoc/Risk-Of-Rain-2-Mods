@@ -21,11 +21,12 @@ namespace PassiveAgression.Captain
      public static float[] supportPower = null;
      public static Hook hWardSetterHook,pallyZoneHook;
      public static ILHook pallySunHook;
-     public static GameObject effectPrefab;
+     //public static GameObject effectPrefab;
+     public static RoR2BepInExPack.Utilities.FixedConditionalWeakTable<GameObject,GameObject> effects = new();
 
      static RadiusPassive(){
-         var efx = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/CaptainDefenseMatrix/CaptainDefenseMatrixItemBodyAttachment.prefab");
-         PassiveAgression.Util.recursebull(efx.WaitForCompletion().transform.GetChild(0).GetChild(0));
+         var efx = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/CaptainDefenseMatrix/captain defense drone.fbx");
+         //PassiveAgression.Util.recursebull(efx.WaitForCompletion().transform.GetChild(0).GetChild(0));
          slot = new CustomPassiveSlot("RoR2/Base/Captain/CaptainBody.prefab");
          LanguageAPI.Add("PASSIVEAGRESSION_CAPTAINZONE","Supportive Microbots");
          LanguageAPI.Add("PASSIVEAGRESSION_CAPTAINZONE_DESC","Holdout Zones and other persistent areas of effect are 50% larger.");
@@ -94,30 +95,19 @@ namespace PassiveAgression.Captain
          };
          def.activationStateMachineName = "Body";
          def.activationState = EntityStateMachine.FindByCustomName(slot.bodyPrefab,"Body").mainStateType;
-         def.icon = Util.SpriteFromFile("StandoffIcon.png");
+         def.icon = PassiveAgressionPlugin.unfinishedIcon;
          def.baseRechargeInterval = 0f;
          def.canceledFromSprinting = false;
          def.cancelSprintingOnActivation = false;
          ContentAddition.AddSkillDef(def);
-         effectPrefab = PrefabAPI.InstantiateClone(efx.WaitForCompletion().transform.GetChild(0).GetChild(0).gameObject,"PASSIVEAGRESSION_CAPTAINZONE_EFFECT");
+         //effectPrefab = PrefabAPI.InstantiateClone(efx.WaitForCompletion(),"PASSIVEAGRESSION_CAPTAINZONE_EFFECT");
      }
 
-     public static void SpawnVFX(GameObject target,float radius = 1f){
-        Debug.Log("Trying to spawn vfx");
-        var a = GameObject.Instantiate(effectPrefab,target.transform);
-        a.transform.localPosition = new((radius * Mathf.Cos(Mathf.PI / 3)),0,(radius * Mathf.Sin(Mathf.PI / 3)));
-        var b = GameObject.Instantiate(effectPrefab,target.transform);
-        b.transform.localPosition = new((radius * Mathf.Cos(Mathf.PI *2 / 3)),0,(radius * Mathf.Sin(Mathf.PI *2 / 3)));
-        var c = GameObject.Instantiate(effectPrefab,target.transform);
-        c.transform.localPosition = new((radius * Mathf.Cos(Mathf.PI)),0,(radius * Mathf.Sin(Mathf.PI)));
-     }
      public static void Holdout(On.RoR2.HoldoutZoneController.orig_Start orig,HoldoutZoneController self){
          orig(self);
          self.calcRadius += (ref float radius) =>{
             radius *= supportPower[(int)self.chargingTeam];
          };
-         if(supportPower[(int)self.chargingTeam] > 1)
-           SpawnVFX(self.gameObject);
      }
      public static void Ward(On.RoR2.BuffWard.orig_Start orig,BuffWard self){
          orig(self);

@@ -37,7 +37,6 @@ namespace PassiveAgression.Engineer
                  };
                }
             }
-            Debug.Log(sender +" - " + scrapPercent);
             args.healthMultAdd += scrapPercent;
             args.regenMultAdd += scrapPercent;
             args.moveSpeedMultAdd += scrapPercent;

@@ -10,6 +10,8 @@ namespace PassiveAgression{
  public static class Util{
 
     public static Xoroshiro128Plus miscRNG = new Xoroshiro128Plus(0);
+    public static EntityStateIndex freezeState,stunState,shockState,idleState = (EntityStateIndex)(-1);
+    public static BodyIndex mitchellIndex1,mitchellIndex2 = BodyIndex.None;
 
     static Util(){
       Run.onRunStartGlobal += (run) => {
@@ -19,14 +21,29 @@ namespace PassiveAgression{
     }
     public static void OnStateWorkFinished(EntityStateMachine machine,EntityStateMachine.ModifyNextStateDelegate del,List<Type> additionalStops = null){
         if(!machine) return;
+        if(idleState == (EntityStateIndex)(-1)){
+          freezeState = EntityStateCatalog.GetStateIndex(typeof(FrozenState));
+          stunState = EntityStateCatalog.GetStateIndex(typeof(StunState));
+          shockState = EntityStateCatalog.GetStateIndex(typeof(ShockState));
+          idleState = EntityStateCatalog.GetStateIndex(typeof(Idle));
+        }
         machine.nextStateModifier += logic;
         void logic(EntityStateMachine mach,ref EntityState state){
             Type type = state.GetType();
-            if(machine.mainStateType.stateType == type || (additionalStops != null && additionalStops.Contains(type))  || state is StunState || state is FrozenState || state is ShockState || state is Idle){
+            EntityStateIndex stateIndex = EntityStateCatalog.GetStateIndex(type);
+            if(machine.mainStateType.stateType == type || (additionalStops != null && additionalStops.Contains(type))  || stateIndex == freezeState || stateIndex == stunState || stateIndex == shockState || stateIndex == idleState){
                 del(mach,ref state);
                 mach.nextStateModifier -= logic;
             }
         }
+    }
+    public static bool BodyIsMitchell(CharacterBody body){
+        if(!body) return false;
+        if(mitchellIndex2 == BodyIndex.None){
+          mitchellIndex1 = BodyCatalog.FindBodyIndex("BrotherBody");
+          mitchellIndex2 = BodyCatalog.FindBodyIndex("BrotherHurtBody");
+        }
+        return (body.bodyIndex == mitchellIndex1) || (body.bodyIndex == mitchellIndex2);
     }
     public static bool GetRandomDebuffOrDot(CharacterBody body,out BuffIndex debuff,out DotController.DotStack dot){
         debuff = BuffIndex.None;
@@ -60,6 +77,9 @@ namespace PassiveAgression{
         }
         return true;
     }
+    public static int CountUniqueItemWithTag(Inventory inventory,ItemTag tag){
+        return ItemCatalog.GetItemsWithTag(tag).Intersect(inventory.itemAcquisitionOrder).Count();
+    }
 
     public static Sprite SpriteFromFile(string name){
          var texture = new Texture2D(2,2,TextureFormat.RGBA32,mipChain: false);
@@ -67,7 +87,7 @@ namespace PassiveAgression{
          texture.LoadImage(System.IO.File.ReadAllBytes(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),"Assets/" + name)));
          }
          catch(System.IO.FileNotFoundException e){
-            Debug.LogError("Failed to read file at " + e.FileName);
+            PassiveAgressionPlugin.Logger.LogError("Failed to read file at " + e.FileName);
             return null;
          }
          return Sprite.Create(texture,new Rect(0f,0f,texture.height,texture.width),new Vector2(0.5f,0.5f),100); 

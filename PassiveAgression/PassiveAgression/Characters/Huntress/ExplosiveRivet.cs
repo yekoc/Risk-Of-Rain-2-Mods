@@ -29,7 +29,7 @@ namespace PassiveAgression.Huntress
          def.cancelSprintingOnActivation = false;
          def.activationStateMachineName = "Weapon";
          def.activationState = new SerializableEntityStateType(typeof(RivetState));
-         def.icon = Util.SpriteFromFile("StandoffIcon.png");
+         def.icon = PassiveAgressionPlugin.unfinishedIcon;
          ContentAddition.AddSkillDef(def);
          ContentAddition.AddEntityState(typeof(RivetState),out _);
          }
