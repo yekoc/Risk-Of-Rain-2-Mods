@@ -1,11 +1,27 @@
 
 #Changelog
 ---
+1.3.0
+  - Revamped Skill Registration System to provide configs for specific skills, configs regarding unfinished skills will only generate if they are enabled. As a necessary tradeoff, the mod isn't as robust to errors during initialization anymore. 
+  - Added 5 new skills
+    - A blood element special for Arti, designed for cashing out all those DOT stacks early.
+    - A Captain Special that allows you to trade the permenance of your beacons for the ability to carry them aroun
+    - A CHEF Passive that rewards you for collecting the ingredients used for the unlock after unlocking
+    - A Red Mist Passive that lets you experience a lesser imitation of the Blue Reverbration's power to negate ranged damage.
+    - An alternate Blood Well for Ravager, that trades in his super mode for the ability to store uses of his upraded skills
+  - Paladin Resolve moved behind unfinished config as it waits for replacement with a more ror2 appropriate skill
+  - Paladin Glass Shadow Changes:
+    - Fixed multiplayer authority bug for clients trying to spawn shadows.
+    - Added EmoteAPI support for allowing the Glass Shadow to participate in emotes.
+  - Engi Field Tinkering: Removed leftover logspam
+  - Acrid Pathogen: Moved Scepter effect into normal skill, scepter now extends the effect past the first bounce. This was done in response to feedback indicating that the default version was not an attractive choice.
+  - Commando Stimpack: added a quick animation for using the skill, buffed healing and speed boost **20%** of missing hp -> **50%** of missing hp, **25%** speed boost -> **30%** speed bost. This is to hopefully compensate for the weirdness of missing hp based healing.
+
 1.2.1
   - Cascading Resonance changes:
-   * Fixed NRE spam in multiplayer
-   * Fixed Cascading Resonance affecting allies,old behavior can now be turned on from config for turret resonating reasons.
-   * Fixed animation speed/looping.
+    - Fixed NRE spam in multiplayer
+    - Fixed Cascading Resonance affecting allies,old behavior can now be turned on from config for turret resonating reasons.
+    - Fixed animation speed/looping.
 
 1.2.0
   - Added new Field Tinkering Icon

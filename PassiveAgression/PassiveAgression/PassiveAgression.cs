@@ -138,7 +138,7 @@ namespace PassiveAgression
          ConfigAndAdd(ref body.GetComponent<SkillLocator>().utility.skillFamily.variants,new SkillFamily.Variant{
             skillDef = Bandit.StarchUtil.def,
             viewableNode = new ViewablesCatalog.Node(Bandit.StarchUtil.def.skillNameToken,false,null)
-         },"BandtiStarch");
+         },"BanditStarch");
          //Coin.SetMarksman(body,SkillSlot.Secondary);
          /* Crash
          ConfigAndAdd(ref body.GetComponent<SkillLocator>().special.skillFamily.variants,new SkillFamily.Variant{

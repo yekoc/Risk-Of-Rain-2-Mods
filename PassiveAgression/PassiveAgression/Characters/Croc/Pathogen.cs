@@ -103,20 +103,29 @@ namespace PassiveAgression.Croc
              else if(dot != null){
                DotController.InflictDot(body.gameObject,attacker,dot.dotIndex,5f);
              }
+             var buffList = body.activeBuffsList.Select(b => BuffCatalog.GetBuffDef(b)).Where( b => b.isDebuff).Except(DotController.dotDefs.Select(d => d.associatedBuff)).ToList();
              if(bouncesRemaining > 0){
-             int targets = body.activeBuffsListCount;
-             if(dootc){
-                    targets += dootc.dotStackList?.Count??0;
+             int targets = 1;
+             if(isScepter || !bouncedObjects.Any()){
+                 targets = buffList.Count;
+                 if(dootc){
+                        targets += dootc.dotStackList?.Count??0;
+                 }
              }
              for(int i = 0; i < targets ; i++){
-               if(i < body.activeBuffsListCount){
-                 debuff = body.activeBuffsList[i];
+               if(targets == 1){
+                 Util.GetRandomDebuffOrDot(body,out debuff,out dot);
+               }
+               else{
+               if(i < buffList.Count){
+                 debuff = buffList[i].buffIndex;
                  dot = null;
-                }
-                else{
+               }
+               else if(dootc){
                  debuff = BuffIndex.None;
-                 dot = dootc.dotStackList[i];
+                 dot = dootc.dotStackList[Math.Max(i - buffList.Count,0)];
                 }
+               }
                 if (bouncedObjects != null)
                 {
                         if (canBounceOnSameTarget)
@@ -150,6 +159,7 @@ namespace PassiveAgression.Croc
                         lightningOrb.failedToKill = failedToKill;
                         lightningOrb.dot = dot;
                         lightningOrb.debuff = debuff;
+                        lightningOrb.isScepter = isScepter;
                         OrbManager.instance.AddOrb(lightningOrb);
                 }
              }

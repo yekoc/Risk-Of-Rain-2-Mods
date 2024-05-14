@@ -182,7 +182,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://raw.githubusercontent.com/GnomeModder/ChefMod/main/thecook-unity/Assets/CHEF/Icons/chef_special.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://user-images.githubusercontent.com/55299061/216585851-c6588d0c-18a1-4357-905e-79fb3b1c7fcd.png" width=128></td>			
+                        <td><img src="https://raw.githubusercontent.com/CassCoffey/RiskOfRuina/master/RiskOfRuinaProject/Assets/RedMistAssets/Icons/texRedMistIcon.png" width=128></td>			
 			<td>
 				<b>Passive:</b> Faint Reverberation <br>
 				All Attack Speed and Movement Speed bonuses are converted to block chance for long range attacks.<br>

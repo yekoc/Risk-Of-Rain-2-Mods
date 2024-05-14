@@ -134,11 +134,12 @@ namespace PassiveAgression.Mage
                 for(DotIndex i = 0; (int)i < DotAPI.VanillaDotCount + DotAPI.CustomDotCount; i++){
                 while(dotc.HasDotActive(i) && dotDefs[(int)i].interval != 0){
                     int remain = 0;
+                    dotc.EvaluateDotStacksForType((DotIndex)i,0f,out remain);
                     dotc.EvaluateDotStacksForType((DotIndex)i,DotController.GetDotDef((DotIndex)i).interval,out remain);
                     if(extraAttention){
-                        //Double If instead of && to (hopefully) ensure this doesn't get 'optimized' into running everytime
+                        //Double If instead of && to (hopefully) ensure this check doesn't get 'optimized' into running everytime
                         if(dotc.dotStackList.Any(d => d.dotIndex == i && float.IsPositiveInfinity(d.timer))){
-                          break;
+                          continue;
                         }
                     }
                     if(remain <= 0){
