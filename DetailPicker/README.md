@@ -15,5 +15,12 @@ Credit to cute anime girls for giving me the will to continue living.
 
 #Changelog
 ---
+2.0.0 - Rewrote most of the logic, fixing multiplayer compatibility. Added Risk of Options support. Added Custom Compatibility for the following characters:
+   * Ravager (Sword related effects based on sword,Body effects on body, animation set on ImpWrap)
+   * Paladin (Removed Extraneous Entries ("Crystal" repeated a bunch))
+   * Pathfinder (Squall)
+   * Red Mist (attack vfx based on weapon material, EGO based on body mesh)
+   * Hunk (disabled customization due to skin specific gameplay.)
+
 1.0.1 - Fixed some renderers getting permenantly enabled when an alternate is choosen. (Bandit's knife etc.)\
 1.0.0 - Initial Release

@@ -24,6 +24,21 @@
      <Reference Include="LobbySkinsFix">
       <HintPath>..\libs\LobbySkinsFix.dll</HintPath>
     </Reference>
+     <Reference Include="PaladinMod">
+      <HintPath>..\libs\PaladinMod.dll</HintPath>
+    </Reference>
+     <Reference Include="Pathfinder">
+      <HintPath>..\libs\Pathfinder.dll</HintPath>
+    </Reference>
+     <Reference Include="RedGuyMod">
+      <HintPath>..\libs\RedGuyMod.dll</HintPath>
+    </Reference>
+    <Reference Include="RiskOfRuinaMod">
+      <HintPath>..\libs\RiskOfRuinaMod.dll</HintPath>
+    </Reference>
+    <Reference Include="RiskOfOptions">
+      <HintPath>..\libs\RiskOfOptions.dll</HintPath>
+    </Reference>
     <!--Reference Include="DearImGuiInjection">
       <HintPath>..\libs\DearImGuiInjection.dll</HintPath>
         </Reference> -->
