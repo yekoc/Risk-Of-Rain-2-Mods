@@ -58,7 +58,7 @@ namespace PassiveAgression.Mage
      static BleedPassive(){
          slot = new CustomPassiveSlot("RoR2/Base/Mage/MageBody.prefab");
          LanguageAPI.Add("PASSIVEAGRESSION_MAGEBLOODRITE","Unorthodox Rituals");
-         LanguageAPI.Add("PASSIVEAGRESSION_MAGEBLOODRITE_DESC","Whenever another's <style=cDeath>blood is spilled</style> nearby,heal <style=cIsHealing>1</style> health.");
+         LanguageAPI.Add("PASSIVEAGRESSION_MAGEBLOODRITE_DESC","Whenever a tick of <style=cDeath>Bleed</style> occurs nearby, heals for <style=cIsHealing>1</style>.");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_MAGEBLOODRITE";
          (def as ScriptableObject).name = def.skillNameToken;

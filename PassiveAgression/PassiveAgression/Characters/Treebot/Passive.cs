@@ -109,7 +109,7 @@ namespace PassiveAgression.Treebot{
      static SprintClimbPassive(){
          slot = new CustomPassiveSlot("RoR2/Base/Treebot/TreebotBody.prefab",true);
          LanguageAPI.Add("PASSIVEAGRESSION_REXSPRINT","Grasping Vines");
-         LanguageAPI.Add("PASSIVEAGRESSION_REXSPRINT_DESC","Hang onto surfaces of any angle white Sprinting.");
+         LanguageAPI.Add("PASSIVEAGRESSION_REXSPRINT_DESC","Hang onto surfaces of <style=cIsUtility>any angle</style> white Sprinting.");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_REXSPRINT";
          (def as ScriptableObject).name = def.skillNameToken;

@@ -25,7 +25,7 @@ namespace PassiveAgression.Merc
      static FlickerPassive(){
          slot = new CustomPassiveSlot("RoR2/Base/Merc/MercBody.prefab");
          LanguageAPI.Add("PASSIVEAGRESSION_MERCFLICKER","Stopped Clock");
-         LanguageAPI.Add("PASSIVEAGRESSION_MERCFLICKER_DESC","Attacks that would <style=cIsUtility>expose</style> enemies instead temporarily <style=cIsUtility> freezes them in time </style>");
+         LanguageAPI.Add("PASSIVEAGRESSION_MERCFLICKER_DESC","All attacks are delayed by 1s, <style=cIsUtility>attacks on exposed enemies</style>.");
          bDef = ScriptableObject.CreateInstance<BuffDef>();
          (bDef as ScriptableObject).name = "PASSIVEAGRESSION_MERCFLICKER_BUFF";
          ContentAddition.AddBuffDef(bDef);

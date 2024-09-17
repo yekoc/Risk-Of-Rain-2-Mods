@@ -32,7 +32,7 @@ namespace PassiveAgression.ModCompat
      }
      static PaladinGlassShadow(){
          LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE","Glass Shadow");
-         LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE_DESC","Summon a glass facsimile with <style=cIsHealth>10%</style> health that copies your moves,<style=cIsUtility>hold to increase mimicry delay.</style>");
+         LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE_DESC","Summon a glass facsimile with <style=cIsHealth>10% health</style> that copies your moves. <style=cIsUtility>Hold to increase mimicry delay</style>.");
          def = ScriptableObject.CreateInstance<DoppelSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_PALADINCLONE";
          def.skillDescriptionToken = "PASSIVEAGRESSION_PALADINCLONE_DESC";
@@ -109,7 +109,7 @@ namespace PassiveAgression.ModCompat
      [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining | System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
      public static void SetUpScepter(){
          LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE_SCEPTER","True Reflection");
-         LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE_SCEPTERDESC","Summon an <color=#d299ff>invincible</color> glass copy that mimics your moves,<style=cIsUtility>recast to resummon it to yourself with a new delay.</style>");
+         LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE_SCEPTERDESC","Summon an <color=#d299ff>invincible</color> glass copy that mimics your moves. <style=cIsUtility>Recast to resummon</style> it to yourself with a new delay.");
          scepterdef = ScriptableObject.CreateInstance<AssignableSkillDef>();
          scepterdef.skillNameToken = "PASSIVEAGRESSION_PALADINCLONE_SCEPTER";
          scepterdef.skillDescriptionToken = "PASSIVEAGRESSION_PALADINCLONE_SCEPTERDESC";

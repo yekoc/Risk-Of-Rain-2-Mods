@@ -23,8 +23,8 @@ namespace PassiveAgression.VoidSurvivor
 
      static TearUtil(){
          LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEAR","「T?ea?r】");
-         LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEAR_DESC","Tear open a portal through the void,leading to the target location.");
-         LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEARCORRUPT_DESC","Haphazardly open a tear to the void,filling the surrounding area with fog.");
+         LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEAR_DESC","Tear open a <style=cIsUtility>portal</style> through the void, leading to the target location.");
+         LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEARCORRUPT_DESC","Haphazardly open a tear to the void, <style=cIsUtility>filling the surrounding area</style> with fog.");
          LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEARCORRUPT_KEYWORD","<style=cKeywordName>【Corruption Upgrade】</style><style=cSub>Transform to fill an area with void fog instead.</style>");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_VIENDTEAR";
