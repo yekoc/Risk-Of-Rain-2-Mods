@@ -50,7 +50,7 @@ namespace PassiveAgression.Treebot{
             var upwardsDir = curRot * Vector3.up;
             if(self.isGrounded){
               curRot *= Quaternion.FromToRotation(upwardsDir,Vector3.Slerp(self.Motor.CharacterUp,self.estimatedGroundNormal,1f - Mathf.Exp(-10f * dTime)));
-              self.Motor.TransientPosition += (upwardsDir * self.Motor.Capsule.radius) + (curRot * Vector3.down * self.Motor.Capsule.radius);
+              self.Motor.SetTransientPosition(self.Motor.TransientPosition + (upwardsDir * self.Motor.Capsule.radius) + (curRot * Vector3.down * self.Motor.Capsule.radius));
               return;
             }
             curRot *= Quaternion.FromToRotation(upwardsDir,Vector3.Slerp(upwardsDir,Vector3.up,1f - Mathf.Exp(-10f * dTime)));

@@ -99,7 +99,7 @@ namespace PassiveAgression.Bandit
              base.OnEnter();
          }
          public override EntityState GetNextState(){
-            return EntityStateCatalog.InstantiateState(outer.mainStateType);    
+            return EntityStateCatalog.InstantiateState(EntityStateCatalog.GetStateIndex(outer.mainStateType.stateType));    
          }
          public override InterruptPriority GetMinimumInterruptPriority(){
              return InterruptPriority.PrioritySkill;

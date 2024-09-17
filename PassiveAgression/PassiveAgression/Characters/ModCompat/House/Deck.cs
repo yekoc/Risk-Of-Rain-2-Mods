@@ -57,7 +57,7 @@ namespace PassiveAgression.ModCompat{
            c.EmitDelegate<Action<HousePassiveManager,GenericSkill>>((self,skill) =>{
              var def = skill.skillDef as HouseDeckDef;
              if(def){
-               self.gameDeck = def.cards;
+               self.gameDeck = def.cards.ToList();
              }
            });
          }

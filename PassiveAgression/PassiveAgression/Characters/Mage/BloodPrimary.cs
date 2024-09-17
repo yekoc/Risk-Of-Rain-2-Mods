@@ -147,8 +147,9 @@ namespace PassiveAgression.Mage
              return ((BInstanceData)skillSlot.skillInstanceData).currentcooldown;
          }
 
-         public override void OnFixedUpdate(GenericSkill skillSlot){
-             base.OnFixedUpdate(skillSlot);
+         public override void OnFixedUpdate(GenericSkill skillSlot, float deltaTime)
+            {
+             base.OnFixedUpdate(skillSlot, deltaTime);
              if(HasRequiredStockAndDelay(skillSlot)){
               BInstanceData instanceData = (BInstanceData)skillSlot.skillInstanceData;
               instanceData.currentcooldown = 0;

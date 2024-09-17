@@ -32,7 +32,9 @@ namespace PassiveAgression.ModCompat{
         public override SkillDef primarySkillDef => def1;
         public override SkillDef secondarySkillDef => def2;
         public override GameObject crosshairPrefab => null;
-        
+
+        public override DriverWeaponDef.BuffType buffType => throw new NotImplementedException();
+
         static DriverStarSeed(){
          var matLoad1 = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<Material>("RoR2/Base/Grandparent/matGrandparentEggDead.mat");
          var matLoad2 = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<Material>("RoR2/Base/Grandparent/matGrandParentSunCore.mat");

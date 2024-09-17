@@ -47,7 +47,7 @@ namespace PassiveAgression.ModCompat
          cageSphere.transform.SetParent(projPrefab.transform);
 
          BirdcageComponent.tetherPrefab = PrefabAPI.InstantiateClone(LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/TarTether"),"PASSIVEAGRESSION_RUINABIRDCAGE_TETHER",true);
-         BirdcageComponent.tetherPrefab.GetComponent<LineRenderer>().material = RiskOfRuinaMod.Modules.Assets.mainAssetBundle.LoadAsset<Material>("matChains");
+         BirdcageComponent.tetherPrefab.GetComponent<LineRenderer>().material = RiskOfRuinaMod.Modules.Asset.mainAssetBundle.LoadAsset<Material>("matChains");
          
          
          R2API.ContentAddition.AddBuffDef(bdef);

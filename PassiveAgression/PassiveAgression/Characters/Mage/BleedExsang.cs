@@ -77,8 +77,9 @@ namespace PassiveAgression.Mage
              base.OnDisable();
          }
 
-         public new void FixedUpdate(){
-             base.FixedUpdate();
+         public new void MyFixedUpdate(float deltaTime)
+            {
+             base.MyFixedUpdate(deltaTime);
              if(!trackingTarget || (!DotController.dotControllerLocator.ContainsKey(trackingTarget.healthComponent.body.GetInstanceID()))){
                  search.sortMode = BullseyeSearch.SortMode.Angle;
                  search.RefreshCandidates();

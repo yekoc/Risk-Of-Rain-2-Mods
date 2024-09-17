@@ -11,9 +11,9 @@ namespace PassiveAgression.Huntress{
         public static SkillDef def;
 
         static LightMine(){
-         var body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<CharacterBody>("RoR2/Base/Huntress/HuntressBody.prefab");  
+         var body = LegacyResourcesAPI.LoadAsync<CharacterBody>("Prefabs/CharacterBodies/HuntressBody"); // screw you sots
          LanguageAPI.Add("PASSIVEAGRESSION_HUNTMINE","Light Mine");
-         LanguageAPI.Add("PASSIVEAGRESSION_HUNTMINE_DESC","Emit a floating mine that deals <style=cIsDamage>300% damage</style> when picked up.");
+         LanguageAPI.Add("PASSIVEAGRESSION_HUNTMINE_DESC","Emit a floating mine that deals 300% damage when picked up.");
          def = UnityEngine.ScriptableObject.CreateInstance<SkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_HUNTMINE";
          (def as UnityEngine.ScriptableObject).name = def.skillNameToken;
