@@ -15,8 +15,8 @@ namespace PassiveAgression.Commando
 
      static CommandoStimpack(){
          LanguageAPI.Add("PASSIVEAGRESSION_COMMANDOSTIM","Stim Shot");
-         LanguageAPI.Add("PASSIVEAGRESSION_COMMANDOSTIM_DESC","Administer a standard issue <style=cIsHealing>UES Emergency Stimulant™</style>,guaranteed to boost general health and response speed! \n<style=cSub><size=40%>(Side effects may include but are not limited to...)</size></style>");
-         LanguageAPI.Add("PASSIVEAGRESSION_COMMANDOSTIM_KEYWORD","<style=cKeywordName>Stimulated</style><style=cSub>Heals for <style=cIsHealing>50% of missing health</style> and boosts attack and move speed by <style=cIsUtility>+30%</style></style>");
+         LanguageAPI.Add("PASSIVEAGRESSION_COMMANDOSTIM_DESC", "Administer a standard issue <style=cIsHealing>UES Emergency Stimulant™</style>, guaranteed to boost general health and response speed! \n<style=cSub><size=40%>(Side effects may include but are not limited to...)</size></style>");
+         LanguageAPI.Add("PASSIVEAGRESSION_COMMANDOSTIM_KEYWORD","<style=cKeywordName>Stimulated</style><style=cSub>Heals for <style=cIsHealing>50% of missing health</style> and boosts attack and move speed by <style=cIsUtility>+30%</style>.</style>");
          def = ScriptableObject.CreateInstance<SkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_COMMANDOSTIM";
          (def as ScriptableObject).name = def.skillNameToken;

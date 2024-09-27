@@ -31,7 +31,7 @@ namespace PassiveAgression.ModCompat{
          slot = new CustomPassiveSlot(RedGuyMod.Content.Survivors.RedGuy.characterPrefab);
          slot.skill = slot.bodyPrefab.GetComponent<RedGuyPassive>().bloodPassiveSkillSlot;
          LanguageAPI.Add("PASSIVEAGRESSION_RAVAGERBLOODPIP","Coldblood");
-         LanguageAPI.Add("PASSIVEAGRESSION_RAVAGERBLOODPIP_DESC",$"The Ravager stores up <style=cIsHealth>blood</style> into 3 pips with his strikes,a pip can be spent to <style=cIsDamage>empower a skill</style> or survive a <style=cDeath>lethal attack</style>.");
+         LanguageAPI.Add("PASSIVEAGRESSION_RAVAGERBLOODPIP_DESC",$"The Ravager stores up <style=cIsHealth>blood</style> into 3 pips with his strikes, a pip can be spent to <style=cIsDamage>empower a skill</style> or survive a <style=cDeath>lethal attack</style>.");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_RAVAGERBLOODPIP";
          (def as ScriptableObject).name = def.skillNameToken;
