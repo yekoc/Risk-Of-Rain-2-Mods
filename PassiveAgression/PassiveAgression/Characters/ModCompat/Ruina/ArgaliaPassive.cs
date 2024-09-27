@@ -33,7 +33,7 @@ namespace PassiveAgression.ModCompat{
          blockPrefab.GetComponentInChildren<EffectComponent>().soundName = "Play_Defense_Guard";
          slot = new CustomPassiveSlot(RiskOfRuinaMod.Modules.Survivors.RedMist.redMistPrefab);
          LanguageAPI.Add("PASSIVEAGRESSION_RUINAARGALIA","Faint Reverberation");
-         LanguageAPI.Add("PASSIVEAGRESSION_RUINAARGALIA_DESC","All <style=cIsDamage>Attack Speed</style> and <style=cIsUtility>Movement Speed</style> bonuses are converted to block chance for long range attacks");
+         LanguageAPI.Add("PASSIVEAGRESSION_RUINAARGALIA_DESC","All <style=cIsDamage>attack speed</style> and <style=cIsUtility>movement speed</style> bonuses are converted to block chance for long range attacks.");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_RUINAARGALIA";
          (def as ScriptableObject).name = def.skillNameToken;

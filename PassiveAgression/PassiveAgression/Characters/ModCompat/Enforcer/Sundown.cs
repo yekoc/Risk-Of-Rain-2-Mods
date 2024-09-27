@@ -19,7 +19,7 @@ namespace PassiveAgression.ModCompat{
 
         static EnforcerSundowner(){
          LanguageAPI.Add("PASSIVEAGRESSION_ENFORCESUNDOWN_RAISE","Giving It a Chance");
-         LanguageAPI.Add("PASSIVEAGRESSION_ENFORCESUNDOWN_RAISEDESC",$"Raise your shield. \nThe next {chargeAmount} times you block an explosion or melee attack, trigger an explosion for <style=cIsDamage>600% damage</style> and deal heavy knockback. \nThe fourth explosion will <style=cIsHealth>break your stance</style>");
+         LanguageAPI.Add("PASSIVEAGRESSION_ENFORCESUNDOWN_RAISEDESC",$"Raise your shield. \nThe next {chargeAmount} times you block an explosion or melee attack, trigger an explosion for <style=cIsDamage>600% damage</style> and deal heavy knockback. \nThe fourth explosion will <style=cIsHealth>break your stance</style>.");
          LanguageAPI.Add("PASSIVEAGRESSION_ENFORCESUNDOWN_LOWER","Enough Chances");
          LanguageAPI.Add("PASSIVEAGRESSION_ENFORCESUNDOWN_LOWER_DESC","Become Vincible.");
          def = UnityEngine.ScriptableObject.CreateInstance<SkillDef>();

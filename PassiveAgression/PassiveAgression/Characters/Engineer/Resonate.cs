@@ -24,7 +24,7 @@ namespace PassiveAgression.Engineer
          LanguageAPI.Add("PASSIVEAGRESSION_ENGIRESO","Cascading Resonance");
          maxDamageCoef = PassiveAgression.PassiveAgressionPlugin.config.Bind("EngiResonance","Maximum Damage Coefficient",4000f,$"Maximum damage that can be dealt by {Language.GetString("PASSIVEAGRESSION_ENGIRESO")} as a percentage of base damage.");
          teamlessResonance = PassiveAgression.PassiveAgressionPlugin.config.Bind("EngiResonance","Universal Friendly Fire",false,"Whether the resonance can be used on friendly targets as well.");
-         LanguageAPI.Add("PASSIVEAGRESSION_ENGIRESO_DESC",$"Focus on an enemy to blow them up for up to <style=cIsDamage>{maxDamageCoef.Value}% damage</style>,requires unbroken line of sight.");
+         LanguageAPI.Add("PASSIVEAGRESSION_ENGIRESO_DESC",$"Focus on an enemy to blow them up for up to <style=cIsDamage>{maxDamageCoef.Value}% damage</style>, requires unbroken line of sight.");
          def = ScriptableObject.CreateInstance<SkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_ENGIRESO";
          (def as ScriptableObject).name = def.skillNameToken;
