@@ -18,4 +18,5 @@ Credit to cute anime girls for giving me the will to continue living.
 
 #Changelog
 ---
+1.0.1 - No SOTS changes needed,but why didn't anyone tell me this was log-spamming :(
 1.0.0 - Initial Release

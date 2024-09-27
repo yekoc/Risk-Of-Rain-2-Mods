@@ -33,7 +33,8 @@ Credit to cute anime girls for giving me the will to continue living.
 
 #Changelog
 ---
-1.0.9 - Changed R2API dependency to be finer grained,added max-hp fix dependency,fixed incompat with latest SS2
+1.0.10 - Fixed SOTS specific crash.\
+1.0.9 - Changed R2API dependency to be finer grained,added max-hp fix dependency,fixed incompat with latest SS2\
 1.0.7 - Removed Crash.\
 1.0.6 - Added a bunch of robustness logic.\
 1.0.5 - _Fixed_ special handling for ExtraSkillSlots.\

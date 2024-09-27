@@ -24,7 +24,7 @@ using ExtraSkillSlots;
 
 namespace HolyHolyHoly
 {
-    [BepInPlugin("xyz.yekoc.Holy", "HolyHolyHOLY","1.0.9" )]
+    [BepInPlugin("xyz.yekoc.Holy", "HolyHolyHOLY","1.0.10" )]
     [BepInDependency(RecalculateStatsAPI.PluginGUID,BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("com.KingEnderBrine.ExtraSkillSlots", BepInDependency.DependencyFlags.SoftDependency)]
     public class HolyPlugin : BaseUnityPlugin
@@ -88,6 +88,11 @@ namespace HolyHolyHoly
 	  //IL.RoR2.CharacterBody.Start += Taskifier; //Causes Instant Death on spawn.
 	  IL.RoR2.CharacterMaster.OnBodyStart += Taskifier;
 	  IL.RoR2.CharacterBody.OnCalculatedLevelChanged += OnLevelUp;
+          RoR2.CharacterBody.onBodyInventoryChangedGlobal += (body) =>{
+              if(body.inventory.GetItemCount(DLC2Content.Items.ExtraStatsOnLevelUp) < body.extraStatsOnLevelUpCountModifier){
+                UnityEngine.Object.Instantiate(RoR2.CharacterBody.CommonAssets.prayerBeadEffect, body.gameObject.transform.position, UnityEngine.Quaternion.identity).transform.parent = body.gameObject.transform;
+              }
+          };
 	  sprint = new ILHook(typeof(CharacterBody).GetProperty("isSprinting").GetSetMethod(),Taskifier);
           trajGrav = new Hook(typeof(Trajectory).GetProperty("defaultGravity",(BindingFlags)(-1)).GetGetMethod(true),new Func<Func<float>,float>((orig) => currentGrav));
           currentGrav = UnityEngine.Physics.gravity.y;
@@ -163,6 +168,12 @@ namespace HolyHolyHoly
                     c.Index++;
                     c.Emit(OpCodes.Ldarg_0);
                     c.EmitDelegate<Func<bool,CharacterBody,bool>>((active,cb) => (!queue.GetOrAdd(cb,new HolyData()).statsDirty)? active : false);
+                }
+                if(c.TryGotoPrev(MoveType.After, x => x.MatchCallOrCallvirt(typeof(UnityEngine.Object).GetMethod("Instantiate",new Type[]{typeof(UnityEngine.GameObject)})))){
+                    var dumbasscall = c.Index;
+                    c.GotoPrev(MoveType.After, x => x.MatchBrfalse(out _));
+                    c.MoveAfterLabels();
+                    c.RemoveRange(dumbasscall - c.Index);
                 }
 
 	}

@@ -31,7 +31,6 @@ namespace SunStroke
                   var stacks = Mathf.Max(1,info.victimObject.GetComponent<CharacterBody>().GetBuffCount(RoR2Content.Buffs.Overheat) - 2);
                   info.damageMultiplier *= stacks;
                   info.totalDamage *= stacks;
-                  Debug.Log("new burn at " + stacks);
               }
               orig(inv,ref info);
             };
