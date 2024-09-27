@@ -18,7 +18,7 @@ namespace PassiveAgression.Bandit
      public static CustomPassiveSlot slot;
      public static bool isHooked = false;
      internal class attackerTracker {internal uint val;}
-     internal static ConditionalWeakTable<CharacterBody,attackerTracker> attacking = new ConditionalWeakTable<CharacterBody,attackerTracker>();
+     internal static RoR2BepInExPack.Utilities.FixedConditionalWeakTable<CharacterBody,attackerTracker> attacking = new RoR2BepInExPack.Utilities.FixedConditionalWeakTable<CharacterBody, attackerTracker>();
 
      private static void takeDamageHook(ILContext il){
          ILCursor c = new ILCursor(il);
@@ -31,6 +31,9 @@ namespace PassiveAgression.Bandit
              c.EmitDelegate<Func<HealthComponent,DamageInfo,bool>>((self,info) => attacking.TryGetValue(self.body,out var result) && result.val > 0 && def.IsAssigned(info.attacker.GetComponent<CharacterBody>()));
              c.Emit(OpCodes.Brtrue,label);
          }
+         else{
+             Debug.Log("Bandit Standoff Hook Failed");
+         }
      }
 
      private static void BodyTracker(CharacterBody body){
@@ -38,7 +41,7 @@ namespace PassiveAgression.Bandit
             body.onSkillActivatedServer += (slot) =>{
                 if(slot.isCombatSkill){
                     Util.OnStateWorkFinished(slot.stateMachine,(EntityStateMachine machine,ref EntityState state) =>{
-                            attacking.GetOrCreateValue(machine.commonComponents.characterBody).val--;
+                            Debug.Log(machine.commonComponents.characterBody + " no longer attacking");
                     });
                     attacking.GetOrCreateValue(slot.characterBody).val++;
                 }
@@ -58,14 +61,14 @@ namespace PassiveAgression.Bandit
              slot.characterBody.bodyFlags &= ~CharacterBody.BodyFlags.HasBackstabPassive;
              if(!isHooked){
                 isHooked = true;
-                IL.RoR2.HealthComponent.TakeDamage += takeDamageHook;
+                IL.RoR2.HealthComponent.TakeDamageProcess += takeDamageHook;
                 CharacterBody.onBodyStartGlobal += BodyTracker;
                 Run.onRunDestroyGlobal += unsub;
              }
 
              return null;
              void unsub(Run run){
-                IL.RoR2.HealthComponent.TakeDamage -= takeDamageHook;
+                IL.RoR2.HealthComponent.TakeDamageProcess -= takeDamageHook;
                 CharacterBody.onBodyStartGlobal -= BodyTracker;
                 Run.onRunDestroyGlobal -= unsub;
                 isHooked = false;

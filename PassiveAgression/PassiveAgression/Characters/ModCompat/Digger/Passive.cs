@@ -38,10 +38,10 @@ namespace PassiveAgression.ModCompat{
                 isHooked = true;
                 diggerhook = new Hook(typeof(DiggerMain).GetMethod("OnEnter"),(Action<Action<DiggerMain>,DiggerMain>)UnAdrenalinize);
                 if(!aspectlessFlame.Value){
-                    IL.RoR2.GlobalEventManager.OnHitEnemy += TreatAsAspect;
+                    IL.RoR2.GlobalEventManager.ProcessHitEnemy += TreatAsAspect;
                 }
                 else{
-                    On.RoR2.GlobalEventManager.OnHitEnemy += FlameWithNoAspect;
+                    On.RoR2.GlobalEventManager.ProcessHitEnemy += FlameWithNoAspect;
                 }
                 RoR2.Run.onRunDestroyGlobal += unhooker;
              }
@@ -49,8 +49,8 @@ namespace PassiveAgression.ModCompat{
              void unhooker(Run run){
                 if(isHooked){
                   diggerhook.Free();
-                  IL.RoR2.GlobalEventManager.OnHitEnemy -= TreatAsAspect;
-                  On.RoR2.GlobalEventManager.OnHitEnemy -= FlameWithNoAspect;
+                  IL.RoR2.GlobalEventManager.ProcessHitEnemy -= TreatAsAspect;
+                  On.RoR2.GlobalEventManager.ProcessHitEnemy -= FlameWithNoAspect;
                   isHooked = false;
                 }
                 RoR2.Run.onRunDestroyGlobal -= unhooker;
@@ -85,7 +85,7 @@ namespace PassiveAgression.ModCompat{
           c.EmitDelegate<Func<bool,DamageInfo,bool>>((orig,damageinfo) => orig || (damageinfo.procChainMask.mask == default(uint) && def.IsAssigned(damageinfo.attacker.GetComponent<CharacterBody>()))); 
         }
      }
-     public static void FlameWithNoAspect(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig,GlobalEventManager self,DamageInfo info,GameObject victim){
+     public static void FlameWithNoAspect(On.RoR2.GlobalEventManager.orig_ProcessHitEnemy orig,GlobalEventManager self,DamageInfo info,GameObject victim){
         if(def.IsAssigned(info.attacker.GetComponent<CharacterBody>()) && info.procChainMask.mask == default(uint)){
           info.damageType = info.damageType | DamageType.IgniteOnHit;
         }

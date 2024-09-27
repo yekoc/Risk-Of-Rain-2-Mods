@@ -45,6 +45,7 @@ namespace PassiveAgression.ModCompat{
                 mistHookRecalc = new ILHook(typeof(RiskOfRuinaMod.RiskOfRuinaPlugin).GetMethod("CharacterBody_RecalculateStats",(System.Reflection.BindingFlags)(-1)),(ILContext.Manipulator)UnProwess);
                 On.RoR2.HealthComponent.TakeDamage += ImmuneToRanged;
              }
+             slot.characterBody.baseDamage *= 2f;
              slot.characterBody.master.onBodyStart += effectHandler;
              return null;
              void unhooker(Run run){
@@ -62,6 +63,7 @@ namespace PassiveAgression.ModCompat{
             if(effect){
               GameObject.Destroy(effect.gameObject);
             }
+            slot.characterBody.baseDamage /= 2f;
             slot.characterBody.master.onBodyStart -= effectHandler;
          };
          def.icon = Util.SpriteFromFile("ArgaliaPassiveIcon.png");
@@ -101,9 +103,13 @@ namespace PassiveAgression.ModCompat{
      static void ImmuneToRanged(On.RoR2.HealthComponent.orig_TakeDamage orig,HealthComponent self,DamageInfo damage){
          if(damage.attacker && (damage.attacker.transform.position - self.transform.position).sqrMagnitude > 169f && def.IsAssigned(self.body)){
             var statTracker = self.body.GetComponent<RedMistStatTracker>();
+            var egoTracker = self.body.GetComponent<RedMistEmotionComponent>();
             var chance = (statTracker.totalAttackSpeed - self.body.baseAttackSpeed)/self.body.baseAttackSpeed*10 + (statTracker.totalMoveSpeed - self.body.baseMoveSpeed)/self.body.baseMoveSpeed*10;
-            Debug.Log(chance);
+            if(egoTracker && egoTracker.inEGO){
+                chance *= 3;
+            }
             if(RoR2.Util.CheckRoll(chance,0f,self.body.master)){
+              egoTracker?.AddEmotion(Mathf.Clamp(damage.damage/self.body.damage,0f,4f) * (1 + Run.instance.stageClearCount / (Run.instance.stageClearCount +1)));
               damage.damage = 0f;
               damage.rejected = true;
               EffectManager.SpawnEffect(blockPrefab,new EffectData{

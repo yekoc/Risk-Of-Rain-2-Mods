@@ -33,12 +33,12 @@ namespace PassiveAgression
     [BepInDependency("com.EnforcerGang.Enforcer",BepInDependency.DependencyFlags.SoftDependency)]
     //[BepInDependency("com.rob.HenryMod",BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.Gnome.ChefMod",BepInDependency.DependencyFlags.SoftDependency)]
-    //[BepInDependency("com.Bog.Pathfinder",BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("com.Bog.Pathfinder",BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.rob.DiggerUnearthed",BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.Bog.Deputy",BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.JavAngle.HouseMod",BepInDependency.DependencyFlags.SoftDependency)]
 
-    [BepInPlugin("xyz.yekoc.PassiveAgression", "Passive Agression","1.3.0" )]
+    [BepInPlugin("xyz.yekoc.PassiveAgression", "Passive Agression","1.3.2" )]
     public class PassiveAgressionPlugin : BaseUnityPlugin
     {
         public static ConfigEntry<bool> unfinishedContent,devIcons;
@@ -68,12 +68,24 @@ namespace PassiveAgression
             unfinishedContent =  Config.Bind("Configuration","Enable Unfinished Content",false,"Enables Unfinished/Potentially Broken Content");
             devIcons =  Config.Bind("Configuration","Prefer Dev Icons",false,"Use jank dev-made icons even when better ones are available");
             SetupVanilla();
+
+            /*RoR2Application.onLoad += () => {
+                foreach(var surv in SurvivorCatalog.survivorDefs){
+                    Debug.Log(surv);
+                    var animator = surv?.bodyPrefab?.GetComponentInChildren<Animator>();
+                    if(animator && animator.runtimeAnimatorController){
+                        foreach(var anim in animator.runtimeAnimatorController.animationClips){
+                            Debug.Log("-- " + anim);
+                        }
+                    }
+                }
+            };*/
         }
         private void Start(){
             if(modCompat.Paladin = Chainloader.PluginInfos.ContainsKey("com.rob.Paladin")){
                 SetupPaladin();
             }
-            if(modCompat.Chef = Chainloader.PluginInfos.ContainsKey("com.Gnome.ChefMod")){
+            if(modCompat.Chef = Chainloader.PluginInfos.ContainsKey("com.Gnome.ChefMod")){ 
                 SetupChef();
             }
             if(modCompat.Enforcer = Chainloader.PluginInfos.ContainsKey("com.EnforcerGang.Enforcer")){
@@ -298,6 +310,10 @@ namespace PassiveAgression
                     viewableNode = new ViewablesCatalog.Node(ModCompat.PaladinGlassShadow.def.skillNameToken,false,null),
                     unlockableDef = PaladinMod.Modules.Unlockables.paladinLunarShardSkillDef
             },"PaladinClone");
+            ConfigAndAdd(ref skillFamily.variants, new SkillFamily.Variant{
+                    skillDef = ModCompat.PaladinBolt.def,
+                    viewableNode = new ViewablesCatalog.Node(ModCompat.PaladinBolt.def.skillNameToken,false,null)
+            },"PaladinSunbolt",true);
             ConfigAndAdd(ref skillFamily.variants, new SkillFamily.Variant{
                     skillDef = ModCompat.PaladinResolve.def,
                     viewableNode = new ViewablesCatalog.Node(ModCompat.PaladinResolve.def.skillNameToken,false,null)

@@ -95,7 +95,7 @@ namespace PassiveAgression.ModCompat{
      }
 
      public class HouseDeckDef : SkillDef{
-       public int[] cards;
+       public System.Collections.Generic.List<int> cards;
        public override BaseSkillInstanceData OnAssigned(GenericSkill skillSlot){
          if(!isHooked){
            isHooked = true;

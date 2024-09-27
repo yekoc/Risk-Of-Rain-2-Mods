@@ -23,7 +23,7 @@ namespace PassiveAgression.ModCompat{
     public static class RavagerBloodPassive{
      public static AssignableSkillDef def;
      public static CustomPassiveSlot slot;
-     public static Hook usePipHook,updatePipHook,skillIconHook,hudHook;
+     public static Hook usePipHook,updatePipHook,skillIconHook,hudHook,audioHook,audioHook2;
      public static ILHook coagulationHook,noModeChangeHook;
      public static bool isHooked;
 
@@ -46,6 +46,8 @@ namespace PassiveAgression.ModCompat{
                 coagulationHook = new ILHook(typeof(RedGuyMod.SkillStates.Ravager.Heal).GetMethod("OnEnter"),CoagulateSinglePip);
                 noModeChangeHook = new ILHook(typeof(RedGuyController).GetMethod("UpdateGauge"),PreventModeChange);
                 hudHook = new Hook(typeof(RedGuyMod.Content.Survivors.RedGuy).GetMethod("HUDSetup",(BindingFlags)(-1)),HudSetup);
+                audioHook = new Hook(typeof(RedGuyMod.Content.SyncBloodWell).GetMethod("OnReceived"),PlayMeterChangeSoundClient);
+                audioHook2 = new Hook(typeof(RedGuyController).GetMethod("FillGauge"),PlayMeterChangeSoundOwner);
                 RoR2.Run.onRunDestroyGlobal += unhooker;
              }
              //var pComp = slot.characterBody.GetComponent<RedGuyController>();
@@ -60,6 +62,8 @@ namespace PassiveAgression.ModCompat{
                    coagulationHook.Free();
                    noModeChangeHook.Free();
                    hudHook.Free();
+                   audioHook.Free();
+                   audioHook2.Free();
                 }
                 RoR2.Run.onRunDestroyGlobal -= unhooker;
              }
@@ -102,8 +106,8 @@ namespace PassiveAgression.ModCompat{
          }
      }
 
-     public static void SkillIconPipReactivity(Action<RedGuyMod.Content.RavagerSkillDef,GenericSkill> orig,RedGuyMod.Content.RavagerSkillDef self,GenericSkill skill){
-         orig(self,skill);
+     public static void SkillIconPipReactivity(Action<RedGuyMod.Content.RavagerSkillDef,GenericSkill,float> orig,RedGuyMod.Content.RavagerSkillDef self,GenericSkill skill,float delta){
+         orig(self,skill,delta);
          if(skill != skill.characterBody.skillLocator.primary){
              var pComp = skill.characterBody.GetComponent<RedGuyController>();
              if(pComp && def.IsAssigned(pComp.passive.bloodPassiveSkillSlot) && pComp.meter >= 33f){
@@ -126,9 +130,38 @@ namespace PassiveAgression.ModCompat{
              if(netID && (NetworkServer.active || RoR2.Util.HasEffectiveAuthority(netID))){
                  new RedGuyMod.Content.SyncBloodWell(netID.netId,(ulong)(controller.meter * 100f)).Send(R2API.Networking.NetworkDestination.Clients);
              }
+             if(controller.healthComponent.alive && netID && RoR2.Util.HasEffectiveAuthority(netID)){
+                 RoR2.Util.PlaySound("sfx_ravager_pip_spend",controller.gameObject);
+             }
              return true;
          }
          return false;
+     }
+
+
+     //TODO: Find a better way to do this.
+     public static void PlayMeterChangeSoundOwner(Action<RedGuyController,float> orig, RedGuyController self,float mult){
+          var oldMeter = Mathf.FloorToInt(self.meter/33);
+          orig(self,mult);
+          if(self.netIdentity && RoR2.Util.HasEffectiveAuthority(self.netIdentity) && oldMeter < Mathf.FloorToInt(self.meter/33)){
+              RoR2.Util.PlaySound("sfx_ravager_pip_gain",self.gameObject);
+          }
+     }
+     public static void PlayMeterChangeSoundClient(Action<RedGuyMod.Content.SyncBloodWell> orig, RedGuyMod.Content.SyncBloodWell self){
+         var go = RoR2.Util.FindNetworkObject(self.netId);
+         int oldMeter = -1;
+         bool alive = false;
+         if(go){
+             oldMeter = Mathf.FloorToInt(go.GetComponent<RedGuyController>().meter/33);
+             alive = go.GetComponent<HealthComponent>()?.alive ?? false;
+         }
+         orig(self);
+         if(go && alive && oldMeter < Mathf.FloorToInt(self.fill/3300)){
+             RoR2.Util.PlaySound("sfx_ravager_pip_gain",go);
+         }
+         else if(go && alive && oldMeter > Mathf.FloorToInt(self.fill/3300)){
+             RoR2.Util.PlaySound("sfx_ravager_pip_spend",go);
+         }
      }
 
      public static void CoagulateSinglePip(ILContext il){
@@ -207,7 +240,8 @@ namespace PassiveAgression.ModCompat{
              if(redness && damageReport.victim.wasAlive && !damageReport.victim.alive && ConsumePip(redness)){
                  damageReport.victim.Networkhealth = damageReport.combinedHealthBeforeDamage;
                  damageReport.victim.ospTimer += 0.2f;
-                 new RedGuyMod.Content.SyncOrbOverlay(damageReport.victim.netId,damageReport.victim.gameObject).Send(R2API.Networking.NetworkDestination.Clients);
+                 redness.ServerTriggerRevive();
+                 //new RedGuyMod.Content.SyncRevive(damageReport.victim.netId,damageReport.victim.gameObject).Send(R2API.Networking.NetworkDestination.Clients);
              }
          }
      }

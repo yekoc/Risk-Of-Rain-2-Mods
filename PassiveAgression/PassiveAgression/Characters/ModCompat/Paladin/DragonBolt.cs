@@ -27,6 +27,7 @@ namespace PassiveAgression.ModCompat
      public static BuffDef scepterbuff;
      public static bool isHooked;
      public static bool paladinUpdatedWhileIWasntLooking = false;
+     public static GameObject lightningEffectPrefab;
      private static System.Reflection.FieldInfo updatedLightningTimer;
 
 
@@ -54,10 +55,16 @@ namespace PassiveAgression.ModCompat
                 isHooked = true;
                 Run.onRunDestroyGlobal += unsub;
              }
+             if(!lightningEffectPrefab){
+                 var obj = skillSlot.characterBody.modelLocator?.modelTransform?.GetComponent<ChildLocator>()?.FindChild("SwordLightningEffect")?.gameObject;
+                 if(obj){
+                     lightningEffectPrefab = PrefabAPI.InstantiateClone(obj,"lightningEff",false);
+                 }
+             }
              return null;
          };
          (def as ScriptableObject).name = def.skillNameToken;
-         def.icon = Util.SpriteFromFile("BoltIcon.png");
+         def.icon = PassiveAgressionPlugin.unfinishedIcon;
          
 
          ContentAddition.AddSkillDef(def);
@@ -73,7 +80,7 @@ namespace PassiveAgression.ModCompat
      [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining | System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
      public static void SetUpScepter(){
          LanguageAPI.Add("PASSIVEAGRESSION_PALADINBOLT_SCEPTER","Beloved's Sunbolt");
-         LanguageAPI.Add("PASSIVEAGRESSION_PALADINBOLT_SCEPTERDESC","Call down an empowering <style=cIsUtility>lightning bolt</style>,boosting your weapon and body with lightning.");
+         LanguageAPI.Add("PASSIVEAGRESSION_PALADINBOLT_SCEPTERDESC","Call down an empowering <style=cIsUtility>lightning bolt</style>, boosting yourself and allies with lightning.");
          scepterdef = ScriptableObject.CreateInstance<SkillDef>();
          scepterdef.skillNameToken = "PASSIVEAGRESSION_PALADINBOLT_SCEPTER";
          scepterdef.skillDescriptionToken = "PASSIVEAGRESSION_PALADINBOLT_SCEPTERDESC";
@@ -94,7 +101,21 @@ namespace PassiveAgression.ModCompat
          scepterbuff.name = "Sun's Beloved";
          (scepterbuff as ScriptableObject).name = "PASSIVEAGRESSION_PALADINBOLT_SCEPTERBUFF";
 
+         On.RoR2.CharacterBody.OnBuffFirstStackGained += (orig,self,buff) =>{
+             orig(self,buff);
+             if(buff == scepterbuff && CameraRigController.instancesList[0].targetBody == self){
+                 PaladinMod.Modules.Buffs.overchargeBuff.isHidden = true;
+             }
+         };
+         On.RoR2.CharacterBody.OnBuffFinalStackLost += (orig,self,buff) =>{
+             orig(self,buff);
+             if(buff == scepterbuff && PaladinMod.Modules.Buffs.overchargeBuff.isHidden){
+                 PaladinMod.Modules.Buffs.overchargeBuff.isHidden = false;
+             }
+         };
+
          ContentAddition.AddSkillDef(scepterdef);
+         ContentAddition.AddBuffDef(scepterbuff);
          AncientScepter.AncientScepterItem.instance.RegisterScepterSkill(scepterdef,"RobPaladinBody",def);
      }
 
@@ -104,6 +125,9 @@ namespace PassiveAgression.ModCompat
                     baseDuration = 2f;
                     //base. = true;
 		    base.OnEnter();
+                    if(areaIndicatorInstance){
+                        GameObject.Destroy(areaIndicatorInstance);
+                    }
                     areaIndicatorInstance = null;
 	    }
 	    public override InterruptPriority GetMinimumInterruptPriority(){
@@ -119,17 +143,24 @@ namespace PassiveAgression.ModCompat
 
          public bool isScepter = false;
          public float buffDuration = 6f;
+         public static bool lmao = true;
 
          public override void OnEnter(){
              baseDuration = 1f;
              base.OnEnter();
+             if(lmao){
+                 lmao = false;
+                 foreach(var skill in RoR2.UI.HUD.instancesList[0].skillIcons.Where(s => s.targetSkill.skillNameToken.Contains("Lightning"))){
+                     GameObject.Instantiate(lightningEffectPrefab,skill.gameObject.transform);
+                 }
+             }
          }
          public override void OnExit(){
              base.OnExit();
-             EffectManager.SpawnEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/LightningStrikeImpact"),new EffectData{
-                     color = Color.yellow,
+             EffectManager.SpawnEffect(PaladinMod.Modules.Assets.altLightningImpactFX,new EffectData{
                      origin = GetModelChildLocator()?.FindChild(muzzleString)?.position ?? characterBody.corePosition
              },transmit: true);
+
              if(NetworkServer.active){
                var controller = characterBody.GetComponent<PaladinMod.Misc.PaladinSwordController>();
                if(controller){

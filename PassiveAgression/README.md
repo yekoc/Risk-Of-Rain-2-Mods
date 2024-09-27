@@ -4,6 +4,7 @@ Adds several new alternate skills to the game,along with new passives and skills
 Icon submissions that look better than what I already have are accepted.
 
 Credit to Hifu for making the good looking icons.(StimShot,Standoff,Starch,Pathogen,Rituals,Excise & Snowsculpt)\
+Credit to Prod for figuring out initial changes for SOTS compat.\
 Credit to the GNU Image Manipulation Program for helping me make the rest of the icons.\
 Credit to cute anime girls for giving me the will to continue living.
 

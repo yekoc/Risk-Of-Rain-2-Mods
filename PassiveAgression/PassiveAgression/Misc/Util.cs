@@ -98,6 +98,9 @@ namespace PassiveAgression{
             log += "-";
         }
         Debug.Log(log + transform);
+        foreach(var comp in transform.gameObject.GetComponents<Component>()){
+            Debug.Log(log + " *" + comp.GetType());
+        }
         for(int i = 0;i < transform.childCount;i++){
           recursebull(transform.GetChild(i),acc +1);
         }

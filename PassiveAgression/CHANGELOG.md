@@ -1,6 +1,13 @@
 
 #Changelog
 ---
+1.3.2
+  - SOTS Update
+  - Hopefully fixed all multiplayer issues for Glass Shadow, as clone init is state based now.
+  - Description spelling fixes
+  - New Ravager Coldblood sound effects, many thanks to Rob for creating them and putting them in for PA to use.
+  - Internal changes for future updates.
+
 1.3.0
   - Revamped Skill Registration System to provide configs for specific skills, configs regarding unfinished skills will only generate if they are enabled. As a necessary tradeoff, the mod isn't as robust to errors during initialization anymore. 
   - Added 5 new skills

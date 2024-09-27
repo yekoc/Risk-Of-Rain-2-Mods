@@ -24,7 +24,7 @@ namespace PassiveAgression.Croc
          var epiESC = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<EntityStateConfiguration>("RoR2/Base/Croco/EntityStates.Croco.FireDiseaseProjectile.asset");
          
          LanguageAPI.Add("PASSIVEAGRESSION_CROCSPREAD","Carrier Pathogen");
-         LanguageAPI.Add("PASSIVEAGRESSION_CROCSPREAD_DESC","Release a pathogen that deals <style=cIsDamage> 85% damage </style> and <style=cIsUtility>spawns a disease per every debuff on the target</style>. The disease spreads to up to <style=cIsDamage>20</style> targets,carrying carrying a random debuff from it's last host.");
+         LanguageAPI.Add("PASSIVEAGRESSION_CROCSPREAD_DESC","Release a pathogen that deals <style=cIsDamage> 85% damage </style> and <style=cIsUtility>spawns a disease per every debuff on the target</style>. The disease spreads to up to <style=cIsDamage>20</style> targets, carrying carrying a random debuff from its last host.");
          
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_CROCSPREAD";
@@ -48,7 +48,7 @@ namespace PassiveAgression.Croc
                           if(self.lightningType == LightningOrb.LightningType.CrocoDisease && (flag || def.IsAssigned(self.projectileController.owner.GetComponent<CharacterBody>(),SkillSlot.Special))){
                             var cdt = ownerbody.gameObject.GetComponent<CrocoDamageTypeController>();
                             if(cdt){
-                              self.projectileDamage.damageType &= ~cdt.GetDamageType();
+                              self.projectileDamage.damageType.damageType &= ~cdt.GetDamageType().damageType;
                             }
                             var pOrb = new PathogenOrb();
                             Util.GetRandomDebuffOrDot(ownerbody,out pOrb.debuff,out pOrb.dot);
@@ -75,7 +75,7 @@ namespace PassiveAgression.Croc
          var ghostMat = GameObject.Instantiate<Material>(ghostPart.materials[0]);
          ghostMat.name += "spread";
          ghostMat.SetColor("_TintColor", new Color(3.5f, 1.9f, 9.3f, 1f));*/
-         proPrefab.GetComponent<ProjectileDamage>().damageType = DamageType.Generic;
+         proPrefab.GetComponent<ProjectileDamage>().damageType.damageType = DamageType.Generic;
          proPrefab.GetComponent<ProjectileProximityBeamController>().damageCoefficient = 0.85f;
          ContentAddition.AddProjectile(proPrefab);
          ContentAddition.AddEntityState(typeof(PathogenState),out _);

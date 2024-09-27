@@ -92,7 +92,7 @@ namespace PassiveAgression.Captain{
         static IntegratedBeacon(){
          var asset = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<CaptainSupplyDropSkillDef>("RoR2/Base/Captain/PrepSupplyDrop.asset");
          LanguageAPI.Add("PASSIVEAGRESSION_CAPTAINUPLINK","Integrated Beacon Uplink");
-         LanguageAPI.Add("PASSIVEAGRESSION_CAPTAINUPLINK_DESC","Channel the effects of a Supply Beacon through your prosthetics.Can only be invoked <style=cIsUtility>twice per stage</style>.");
+         LanguageAPI.Add("PASSIVEAGRESSION_CAPTAINUPLINK_DESC","Channel the effects of a Supply Beacon through your prosthetics. Can only be invoked <style=cIsUtility>twice per stage</style>.");
          beaconBuff = ScriptableObject.CreateInstance<BuffDef>();
          beaconBuff.canStack = true;
          beaconBuff.name = "Channeling Beacon";

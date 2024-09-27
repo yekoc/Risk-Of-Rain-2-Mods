@@ -20,6 +20,7 @@ namespace PassiveAgression.Bandit
      public static SingleUseSkillDef fireDef;
      public static ModdedDamageType sixShoot = DamageAPI.ReserveDamageType();
 
+     //Game can't handle sustained revolver mode
      static ChainSpecial(){
          LanguageAPI.Add("PASSIVEAGRESSION_BANDITREFRESH","Six Soulshooter");
          LanguageAPI.Add("PASSIVEAGRESSION_BANDITREFRESH_DESC","<style=cIsDamage>Slayer</style>,replace your primary with 6 revolver shots for <style=cIsDamage>400% damage</style>. Kills <style=cIsUtility>grant more shots</style>.");
@@ -99,7 +100,7 @@ namespace PassiveAgression.Bandit
              base.OnEnter();
          }
          public override EntityState GetNextState(){
-            return EntityStateCatalog.InstantiateState(outer.mainStateType);    
+            return EntityStateCatalog.InstantiateState(EntityStateCatalog.GetStateIndex(outer.mainStateType.stateType));    
          }
          public override InterruptPriority GetMinimumInterruptPriority(){
              return InterruptPriority.PrioritySkill;

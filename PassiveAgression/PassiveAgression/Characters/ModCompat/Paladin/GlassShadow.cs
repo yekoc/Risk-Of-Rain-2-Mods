@@ -32,7 +32,7 @@ namespace PassiveAgression.ModCompat
      }
      static PaladinGlassShadow(){
          LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE","Glass Shadow");
-         LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE_DESC","Summon a glass facsimile with <style=cIsHealth>10%</style> health that copies your moves,<style=cIsUtility>hold to increase mimicry delay.</style>");
+         LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE_DESC","Summon a glass facsimile with <style=cIsHealth>10% health</style> that copies your moves. <style=cIsUtility>Hold to increase mimicry delay.</style>");
          def = ScriptableObject.CreateInstance<DoppelSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_PALADINCLONE";
          def.skillDescriptionToken = "PASSIVEAGRESSION_PALADINCLONE_DESC";
@@ -57,7 +57,7 @@ namespace PassiveAgression.ModCompat
             if((dopList != null) && slot.characterBody){
              foreach(var glass in dopList[slot.characterBody]){
                glass.healthComponent.godMode = false;
-               glass.master.TrueKill();
+               glass.master?.TrueKill();
              }
              dopList.Remove(slot.characterBody);
             }
@@ -109,7 +109,7 @@ namespace PassiveAgression.ModCompat
      [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining | System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
      public static void SetUpScepter(){
          LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE_SCEPTER","True Reflection");
-         LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE_SCEPTERDESC","Summon an <color=#d299ff>invincible</color> glass copy that mimics your moves,<style=cIsUtility>recast to resummon it to yourself with a new delay.</style>");
+         LanguageAPI.Add("PASSIVEAGRESSION_PALADINCLONE_SCEPTERDESC","Summon an <color=#d299ff>invincible</color> glass copy that mimics your moves. <style=cIsUtilityRrecast to resummon it to yourself with a new delay.</style>");
          scepterdef = ScriptableObject.CreateInstance<AssignableSkillDef>();
          scepterdef.skillNameToken = "PASSIVEAGRESSION_PALADINCLONE_SCEPTER";
          scepterdef.skillDescriptionToken = "PASSIVEAGRESSION_PALADINCLONE_SCEPTERDESC";
@@ -130,6 +130,50 @@ namespace PassiveAgression.ModCompat
          ContentAddition.AddSkillDef(scepterdef);
          ContentAddition.AddEntityState(typeof(RegrabGlassShadowState),out _);
          AncientScepter.AncientScepterItem.instance.RegisterScepterSkill(scepterdef,"RobPaladinBody",def);
+     }
+     public class GlassShadowInitialState : EntityState{
+         public override void OnEnter(){
+            var master = characterBody.master;
+            var ownerBody = master.minionOwnership.ownerMaster.GetBody();
+            var ownerState = EntityStateMachine.FindByCustomName(ownerBody.gameObject,"Weapon")?.state;
+            bool scepter = false;
+            ushort delay = 0;
+            if(ownerState is RegrabGlassShadowState stat){
+                delay = stat.delay;
+                scepter = true;
+            }
+            else if(ownerState is CastGlassShadowState stat2){
+                delay = stat2.delay;
+            }
+            master.gameObject.AddComponent<PaladinDoppelInputBank>().updateDelay = delay;
+            var ai = master.GetComponent<BaseAI>();
+            if(ai){
+             master.aiComponents = Array.Empty<BaseAI>();
+             Destroy(ai);
+            }
+            else{
+             master.playerCharacterMasterController = null;
+             Destroy(master.GetComponent<PlayerCharacterMasterController>());
+            }
+            characterBody.teamComponent.hideAllyCardDisplay = true;
+            characterBody.baseNameToken = Language.GetString(characterBody.baseNameToken) + "GLASS";
+            characterBody.skillLocator.primary.stock = ownerBody.skillLocator.primary.stock;
+            characterBody.skillLocator.secondary.stock = ownerBody.skillLocator.secondary.stock;
+            characterBody.skillLocator.utility.stock = ownerBody.skillLocator.utility.stock;
+            characterBody.outOfCombatStopwatch = ownerBody.outOfCombatStopwatch;
+            characterBody.outOfDangerStopwatch = ownerBody.outOfDangerStopwatch;
+            characterBody.gameObject.layer = LayerIndex.fakeActor.intVal;
+            characterBody.characterMotor.Motor.RebuildCollidableLayers();
+            master.inventory.onInventoryChanged +=  () =>{
+                master.luck = -10f;
+            };
+            master.destroyOnBodyDeath = true;
+            dopList[ownerBody].Add(characterBody);
+            if(scepter){
+                characterBody.healthComponent.godMode = true;
+            }
+            outer.SetState(EntityStateCatalog.InstantiateState(EntityStateCatalog.GetStateIndex(outer.mainStateType.stateType)));
+         }
      }
      public class PrepGlassShadowState : BaseChannelSpellState{
 	    ushort delay = 0;
@@ -179,44 +223,25 @@ namespace PassiveAgression.ModCompat
                     muzzleString = "HandL";
                     muzzleflashEffectPrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Brother/MuzzleflashLunarShard.prefab").WaitForCompletion(); 
 		    base.OnEnter();
-                    new MasterSummonClient{
-                        position = characterBody.transform.position,
-                        rotation = characterBody.transform.rotation,
-                        masterPrefab = PaladinMod.PaladinPlugin.instance.doppelganger,
-                        inventoryToCopy = characterBody.inventory,
-                        preSpawnSetupCallback = (master) =>{
-                            master.gameObject.AddComponent<PaladinDoppelInputBank>().updateDelay = delay;
-                            var ai = master.GetComponent<BaseAI>();
-                            if(ai){
-                             master.aiComponents = Array.Empty<BaseAI>();
-                             Destroy(ai);
-                            }
-                            else{
-                             master.playerCharacterMasterController = null;
-                             Destroy(master.GetComponent<PlayerCharacterMasterController>());
-                            }
-                            master.onBodyStart += (body) =>{
-                              body.teamComponent.hideAllyCardDisplay = true;
-                              var machine = EntityStateMachine.FindByCustomName(body.gameObject,"Body");
-                              machine.initialStateType = machine.mainStateType;
-                              body.baseNameToken = Language.GetString(body.baseNameToken) + "GLASS";
-                              body.skillLocator.primary.stock = characterBody.skillLocator.primary.stock;
-                              body.skillLocator.secondary.stock = characterBody.skillLocator.secondary.stock;
-                              body.skillLocator.utility.stock = characterBody.skillLocator.utility.stock;
-                              body.outOfCombat = characterBody.outOfCombat;
-                              body.outOfDanger = characterBody.outOfDanger;
-                              body.gameObject.layer = LayerIndex.fakeActor.intVal;
-                              body.characterMotor.Motor.RebuildCollidableLayers();
-                              dopList[characterBody].Add(body);
-                            };
-                            master.inventory.onInventoryChanged +=  () =>{
-                                master.luck = -10f;
-                            };
-                            master.destroyOnBodyDeath = true;
-                        },
-                        summonerBodyObject = characterBody.gameObject, 
-                        loadout = characterBody.master.loadout
-                    }.Perform();
+                    if(NetworkServer.active){
+                        var master = new MasterSummon{
+                            position = characterBody.transform.position,
+                            rotation = characterBody.transform.rotation,
+                            masterPrefab = PaladinMod.PaladinPlugin.instance.doppelganger,
+                            inventoryToCopy = characterBody.inventory,
+                            preSpawnSetupCallback = (master) =>{
+                                master.onBodyStart += (body) =>{
+                                  var machine = EntityStateMachine.FindByCustomName(body.gameObject,"Body");
+                                  machine.initialStateType = new SerializableEntityStateType(typeof(GlassShadowInitialState));
+                                };
+                            },
+                            summonerBodyObject = characterBody.gameObject, 
+                            loadout = characterBody.master.loadout
+                        }.Perform();
+                        if(characterBody.networkIdentity && characterBody.networkIdentity.clientAuthorityOwner != null){
+                            master.networkIdentity.AssignClientAuthority(characterBody.networkIdentity.clientAuthorityOwner);
+                        }
+                    }
 	    }
 	    public override void FixedUpdate(){
                     base.FixedUpdate();
@@ -255,47 +280,25 @@ namespace PassiveAgression.ModCompat
 		  base.OnEnter();
                   var list = dopList[characterBody];
                   if(list.Count <= 0){
-                    new MasterSummonClient{
-                        position = characterBody.transform.position,
-                        rotation = characterBody.transform.rotation,
-                        masterPrefab = PaladinMod.PaladinPlugin.instance.doppelganger,
-                        inventoryToCopy = characterBody.inventory,
-                        preSpawnSetupCallback = (master) =>{
-                            var bank = master.gameObject.AddComponent<PaladinDoppelInputBank>();
-                            bank.updateDelay = delay;
-                            bank.ownerInputs = characterBody.inputBank;
-                            var ai = master.GetComponent<BaseAI>();
-                            if(ai){
-                             master.aiComponents = Array.Empty<BaseAI>();
-                             Destroy(ai);
-                            }
-                            else{
-                             master.playerCharacterMasterController = null;
-                             Destroy(master.GetComponent<PlayerCharacterMasterController>());
-                            }
-                            master.onBodyStart += (body) =>{
-                              body.teamComponent.hideAllyCardDisplay = true;
-                              var machine = EntityStateMachine.FindByCustomName(body.gameObject,"Body");
-                              machine.initialStateType = machine.mainStateType;
-                              body.baseNameToken = Language.GetString(body.baseNameToken) + "GLASS";
-                              body.skillLocator.primary.stock = characterBody.skillLocator.primary.stock;
-                              body.skillLocator.secondary.stock = characterBody.skillLocator.secondary.stock;
-                              body.skillLocator.utility.stock = characterBody.skillLocator.utility.stock;
-                              body.outOfCombat = characterBody.outOfCombat;
-                              body.outOfDanger = characterBody.outOfDanger;
-                              body.gameObject.layer = LayerIndex.fakeActor.intVal;
-                              body.characterMotor.Motor.RebuildCollidableLayers();
-                              dopList[characterBody].Add(body);
-                              body.healthComponent.godMode = true;
-                            };
-                            master.inventory.onInventoryChanged +=  () =>{
-                                master.luck = -10f;
-                            };
-                            master.destroyOnBodyDeath = true;
-                        },
-                        summonerBodyObject = characterBody.gameObject, 
-                        loadout = characterBody.master.loadout
-                    }.Perform();
+                    if(NetworkServer.active){
+                        var master = new MasterSummon{
+                            position = characterBody.transform.position,
+                            rotation = characterBody.transform.rotation,
+                            masterPrefab = PaladinMod.PaladinPlugin.instance.doppelganger,
+                            inventoryToCopy = characterBody.inventory,
+                            preSpawnSetupCallback = (master) =>{
+                                master.onBodyStart += (body) =>{
+                                  var machine = EntityStateMachine.FindByCustomName(body.gameObject,"Body");
+                                  machine.initialStateType = new SerializableEntityStateType(typeof(GlassShadowInitialState));
+                                };
+                            },
+                            summonerBodyObject = characterBody.gameObject, 
+                            loadout = characterBody.master.loadout
+                        }.Perform();
+                        if(characterBody.networkIdentity && characterBody.networkIdentity.clientAuthorityOwner != null){
+                            master.networkIdentity.AssignClientAuthority(characterBody.networkIdentity.clientAuthorityOwner);
+                        }
+                    }
                   }
                   else{ 
                     var body = list.First();
