@@ -17,7 +17,7 @@ using MonoMod.Cil;
 
 namespace SunStroke
 {
-    [BepInPlugin("xyz.yekoc.SunStroke", "Unmatched Power of the Sun's Heat","1.0.0" )]
+    [BepInPlugin("xyz.yekoc.SunStroke", "Unmatched Power of the Sun's Heat","1.0.2" )]
     [BepInDependency("com.rob.Paladin",BepInDependency.DependencyFlags.SoftDependency)]
     public class SunStrokePlugin : BaseUnityPlugin
     {
@@ -35,7 +35,7 @@ namespace SunStroke
               orig(inv,ref info);
             };
             if(!vanillaSun.Value){
-              IL.RoR2.GrandParentSunController.ServerFixedUpdate += (il) =>{
+              IL.RoR2.OverheatSystem.AddOverheatServer += (il) =>{
                  var c = new ILCursor(il);
                  if(c.TryGotoNext(x => x.MatchSub(),x => x.MatchStloc(out _))){
                      c.Index++;

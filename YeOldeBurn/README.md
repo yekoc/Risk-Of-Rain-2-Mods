@@ -17,4 +17,6 @@ Credit to cute anime girls for giving me the will to continue living.
 
 #Changelog
 ---
+1.0.2 - HC\
+1.0.1 - SOTS\
 1.0.0 - Initial Release

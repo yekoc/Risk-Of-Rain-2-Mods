@@ -8,6 +8,10 @@ Credit to cute anime girls for giving me the will to continue living.
 
 #Changelog
 ---
+1.1.3 - Hallowed Concepts Update.\
+Moved Keybind default to T so as to not conflict with the new Key Item binding, you might have to change it manually if the mod was previously installed.\
+Something is wrong with the vfx that requires further investigation but the functionality has no issues.
+
 1.1.2 - Fixed minions that lack AI breaking.\
 Changed internal name of plugin to make more sense.
 

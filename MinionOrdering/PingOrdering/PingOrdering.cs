@@ -21,14 +21,14 @@ using System.Runtime.CompilerServices;
 
 namespace PingOrdering
 {
-    [BepInPlugin("xyz.yekoc.PingOrdering", "Ping Ordering","1.1.2" )]
+    [BepInPlugin("xyz.yekoc.PingOrdering", "Ping Ordering","1.1.3" )]
     [BepInDependency("com.rune580.riskofoptions",BepInDependency.DependencyFlags.SoftDependency)]
     public class AIOrdersPlugin : BaseUnityPlugin
     {
 	static public Dictionary<CharacterMaster,List<AwaitOrders>> subordinateDict = new Dictionary<CharacterMaster,List<AwaitOrders>>();
         static public ConfigEntry<KeyboardShortcut> attentionButton;
 	private void Awake(){
-                attentionButton = Config.Bind<KeyboardShortcut>("Controls","Order All",new KeyboardShortcut(KeyCode.F),"Calls the attention of all subordiantes.");
+                attentionButton = Config.Bind<KeyboardShortcut>("Controls","Order All",new KeyboardShortcut(KeyCode.T),"Calls the attention of all subordiantes.");
                 if(BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.rune580.riskofoptions")){
                    RoOptionize();
                 }
@@ -77,8 +77,8 @@ namespace PingOrdering
 			    self.pingColor = Color.cyan;
 			    self.pingDuration = float.PositiveInfinity;
 			    self.enemyPingGameObjects[0].GetComponent<SpriteRenderer>().color = Color.cyan;
-			    self.pingHighlight.highlightColor = (Highlight.HighlightColor)(451);
-			    return true;
+			    self.activeColor = Color.cyan;
+                            return true;
 			  }
 			  return false;
 			});
@@ -102,13 +102,13 @@ namespace PingOrdering
 			  });
 			 c.Emit(OpCodes.Brtrue,l);
 		};
-                On.RoR2.Highlight.GetColor += (orig,self) => {
+               /* On.RoR2.Highlight.GetColor += (orig,self) => {
                   var ret = orig(self);
                   if(ret == Color.magenta && self.highlightColor == (Highlight.HighlightColor)(451)){
                     return Color.cyan + new Color(0.01f,0,0);
                   }
                   return ret;
-                };
+                };*/
                 RoR2.ContentManagement.ContentManager.collectContentPackProviders += (del) =>{
                  var prov = new RoR2.ContentManagement.SimpleContentPackProvider();
                  prov.identifier = "PingOrdering";

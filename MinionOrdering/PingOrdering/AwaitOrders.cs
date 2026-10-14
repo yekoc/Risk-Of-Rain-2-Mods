@@ -55,10 +55,7 @@ namespace PingOrdering{
                            ping.pingText.text = Util.GetBestMasterName(characterMaster.minionOwnership?.ownerMaster);
                            ping.pingObjectScaleCurve.enabled = false;
                            ping.pingObjectScaleCurve.enabled = true;
-                           ping.pingHighlight.highlightColor = (Highlight.HighlightColor)(451);
-                           ping.pingHighlight.targetRenderer = body.modelLocator?.modelTransform?.GetComponentInChildren<CharacterModel>()?.baseRendererInfos?.First((r) => !r.ignoreOverlays).renderer;
-                           ping.pingHighlight.strength = 1f;
-                           ping.pingHighlight.isOn = true;
+                           ping.activeColor = Color.cyan;
                            foreach(var o in ping.enemyPingGameObjects){
                              o.SetActive(true);
                              var sprit = o.GetComponent<SpriteRenderer>();
@@ -139,7 +136,7 @@ namespace PingOrdering{
 			 order = command;
 			 this.target = target;
 			 this.targetPosition = targetPosition;
-			 if(targetPosition.HasValue){
+			 if(targetPosition.HasValue && ai){
 				 BroadNavigationSystem.Agent agent = ai.broadNavigationAgent;
 				 agent.goalPosition = targetPosition;
 				 agent.InvalidatePath();
