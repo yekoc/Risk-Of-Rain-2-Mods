@@ -4,7 +4,7 @@ Adds several new alternate skills to the game,along with new passives and skills
 Icon submissions that look better than what I already have are accepted.
 
 Credit to Hifu for making the good looking icons.(StimShot,Standoff,Starch,Pathogen,Rituals,Excise & Snowsculpt)\
-Credit to Prod for figuring out initial changes for SOTS compat.\
+Credit to Prod for figuring out initial changes for SOTS compat and maintaining the mod while I was away.\
 Credit to the GNU Image Manipulation Program for helping me make the rest of the icons.\
 Credit to cute anime girls for giving me the will to continue living.
 
@@ -99,6 +99,14 @@ Credit to cute anime girls for giving me the will to continue living.
 		<tr>
                         <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/9/98/Artificer.png/revision/latest?cb=20200129200643" width=128></td>			
 			<td>
+				<b>Passive:</b> Hoarfrost Rite <br>
+                                Frozen Enemies emit an aura that slows and hurts nearby enemies.
+			</td>
+                        <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/HoarFrostIcon.png" width=128></td>
+		</tr>
+		<tr>
+                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/9/98/Artificer.png/revision/latest?cb=20200129200643" width=128></td>			
+			<td>
 				<b>Special:</b> Snowsculpt <br>
                                 Cover yourself within a golem of packed snow,providing protection from attacks.<br>
                                 Press the interact key to burst out with a freezing blast.
@@ -114,6 +122,23 @@ Credit to cute anime girls for giving me the will to continue living.
                 Note: The duration is not long enough to hack the legendary chest, don't waste it trying.
 			</td>
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/IntegratedBeaconIcon.png" width=128></td>
+		</tr>
+		<tr>
+                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/0/00/Mercenary.png/revision/latest?cb=20200129200651" width=128></td>			
+			<td>
+				<b>Passive:</b> Red Plum Blossom <br>
+                                Abilities that Expose enemies instead apply Red Plum Blossom.<br>
+                                Enemies with Red Plum Blossom have a higher chance to take critical hits and will bleed upon doing so.
+			</td>
+                        <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/MercPlumBlossomIcon.png" width=128></td>
+		</tr>
+        <tr>
+                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/0/00/Mercenary.png/revision/latest?cb=20200129200651" width=128></td>			
+			<td>
+				<b>Secondary:</b> Sharp Intent <br>
+                                Gather your harmful intent to Expose enemies in a cone in front of you.
+			</td>
+                        <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/MercIntentIcon.png" width=128></td>
 		</tr>
 		<tr>
                         <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/f/fe/Railgunner.png/revision/latest?cb=20220302014737" width=128></td>			
@@ -159,7 +184,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/SundownShield.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://raw.githubusercontent.com/ArcPh1r3/MinerUnearthed/master/MinerUnityProject/Assets/Miner/texMinerIcon.png" width=128></td>			
+                        <td><img src="https://ccdn.thunderstore.io/live/repository/icons/EnforcerGang-MinerUnearthed-1.10.1.png" width=128></td>			
 			<td>
 				<b>Passive:</b> Heart of The Forge <br>
 				All your attacks deal Blazing damage.(It's Blacksmith ror1).
@@ -175,12 +200,13 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/SpursIcon.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://i.imgur.com/eqp6HDQ.png" width=128></td>			
+                        <td><img src="https://i.imgur.com/eqp6HDQ.png" width=64><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/5/51/CHEF.png/revision/latest?cb=20240828191631" width=64></td>			
 			<td>
 				<b>Passive:</b> Well Stocked Pantry <br>
-				The first stack of any ingredient item reduces the cooldown of CHEF's special skill.
+				The first stack of any ingredient item reduces the cooldown of CHEF's special skill.<br>
+                Note that "Ingredient" does not mean things the wandering chef uses but is instead a seperate list of cookable seeming things (does not include meals).
 			</td>
-                        <td><img src="https://raw.githubusercontent.com/GnomeModder/ChefMod/main/thecook-unity/Assets/CHEF/Icons/chef_special.png" width=128></td>
+                        <td><img src="https://raw.githubusercontent.com/GnomeModder/ChefMod/main/thecook-unity/Assets/CHEF/Icons/chef_special.png" width=64><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/ChefPantryDev.png" width=64></td>
 		</tr>
 		<tr>
                         <td><img src="https://raw.githubusercontent.com/CassCoffey/RiskOfRuina/master/RiskOfRuinaProject/Assets/RedMistAssets/Icons/texRedMistIcon.png" width=128></td>			
@@ -192,7 +218,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/ArgaliaPassiveIcon.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://raw.githubusercontent.com/ArcPh1r3/RedGuyMod/main/RedGuyUnityProject/Assets/Ravager/Icons/texRavagerIcon.png" width=128></td>			
+                        <td><img src="https://ccdn.thunderstore.io/live/repository/icons/public_ParticleSystem-Ravager-1.6.0.png" width=128></td>			
 			<td>
 				<b>Passive (Blood Well):</b> Coldblood <br>
 				Store blood into 3 pips that won't decay once filled<br>

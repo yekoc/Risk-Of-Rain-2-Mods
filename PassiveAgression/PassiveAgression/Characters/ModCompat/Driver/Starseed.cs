@@ -153,7 +153,6 @@ namespace PassiveAgression.ModCompat{
                 }
                 if(sun){
                     sun.maxDistance = 26f;
-                    sun.minimumStacksBeforeApplyingBurns = 1;
                     sun.buffDef = RoR2Content.Buffs.Overheat;
                     sun.ownership.ownerObject = gameObject;
                     indicatorSphere = GameObject.Instantiate(spherePrefab,sun.transform);

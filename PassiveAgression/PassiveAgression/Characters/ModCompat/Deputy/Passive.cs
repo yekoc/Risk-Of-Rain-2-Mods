@@ -34,7 +34,7 @@ namespace PassiveAgression.ModCompat{
      static DeputyPassive(){
          slot = new CustomPassiveSlot(DeputyPlugin.deputyBodyPrefab);
          LanguageAPI.Add("PASSIVEAGRESSION_DEPUTYBOUNCE", (UnityEngine.Random.value > 0.5) ? "Jangling Spurs" : "Jingling Spurs" );
-         LanguageAPI.Add("PASSIVEAGRESSION_DEPUTYBOUNCE_DESC","The Deputy can sprint in any direction. Press jump again while in contact with an enemy to bounce off and reset your jump count.");
+         LanguageAPI.Add("PASSIVEAGRESSION_DEPUTYBOUNCE_DESC","The Deputy can sprint in any direction. Press jump again while in contact with an enemy or projectile to bounce off and reset your jump count.");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_DEPUTYBOUNCE";
          (def as ScriptableObject).name = def.skillNameToken;
@@ -79,30 +79,44 @@ namespace PassiveAgression.ModCompat{
          ContentAddition.AddEntityState(typeof(BounceState),out _);
      }
 
+     public static bool EnemyStepCheck(this DeputyMainState self){
+         var overlap = dictThatPreventsSpammingSpaceBarAsAViableTactic[self.skillLocator.gameObject];
+         var flag = overlap.Fire();
+         var transform = overlap.hitBoxGroup.hitBoxes[0].transform;
+         Collider[] cols;
+         var count = HGPhysics.OverlapBox(out cols,transform.position,transform.localScale*0.5f,transform.rotation,LayerIndex.projectile.mask);
+         if(count > 0){
+             flag = true;
+             self.characterBody.AddTimedBuffAuthority(RoR2Content.Buffs.HiddenInvincibility.buffIndex,0.25f);
+         }
+         HGPhysics.ReturnResults(cols);
+         return flag;
+     }
+
      public static void LostPursuit(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig,GlobalEventManager self,DamageInfo info,GameObject victim){
          var bod = info.attacker.GetComponent<CharacterBody>();
          if(bod.bodyIndex == DeputyPlugin.deputyBodyIndex && def.IsAssigned(bod.skillLocator.allSkills[slotIndex])){
-             info.RemoveModdedDamageType(DeputyPlugin.grantDeputyBuff);
+             info.RemoveModdedDamageType(DeputyPlugin.grantHotPursuit);
          }
          orig(self,info,victim);
      }
      public static void EnemyStep(Action<DeputyMainState> orig,DeputyMainState self){
         orig(self);
-        if(self.isAuthority && !self.wasGrounded && self.inputBank.jump.justPressed && def.IsAssigned(self.skillLocator.allSkills[slotIndex]) && dictThatPreventsSpammingSpaceBarAsAViableTactic[self.skillLocator.gameObject].Fire()){
+        if(self.isAuthority && !self.wasGrounded && self.inputBank.jump.justPressed && def.IsAssigned(self.skillLocator.allSkills[slotIndex]) && self.EnemyStepCheck()){
             EntityStateMachine.FindByCustomName(self.characterBody.gameObject,"Weapon").SetInterruptState(new BounceState(),InterruptPriority.Skill);
         }
      }
      public class BounceState : BaseState{
          public override void OnEnter(){
              base.OnEnter();
-             PlayAnimation(animLayer,animName,animParam,1f);
+             PlayAnimation(animLayer,animName,animParam,0.5f);
              GenericCharacterMain.ApplyJumpVelocity(characterMotor,characterBody,1.5f,1.5f);
          }
          public override void FixedUpdate(){
              base.FixedUpdate();
              if(base.isAuthority){
                 characterBody.isSprinting = true;
-                if(fixedAge >= 1){
+                if(fixedAge >= 0.5){
                   outer.SetNextStateToMain();
                 }
              }

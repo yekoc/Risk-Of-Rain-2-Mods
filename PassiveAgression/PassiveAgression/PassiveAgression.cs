@@ -25,6 +25,7 @@ namespace PassiveAgression
     [BepInDependency(RecalculateStatsAPI.PluginGUID,BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(PrefabAPI.PluginGUID,BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(PrefabAPI.PluginGUID,BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(SkillsAPI.PluginGUID,BepInDependency.DependencyFlags.HardDependency)]
     //[BepInDependency(R2APIContentManager.PluginGUID,BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("com.DestroyedClone.AncientScepter", BepInDependency.DependencyFlags.SoftDependency)] 
     [BepInDependency("com.KingEnderBrine.ExtraSkillSlots", BepInDependency.DependencyFlags.SoftDependency)]
@@ -38,7 +39,7 @@ namespace PassiveAgression
     [BepInDependency("com.Bog.Deputy",BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.JavAngle.HouseMod",BepInDependency.DependencyFlags.SoftDependency)]
 
-    [BepInPlugin("xyz.yekoc.PassiveAgression", "Passive Agression","1.3.2" )]
+    [BepInPlugin("xyz.yekoc.PassiveAgression", "Passive Agression","1.4.0" )]
     public class PassiveAgressionPlugin : BaseUnityPlugin
     {
         public static ConfigEntry<bool> unfinishedContent,devIcons;
@@ -131,6 +132,7 @@ namespace PassiveAgression
         private void SetupVanilla(){
 
          GameObject body;
+         GenericSkill existantPassiveSkill;
 
          #region Commando
          body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Commando/CommandoBody.prefab").WaitForCompletion();
@@ -233,6 +235,10 @@ namespace PassiveAgression
             skillDef = Mage.BleedPassive.def,
             viewableNode = new ViewablesCatalog.Node(Mage.BleedPassive.def.skillNameToken,false,null)
          },"MageBloodrite");
+         ConfigAndAdd(ref Mage.IcePassive.slot.family.variants,new SkillFamily.Variant{
+            skillDef = Mage.IcePassive.def,
+            viewableNode = new ViewablesCatalog.Node(Mage.IcePassive.def.skillNameToken,false,null)
+         },"MageIcerite");
          ConfigAndAdd(ref body.GetComponent<SkillLocator>().primary.skillFamily.variants,new SkillFamily.Variant{
             skillDef = Mage.BloodPrimary.def,
             viewableNode = new ViewablesCatalog.Node(Mage.BloodPrimary.def.skillNameToken,false,null)
@@ -244,7 +250,15 @@ namespace PassiveAgression
          #endregion
 
          #region Merc
-         body = Merc.FlickerPassive.slot.bodyPrefab;
+         body = Merc.ExposePassive.slot.bodyPrefab;
+         ConfigAndAdd(ref Merc.ExposePassive.slot.family.variants, new SkillFamily.Variant{
+                 skillDef = Merc.ExposePassive.def2,
+                 viewableNode = new ViewablesCatalog.Node(Merc.ExposePassive.def2.skillNameToken,false,null)
+         },"MercPlumBlossom");
+         ConfigAndAdd(ref body.GetComponent<SkillLocator>().secondary.skillFamily.variants, new SkillFamily.Variant{
+                 skillDef = Merc.MassExpose.def,
+                 viewableNode = new ViewablesCatalog.Node(Merc.MassExpose.def.skillNameToken,false,null)
+         },"MercGlare");
          /*ConfigAndAdd(ref Merc.FlickerPassive.slot.family.variants ,new SkillFamily.Variant{
             skillDef = Merc.FlickerPassive.def,
             viewableNode = new ViewablesCatalog.Node(Merc.FlickerPassive.def.skillNameToken,false,null)
@@ -266,7 +280,9 @@ namespace PassiveAgression
 
          #region Viend
          body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidSurvivor/VoidSurvivorBody.prefab").WaitForCompletion();
-         ConfigAndAdd(ref body.GetComponent<GenericSkill>().skillFamily.variants,new SkillFamily.Variant{
+         existantPassiveSkill = body.GetComponent<GenericSkill>();
+         existantPassiveSkill.loadoutTitleToken = string.IsNullOrEmpty(existantPassiveSkill.loadoutTitleToken) ? "Passive" : existantPassiveSkill.loadoutTitleToken;
+         ConfigAndAdd(ref existantPassiveSkill.skillFamily.variants,new SkillFamily.Variant{
             skillDef = VoidSurvivor.InfestationPassive.def,
             viewableNode = new ViewablesCatalog.Node(VoidSurvivor.InfestationPassive.def.skillNameToken,false,null)
          },"ViendBug");
@@ -278,13 +294,26 @@ namespace PassiveAgression
 
          #region Railgunner
          body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/Railgunner/RailgunnerBody.prefab").WaitForCompletion();
+         existantPassiveSkill = body.GetComponent<GenericSkill>();
+         existantPassiveSkill.loadoutTitleToken = string.IsNullOrEmpty(existantPassiveSkill.loadoutTitleToken) ? "Passive" : existantPassiveSkill.loadoutTitleToken;
          //Coin.SetMarksman(body,SkillSlot.Utility);
-         ConfigAndAdd(ref body.GetComponent<GenericSkill>().skillFamily.variants,new SkillFamily.Variant{
+         ConfigAndAdd(ref existantPassiveSkill.GetComponent<GenericSkill>().skillFamily.variants,new SkillFamily.Variant{
             skillDef = Railgunner.RailgunnerPassive.def,
             viewableNode = new ViewablesCatalog.Node(Railgunner.RailgunnerPassive.def.skillNameToken,false,null)
          },"RailMissile");
          #endregion
+         
+         #region GboxChef
+         body = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/DLC2/Chef/ChefBody.prefab").WaitForCompletion(); 
+         existantPassiveSkill = body.GetComponent<GenericSkill>();
+         existantPassiveSkill.loadoutTitleToken = string.IsNullOrEmpty(existantPassiveSkill.loadoutTitleToken) ? "Passive" : existantPassiveSkill.loadoutTitleToken;
+         ConfigAndAdd(ref existantPassiveSkill.skillFamily.variants, new SkillFamily.Variant{
+            skillDef = ModCompat.ChefPantryPassive.def,
+            viewableNode = new ViewablesCatalog.Node(ModCompat.ChefPantryPassive.def.skillNameToken,false,null)
+         },"GBoxChefPantry");
+         #endregion//*/
         }
+
 
         private void ConfigAndAdd(ref SkillFamily.Variant[] family,SkillFamily.Variant variant,string name = "",bool unfinished = false){
            if(!unfinished || unfinishedContent.Value){
@@ -334,9 +363,10 @@ namespace PassiveAgression
         }
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         private void SetupChef(){
-           var body = ModCompat.ChefPantryPassive.slot.bodyPrefab;
-           ConfigAndAdd(ref ModCompat.ChefPantryPassive.slot.family.variants,new SkillFamily.Variant{
-                   skillDef = ModCompat.ChefPantryPassive.def,
+           ModCompat.ChefPantryPassive.ModChef();
+           var body = ModCompat.ChefPantryPassive.moddedSlot.bodyPrefab;
+           ConfigAndAdd(ref ModCompat.ChefPantryPassive.moddedSlot.family.variants,new SkillFamily.Variant{
+                   skillDef = ModCompat.ChefPantryPassive.def2,
                    viewableNode = new ViewablesCatalog.Node(ModCompat.ChefPantryPassive.def.skillNameToken,false,null)
            },"ChefPantry");
         }

@@ -36,7 +36,7 @@ namespace PassiveAgression.ModCompat
          def = ScriptableObject.CreateInstance<DoppelSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_PALADINCLONE";
          def.skillDescriptionToken = "PASSIVEAGRESSION_PALADINCLONE_DESC";
-         def.baseRechargeInterval = 45f;
+         def.baseRechargeInterval = 35f;
          def.dontAllowPastMaxStocks = false;
          def.fullRestockOnAssign = true;
          def.rechargeStock = 1;
@@ -66,21 +66,6 @@ namespace PassiveAgression.ModCompat
          ContentAddition.AddSkillDef(def);
          ContentAddition.AddEntityState(typeof(PrepGlassShadowState),out _);
          ContentAddition.AddEntityState(typeof(CastGlassShadowState),out _);
-         On.RoR2.ModelSkinController.ApplySkin += (orig,self,index) =>
-         {
-             orig(self,index);
-             bool isGlass = (self?.characterModel?.body?.master?.GetComponent<PaladinDoppelInputBank>())??false;
-             if(isGlass){
-                 self.characterModel.itemDisplayRuleSet = null;
-                 self.characterModel.enabledItemDisplays.Clear();
-                 var renderers = self.characterModel.baseRendererInfos;
-                 for(var num = renderers.Length - 1 ;num >= 0; num--){
-                     renderers[num].defaultMaterial = glassMat.Result??glassMat.WaitForCompletion();
-                     renderers[num].ignoreOverlays = true;
-                 }
-                 self.characterModel.baseRendererInfos = renderers;
-             }
-         };
          RecalculateStatsAPI.GetStatCoefficients += (sender,args) =>{
              if(sender?.master?.GetComponent<PaladinDoppelInputBank>()){
                  args.healthMultAdd -= 0.9f;
@@ -136,6 +121,7 @@ namespace PassiveAgression.ModCompat
             var master = characterBody.master;
             var ownerBody = master.minionOwnership.ownerMaster.GetBody();
             var ownerState = EntityStateMachine.FindByCustomName(ownerBody.gameObject,"Weapon")?.state;
+            var model = modelLocator.modelTransform.GetComponent<CharacterModel>();
             bool scepter = false;
             ushort delay = 0;
             if(ownerState is RegrabGlassShadowState stat){
@@ -146,6 +132,16 @@ namespace PassiveAgression.ModCompat
                 delay = stat2.delay;
             }
             master.gameObject.AddComponent<PaladinDoppelInputBank>().updateDelay = delay;
+            model.gameObject.GetComponent<ModelSkinController>().onSkinApplied += (index) => {
+                 model.itemDisplayRuleSet = null;
+                 model.enabledItemDisplays.Clear();
+                 var renderers = model.baseRendererInfos;
+                 for(var num = renderers.Length - 1 ;num >= 0; num--){
+                     renderers[num].defaultMaterial = glassMat.Result??glassMat.WaitForCompletion();
+                     renderers[num].ignoreOverlays = true;
+                 }
+                 model.baseRendererInfos = renderers;
+            };
             var ai = master.GetComponent<BaseAI>();
             if(ai){
              master.aiComponents = Array.Empty<BaseAI>();

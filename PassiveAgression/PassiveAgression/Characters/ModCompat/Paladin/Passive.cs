@@ -40,7 +40,7 @@ namespace PassiveAgression.ModCompat{
                 RoR2.Run.onRunDestroyGlobal += unhooker;
              }
              slot.characterBody.levelArmor = 0;
-             slot.characterBody.master.inventory.GiveItem(RoR2Content.Items.AdaptiveArmor);
+             slot.characterBody.master.inventory.GiveItem(RoR2Content.Items.AdaptiveArmor.itemIndex);
              slot.characterBody.baseMaxShield += 1;
              return null;
              void unhooker(Run run){
@@ -55,7 +55,7 @@ namespace PassiveAgression.ModCompat{
          def.onUnassign = (GenericSkill slot) =>{
             slot.characterBody.levelArmor = PaladinDesignPassive.slot.bodyPrefab.GetComponent<CharacterBody>().levelArmor;
             slot.characterBody.baseMaxShield -= 1;
-            slot.characterBody.master?.inventory?.RemoveItem(RoR2Content.Items.AdaptiveArmor);
+            slot.characterBody.master?.inventory?.RemoveItem(RoR2Content.Items.AdaptiveArmor.itemIndex);
             (slot.stateMachine.state as PaladinMain)?.OnEnter();
          };
          def.icon = Util.SpriteFromFile("HForgeIcon.png"); 

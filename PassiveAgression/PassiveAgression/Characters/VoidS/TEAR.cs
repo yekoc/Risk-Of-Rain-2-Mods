@@ -2,6 +2,7 @@ using RoR2;
 using RoR2.Skills;
 using EntityStates;
 using RoR2.CharacterAI;
+using BepInEx.Configuration;
 using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -20,12 +21,14 @@ namespace PassiveAgression.VoidSurvivor
      public static AssignableSkillDef def;
      public static SkillDef cdef;
      public static bool isHooked;
+     public static ConfigEntry<bool> disablePostEffect;
 
      static TearUtil(){
          LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEAR","「T?ea?r】");
          LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEAR_DESC","Tear open a <style=cIsUtility>portal</style>  through the void,leading to the target location.");
          LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEARCORRUPT_DESC","Haphazardly open a tear to the void, <style=cIsUtility>filling the surrounding area</style> with fog.");
          LanguageAPI.Add("PASSIVEAGRESSION_VIENDTEARCORRUPT_KEYWORD","<style=cKeywordName>【Corruption Upgrade】</style><style=cSub>Transform to fill an area with void fog instead.</style>");
+         disablePostEffect = PassiveAgression.PassiveAgressionPlugin.config.Bind("ViendTear","Disable Portal Post Processing",false,"Removes the post processing effects caused by the tear's presence. REQUIRES RESTART");
          def = ScriptableObject.CreateInstance<AssignableSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_VIENDTEAR";
          (def as ScriptableObject).name = def.skillNameToken;
@@ -85,6 +88,9 @@ namespace PassiveAgression.VoidSurvivor
          col.height /= 10;
          col.height += 2;
          obj.AddComponent<DestroyOnTimer>().duration = 4f;
+         if(disablePostEffect.Value){
+             GameObject.Destroy(obj.transform.Find("Rotator/PP").gameObject);
+         }
          TearState.prefab = obj;
          var card = ScriptableObject.CreateInstance<SpawnCard>();
          card.prefab = obj;

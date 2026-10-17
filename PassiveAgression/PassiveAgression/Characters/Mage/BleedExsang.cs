@@ -28,7 +28,7 @@ namespace PassiveAgression.Mage
          r2apiDotActive = typeof(DotAPI).GetField("ActiveCustomDots",(System.Reflection.BindingFlags)(-1)).GetValue(null) as System.Collections.Generic.Dictionary<DotController,bool[]>;
 
          LanguageAPI.Add("PASSIVEAGRESSION_MAGEBLOODRIPDOT","Conclude");
-         LanguageAPI.Add("PASSIVEAGRESSION_MAGEBLOODRIPDOT_DESC","Inflict <style=cDeath>Pain</style> on an enemy, triggering all of their remaining DoTs at once.");
+         LanguageAPI.Add("PASSIVEAGRESSION_MAGEBLOODRIPDOT_DESC","Inflict <style=cDeath>Pain</style> on an enemy, immediately triggering all of their remaining DoTs twice.");
          
          def = ScriptableObject.CreateInstance<ConcludeTrackingSkillDef>();
          def.skillNameToken = "PASSIVEAGRESSION_MAGEBLOODRIPDOT";
@@ -132,26 +132,26 @@ namespace PassiveAgression.Mage
             if(DotController.dotControllerLocator.TryGetValue(targer.healthComponent.body.gameObject.GetInstanceID(),out dotc)){
                 bool extraAttention = dotc.dotStackList.Any(d => float.IsPositiveInfinity(d.timer));
                 for(DotIndex i = 0; (int)i < DotAPI.VanillaDotCount + DotAPI.CustomDotCount; i++){
-                while(dotc.HasDotActive(i) && dotDefs[(int)i].interval != 0){
-                    int remain = 0;
-                    dotc.EvaluateDotStacksForType((DotIndex)i,0f,out remain);
-                    dotc.EvaluateDotStacksForType((DotIndex)i,DotController.GetDotDef((DotIndex)i).interval,out remain);
-                    if(extraAttention){
-                        //Double If instead of && to (hopefully) ensure this check doesn't get 'optimized' into running everytime
-                        if(dotc.dotStackList.Any(d => d.dotIndex == i && float.IsPositiveInfinity(d.timer))){
-                          continue;
+                    while(dotc.HasDotActive(i) && dotDefs[(int)i].interval != 0){
+                        int remain = 0;
+                        dotc.EvaluateDotStacksForType((DotIndex)i,0f,out remain);
+                        dotc.EvaluateDotStacksForType((DotIndex)i,DotController.GetDotDef((DotIndex)i).interval,out remain);
+                        if(extraAttention){
+                            //Double If instead of && to (hopefully) ensure this check doesn't get 'optimized' into running everytime
+                            if(dotc.dotStackList.Any(d => d.dotIndex == i && float.IsPositiveInfinity(d.timer))){
+                              break;
+                            }
+                        }
+                        if(remain <= 0){
+                            if( (int)i < DotAPI.VanillaDotCount){
+                                dotc.NetworkactiveDotFlags &= ~(uint)(1 << (int)i);
+                            }
+                            else{
+                                r2apiDotActive[dotc][(int)i - DotAPI.VanillaDotCount] = false;
+                            }
+                            break;
                         }
                     }
-                    if(remain <= 0){
-                        if( (int)i < DotAPI.VanillaDotCount){
-                            dotc.NetworkactiveDotFlags &= ~(uint)(1 << (int)i);
-                        }
-                        else{
-                            r2apiDotActive[dotc][(int)i - DotAPI.VanillaDotCount] = false;
-                        }
-                        break;
-                    }
-                }
                 }
             }
          }

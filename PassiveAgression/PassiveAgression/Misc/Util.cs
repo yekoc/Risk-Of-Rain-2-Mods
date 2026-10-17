@@ -10,7 +10,7 @@ namespace PassiveAgression{
  public static class Util{
 
     public static Xoroshiro128Plus miscRNG = new Xoroshiro128Plus(0);
-    public static EntityStateIndex freezeState,stunState,shockState,idleState = (EntityStateIndex)(-1);
+    public static EntityStateIndex immobState,stunState,shockState,idleState = (EntityStateIndex)(-1);
     public static BodyIndex mitchellIndex1,mitchellIndex2 = BodyIndex.None;
 
     static Util(){
@@ -22,7 +22,7 @@ namespace PassiveAgression{
     public static void OnStateWorkFinished(EntityStateMachine machine,EntityStateMachine.ModifyNextStateDelegate del,List<Type> additionalStops = null){
         if(!machine) return;
         if(idleState == (EntityStateIndex)(-1)){
-          freezeState = EntityStateCatalog.GetStateIndex(typeof(FrozenState));
+          immobState = EntityStateCatalog.GetStateIndex(typeof(ImmobilizeState));
           stunState = EntityStateCatalog.GetStateIndex(typeof(StunState));
           shockState = EntityStateCatalog.GetStateIndex(typeof(ShockState));
           idleState = EntityStateCatalog.GetStateIndex(typeof(Idle));
@@ -31,7 +31,7 @@ namespace PassiveAgression{
         void logic(EntityStateMachine mach,ref EntityState state){
             Type type = state.GetType();
             EntityStateIndex stateIndex = EntityStateCatalog.GetStateIndex(type);
-            if(machine.mainStateType.stateType == type || (additionalStops != null && additionalStops.Contains(type))  || stateIndex == freezeState || stateIndex == stunState || stateIndex == shockState || stateIndex == idleState){
+            if(machine.mainStateType.stateType == type || (state?.healthComponent?.isInFrozenState ?? false) || (additionalStops != null && additionalStops.Contains(type))  || stateIndex == immobState || stateIndex == stunState || stateIndex == shockState || stateIndex == idleState){
                 del(mach,ref state);
                 mach.nextStateModifier -= logic;
             }

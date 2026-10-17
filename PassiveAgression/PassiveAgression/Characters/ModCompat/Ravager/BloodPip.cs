@@ -184,34 +184,10 @@ namespace PassiveAgression.ModCompat{
      public static void HudSetup(Action<RoR2.UI.HUD> orig,RoR2.UI.HUD self){
          orig(self);
          if(self.targetBodyObject && self.targetMaster.hasAuthority && self.targetMaster.bodyPrefab == slot.bodyPrefab && def.IsAssigned(self.targetMaster.GetBody())){
-            if(RedGuyMod.Modules.Config.oldBloodWell.Value){
-               var bloodGauge = self.transform.Find("MainContainer").Find("MainUIArea").Find("SpringCanvas").Find("BottomLeftCluster").Find("BloodGauge").GetComponent<BloodGauge>();
-               var gauge2 = GameObject.Instantiate(bloodGauge.gameObject,bloodGauge.transform.parent);
-               gauge2.transform.Find("LevelDisplayRoot").gameObject.SetActive(false);
-               var gauge3 = GameObject.Instantiate(bloodGauge.gameObject,bloodGauge.transform.parent);
-               gauge3.transform.Find("LevelDisplayRoot").gameObject.SetActive(false);
-               var brect = bloodGauge.GetComponent<RectTransform>();
-               brect.anchorMax = new Vector2(0.33f,1f);
-               brect = gauge2.GetComponent<RectTransform>();
-               brect.anchorMin = new Vector2(0.33f,0f);
-               brect.anchorMax = new Vector2(0.66f,1f);
-               brect = gauge3.GetComponent<RectTransform>();
-               brect.anchorMax = new Vector3(0.99f,1f);
-               brect.anchorMin = new Vector2(0.66f,0f);
-               var manager = bloodGauge.gameObject.AddComponent<BloodGaugePipManager>();
-               manager.redness = bloodGauge.target;
-               manager.bars.Add(bloodGauge.fillRectTransform);
-               manager.bars.Add(gauge2.GetComponentInChildren<BloodGauge>().fillRectTransform);
-               manager.bars.Add(gauge3.GetComponentInChildren<BloodGauge>().fillRectTransform);
-               manager.pips.Add(bloodGauge.GetComponentInChildren<BloodGauge>().transform.Find("ExpBarRoot").GetChild(0).GetChild(0).GetComponent<UnityEngine.UI.Image>());
-               manager.pips.Add(gauge2.GetComponentInChildren<BloodGauge>().transform.Find("ExpBarRoot").GetChild(0).GetChild(0).GetComponent<UnityEngine.UI.Image>());
-               manager.pips.Add(gauge3.GetComponentInChildren<BloodGauge>().transform.Find("ExpBarRoot").GetChild(0).GetChild(0).GetComponent<UnityEngine.UI.Image>());
-            }
-            else{ 
+            if(!RedGuyMod.Modules.Config.oldBloodWell.Value){
                var bloodGauge = self.transform.Find("MainContainer").Find("MainUIArea").Find("CrosshairCanvas").Find("CrosshairExtras").Find("ChargeRing(Clone)");
                var parentTransform = bloodGauge.transform.parent;
                var brect = bloodGauge.GetComponent<RectTransform>();
-               brect.anchoredPosition = new Vector2(0f,0f);
                brect.pivot = new Vector2(0.5f,0.5f);
                brect.localScale = new Vector3(0.3f,0.3f,1f);
                var g2 = GameObject.Instantiate(bloodGauge,parentTransform);

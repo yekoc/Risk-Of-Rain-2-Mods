@@ -119,6 +119,9 @@ namespace PassiveAgression.Captain{
                     On.EntityStates.CaptainSupplyDrop.HackingInProgressState.FixedUpdate += HackingInProgress;
                     foreach(var drop in body.skillLocator.FindSkill("SupplyDrop1").skillFamily.variants){
                        var stat = Activator.CreateInstance(drop.skillDef.activationState.stateType) as CallSupplyDropBase;
+                       if(prefabs.ContainsKey(stat.supplyDropPrefab)){
+                           continue;
+                       }
                        var gameObject = PrefabAPI.InstantiateClone(stat.supplyDropPrefab,"PASSIVEAGRESSION_CAPTAIN" + drop.skillDef.activationState.typeName + "UPLINK");
                        var esm1 = gameObject.GetComponent<EntityStateMachine>();
                        esm1.initialStateType = esm1.initialStateType.stateType == typeof(EntryState) ? new SerializableEntityStateType(typeof(DeployState)) : esm1.initialStateType;

@@ -25,7 +25,7 @@ namespace PassiveAgression.Bandit
          if(c.TryGotoNext(MoveType.After,x => x.MatchCallOrCallvirt(typeof(BackstabManager).GetMethod(nameof(BackstabManager.IsBackstab))))){
              c.Index++;
              ILLabel label = c.MarkLabel();
-             c.GotoPrev(x => x.MatchLdloc(out _),x => x.MatchCallOrCallvirt(typeof(CharacterBody).GetProperty(nameof(CharacterBody.canPerformBackstab)).GetGetMethod()));
+             c.GotoPrev(x => x.MatchLdloc(out _),x => x.MatchLdfld(out _),x => x.MatchCallOrCallvirt(typeof(CharacterBody).GetProperty(nameof(CharacterBody.canPerformBackstab)).GetGetMethod()));
              c.Emit(OpCodes.Ldarg_0);
              c.Emit(OpCodes.Ldarg_1);
              c.EmitDelegate<Func<HealthComponent,DamageInfo,bool>>((self,info) => attacking.TryGetValue(self.body,out var result) && result.val > 0 && def.IsAssigned(info.attacker.GetComponent<CharacterBody>()));
@@ -41,7 +41,7 @@ namespace PassiveAgression.Bandit
             body.onSkillActivatedServer += (slot) =>{
                 if(slot.isCombatSkill){
                     Util.OnStateWorkFinished(slot.stateMachine,(EntityStateMachine machine,ref EntityState state) =>{
-                            Debug.Log(machine.commonComponents.characterBody + " no longer attacking");
+                            attacking.GetOrCreateValue(machine.commonComponents.characterBody).val--;
                     });
                     attacking.GetOrCreateValue(slot.characterBody).val++;
                 }

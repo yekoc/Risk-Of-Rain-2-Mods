@@ -50,9 +50,9 @@ namespace PassiveAgression.ModCompat{
 
          On.RoR2.BlastAttack.HandleHits += (orig,self,hits) =>{
             foreach(var hit in hits){
-              if(hit.hurtBox.damageModifier == HurtBox.DamageModifier.Barrier && hit.hurtBox.healthComponent && hit.hurtBox.healthComponent.body && self.baseDamage > 0){
+              if(hit.hurtBox.healthComponent && hit.hurtBox.healthComponent.body && self.baseDamage > 0){
                 var body = hit.hurtBox.healthComponent.body;
-                if(body.HasBuff(activebdef)){ 
+                if(body.HasBuff(activebdef) && (hit.hurtBox.damageModifier == HurtBox.DamageModifier.Barrier || body.GetComponent<EnforcerComponent>().GetShieldBlock(self.position,55f))){ 
                    EffectManager.SpawnEffect(LegacyResourcesAPI.Load<UnityEngine.GameObject>("Prefabs/Effects/OmniEffect/OmniExplosionVFXQuick"), new EffectData
                    {
                            origin = hit.hitPosition,
@@ -80,9 +80,9 @@ namespace PassiveAgression.ModCompat{
          };
          On.RoR2.OverlapAttack.ProcessHits += (orig,self,hits) =>{
             foreach(var hit in (hits as List<OverlapAttack.OverlapInfo>)){
-              if(hit.hurtBox.damageModifier == HurtBox.DamageModifier.Barrier && hit.hurtBox.healthComponent && hit.hurtBox.healthComponent.body && self.damage > 0){
+              if(hit.hurtBox.healthComponent && hit.hurtBox.healthComponent.body && self.damage > 0){
                 var body = hit.hurtBox.healthComponent.body;
-                if(body.HasBuff(activebdef)){
+                if(body.HasBuff(activebdef) && (hit.hurtBox.damageModifier == HurtBox.DamageModifier.Barrier || body.GetComponent<EnforcerComponent>().GetShieldBlock(hit.hitOrigin,55f))){
                    //FireBlastAttack
                    EffectManager.SpawnEffect(LegacyResourcesAPI.Load<UnityEngine.GameObject>("Prefabs/Effects/OmniEffect/OmniExplosionVFXQuick"), new EffectData
                    {

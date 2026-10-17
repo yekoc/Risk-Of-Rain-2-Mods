@@ -85,6 +85,7 @@ namespace PassiveAgression.Bandit
 			falloffModel = BlastAttack.FalloffModel.None,
 			baseForce = blastAttackForce,
                         attackerFiltering = AttackerFiltering.Default,
+                        damageType = DamageTypeCombo.GenericUtility,
                         teamIndex = base.GetTeam()
                         }.Fire();
              }
@@ -106,16 +107,14 @@ namespace PassiveAgression.Bandit
                         }
                         var dotCont= DotController.dotControllerLocator[body.gameObject.GetInstanceID()];
                         if(dotCont){
-                          dotCont.dotStackList.Remove(dot);
-                          dotCont.OnDotStackRemovedServer(dot);
-                          DotController.dotStackPool.Return(dot);
+                            dotCont.RemoveDamage(dot.dotIndex, float.PositiveInfinity);
                         }
                      }
                      }
                      else if(TeamMask.GetEnemyTeams(teamComponent.teamIndex).HasTeam(body.teamComponent.teamIndex)){
                         var onHurt = body.GetComponent<SetStateOnHurt>();
                         if(onHurt){
-                          onHurt.SetStun(2.5f);
+                          onHurt.SetStun(3f);
                         }
                      }
                  }

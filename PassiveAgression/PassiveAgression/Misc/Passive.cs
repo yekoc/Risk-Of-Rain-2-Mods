@@ -18,7 +18,9 @@ namespace PassiveAgression{
         internal GameObject bodyPrefab = null;
         internal GenericSkill skill = null;
         internal SkillFamily family => skill?.skillFamily;
+        internal static int orderCounter = 0;
         public static SkillDef NoneDef;
+        public static SkillDef NoneDefMerc; //This needs a better implementation but doing a container is unnecesarily expensive and directly referencing the Merc skill will init it (not desireable)
         //public SkillDef currentDef => skill?.skillDef;
 
         static CustomPassiveSlot(){
@@ -34,7 +36,7 @@ namespace PassiveAgression{
            NoneDef.activationState = new EntityStates.SerializableEntityStateType(typeof(EntityStates.Idle));
            NoneDef.activationStateMachineName = "Body";
            ContentAddition.AddSkillDef(NoneDef);
-           On.RoR2.UI.LoadoutPanelController.Row.FromSkillSlot += (orig,owner,bodyI,slotI,slot) => {
+           /*On.RoR2.UI.LoadoutPanelController.Row.FromSkillSlot += (orig,owner,bodyI,slotI,slot) => {
              LoadoutPanelController.Row row = (LoadoutPanelController.Row)orig(owner,bodyI,slotI,slot);
              if((slot.skillFamily as ScriptableObject).name.Contains("Passive")){
                  Transform label = row.rowPanelTransform.Find("SlotLabel") ?? row.rowPanelTransform.Find("LabelContainer").Find("SlotLabel");
@@ -55,33 +57,37 @@ namespace PassiveAgression{
                var label = c.DefineLabel();
                if(c.TryGotoNext(x => x.MatchLdloc(out skillIndex),x => x.MatchLdfld(typeof(GenericSkill).GetField("hideInCharacterSelect")),x => x.MatchBrtrue(out label)) && skillIndex != (-1) && c.TryGotoNext(MoveType.After,x => x.MatchLdfld(typeof(SkillFamily.Variant).GetField("skillDef")),x => x.MatchStloc(out defIndex))) {
                     c.Emit(OpCodes.Ldloc,defIndex); 
-                    c.EmitDelegate<System.Func<SkillDef,bool>>((def) => def == NoneDef);
+                    c.EmitDelegate<System.Func<SkillDef,bool>>((def) => def == NoneDef || def == NoneDefMerc);
                     c.Emit(OpCodes.Brtrue,label);
                    if(c.TryGotoNext(x => x.MatchCallOrCallvirt(typeof(List<StripDisplayData>).GetMethod("Add")))){
                     c.Remove();
                     c.Emit(OpCodes.Ldloc,skillIndex);
                     c.EmitDelegate<System.Action<List<StripDisplayData>,StripDisplayData,GenericSkill>>((list,disp,ski) => {
                       if((ski.skillFamily as ScriptableObject).name.Contains("Passive")){
-                        list.Insert(0,disp);
+                        list.Insert(orderCounter++,disp);
                       } else {
+                        orderCounter = 0;
                         list.Add(disp);
                       }
                     });
                    }
                }
            };
-           IL.RoR2.UI.LoadoutPanelController.Rebuild += (il) => {
+           /*IL.RoR2.UI.LoadoutPanelController.Rebuild += (il) => {
                ILCursor c = new ILCursor(il);
                if(c.TryGotoNext(MoveType.After,x=>x.MatchCallOrCallvirt(typeof(LoadoutPanelController.Row).GetMethod(nameof(LoadoutPanelController.Row.FromSkillSlot),(System.Reflection.BindingFlags)(-1))))){
                  c.EmitDelegate<System.Func<LoadoutPanelController.Row,LoadoutPanelController.Row>>((orig) =>{
                    var label = orig.rowPanelTransform.Find("SlotLabel") ?? orig.rowPanelTransform.Find("LabelContainer").Find("SlotLabel");
                    if(label && label.GetComponent<LanguageTextMeshController>().token == "Passive"){
-                     orig.rowPanelTransform.SetSiblingIndex(0);
+                     orig.rowPanelTransform.SetSiblingIndex(orderCounter++);
+                   }
+                   else{
+                      orderCounter = 0;
                    }
                    return orig;
                  });
                }
-           };
+           };//*/
         }
         public CustomPassiveSlot(string path){
             bodyPrefab = Addressables.LoadAssetAsync<GameObject>(path).WaitForCompletion();
@@ -109,6 +115,12 @@ namespace PassiveAgression{
                 foreach(var comp in bodyPrefab.GetComponents<GenericSkill>()){
                    if((comp.skillFamily as ScriptableObject).name.ToLower().Contains("passive")){
                       skill = comp;
+                      if(string.IsNullOrEmpty(skill.loadoutTitleToken)){
+                          skill.loadoutTitleToken = "Passive";
+                      }
+                      if(SkillsAPI.GetOrderPriority(skill) >= 0){
+                          SkillsAPI.SetOrderPriority(skill,-1);
+                      }
                       return;
                    }
                 }
@@ -116,10 +128,13 @@ namespace PassiveAgression{
                 SkillLocator locator = bodyPrefab.GetComponent<SkillLocator>();
                 skill._skillFamily = ScriptableObject.CreateInstance<SkillFamily>();
                 (skill.skillFamily as ScriptableObject).name = bodyPrefab.name + "Passive";
+                skill.loadoutTitleToken = "Passive";
+                SkillsAPI.SetOrderPriority(skill,-1);
                 skill.skillFamily.variants = new SkillFamily.Variant[1];
                 skill.skillName = bodyPrefab.name + "Passive";
-                if(SetupNone)
-                  skill.skillFamily.variants[0] = new SkillFamily.Variant{skillDef = NoneDef,viewableNode = new ViewablesCatalog.Node(NoneDef.skillNameToken,false,null)}; 
+                if(SetupNone){
+                  skill.skillFamily.variants[0] = new SkillFamily.Variant{skillDef = NoneDef,viewableNode = new ViewablesCatalog.Node(NoneDef.skillNameToken,false,null)};
+                }
                 else if(locator.passiveSkill.enabled){ 
                   locator.passiveSkill.enabled = false;
                   SkillDef passiveDef = ScriptableObject.CreateInstance<SkillDef>();
@@ -131,6 +146,8 @@ namespace PassiveAgression{
                   passiveDef.baseRechargeInterval = 0f;
                   passiveDef.activationStateMachineName = "Body";
                   passiveDef.activationState = new EntityStates.SerializableEntityStateType(typeof(EntityStates.GenericCharacterMain));
+                  passiveDef.canceledFromSprinting = false;
+                  passiveDef.cancelSprintingOnActivation = false;
                   ContentAddition.AddSkillDef(passiveDef);
                   skill.skillFamily.variants[0] = new SkillFamily.Variant{skillDef = passiveDef,viewableNode = new ViewablesCatalog.Node(passiveDef.skillNameToken,false,null)};
                 }

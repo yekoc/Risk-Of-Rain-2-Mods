@@ -71,7 +71,16 @@
     </Reference>
 
     <PackageReference Include="R2API" Version="*"/>
-    <PackageReference Include="BepInEx.Core" Version="5.4.19" />
+    <PackageReference Include="R2API.RecalculateStats" Version="*"/>
+    <PackageReference Include="R2API.Skills" Version="*"/>
+    <PackageReference Include="R2API.ContentManagement" Version="*"/>
+    <PackageReference Include="R2API.DamageType" Version="*"/>
+    <PackageReference Include="R2API.Prefab" Version="*"/>
+    <PackageReference Include="R2API.Items" Version="*"/>
+    <PackageReference Include="R2API.Language" Version="*"/>
+    <PackageReference Include="R2API.Core" Version="*"/>
+
+    <PackageReference Include="BepInEx.Core" Version="5.4.21" />
     <PackageReference Include="RiskOfRain2.GameLibs" Version="*-*" />
     <PackageReference Include="UnityEngine.Modules" Version="2021.3.33" />
 	<PackageReference Include="MMHOOK.RoR2" Version="*">

@@ -1,6 +1,16 @@
 
 #Changelog
 ---
+1.4.0
+  - HC Update
+  - Added Red Plum Blossom, an alternate Expose for Mercenary
+  - Added Sharp Intent, an Expose application secondary for Mercenary
+  - Added Hoarfrost Rite, an Ice Passive for Artificer
+  - Added CHEF's Well Stocked Pantry to CHEF as well. Added Ingredient tag to some DLC items.
+  - Upgraded Deputy's Jangling Spurs to allow bouncing off of projectiles, this is currently done somewhat subotimally and will be improved later, might miss a few projectiles.
+  - Fixed Artificer's Conclude interacting badly with infinitely lasting DOTs.
+  - Artificer's Snowsculpt no longer takes over the HUD, a better way to show both Arti's and the Snow Golem's health will be added at a later date.
+
 1.3.2
   - SOTS Update
   - Hopefully fixed all multiplayer issues for Glass Shadow, as clone init is state based now.

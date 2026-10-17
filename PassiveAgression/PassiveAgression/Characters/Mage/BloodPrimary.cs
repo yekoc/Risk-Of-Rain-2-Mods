@@ -45,12 +45,14 @@ namespace PassiveAgression.Mage
          ContentAddition.AddSkillDef(def);
         
          proPrefab = PrefabAPI.InstantiateClone((GameObject)epiESC.WaitForCompletion().serializedFieldsCollection.GetOrCreateField("projectilePrefab").fieldValue.GetValue(typeof(FireFireBolt).GetField("projectilePrefab")),"MageBloodBoltProjectile");
-         proPrefab.GetComponent<ProjectileDamage>().damageType = DamageType.BleedOnHit;
+         proPrefab.GetComponent<ProjectileDamage>().damageType = new DamageTypeCombo(DamageType.BleedOnHit,DamageTypeExtended.Generic,DamageSource.Primary);
          var ghost = PrefabAPI.InstantiateClone(UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ImpBoss/ImpVoidspikeProjectileGhost.prefab").WaitForCompletion(),"MageBloodBoltProjectileGhost",false);
          //ghost.GetComponentInChildren<Light>().color = Color.red;
          ghost.GetComponentInChildren<MeshRenderer>().material = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<Material>("RoR2/Base/moon2/matBloodSiphon.mat").WaitForCompletion();
          ghost.GetComponentInChildren<TrailRenderer>().material = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<Material>("RoR2/Base/moon2/matBloodSiphon.mat").WaitForCompletion();
-         proPrefab.GetComponent<ProjectileController>().ghostPrefab = ghost;
+         var projcont = proPrefab.GetComponent<ProjectileController>();
+         projcont.ghostPrefabAddress = null;
+         projcont.ghostPrefab = ghost;
          var exp = proPrefab.GetComponent<ProjectileImpactExplosion>();
          exp.explosionEffect = null;
          exp.impactEffect = null;
@@ -116,6 +118,15 @@ namespace PassiveAgression.Mage
                 isHooked = true;
                 On.RoR2.HealthComponent.Heal += regenBlock;
                 RoR2.Run.onRunDestroyGlobal += unsetHook;
+                IL.EntityStates.Mage.Weapon.FireFireBolt.FireGauntlet += (il) =>{
+                    ILCursor c = new(il);
+                    c.GotoNext(x => x.MatchStfld<FireProjectileInfo>(nameof(FireProjectileInfo.damageTypeOverride)));
+                    c.Emit(OpCodes.Ldarg_0);
+                    c.EmitDelegate<Func<DamageTypeCombo?, FireFireBolt, DamageTypeCombo?>>((combo, self) =>
+                    {
+                       return (self.projectilePrefab == proPrefab)? null : combo;
+                    });
+                };
              }
              return new BInstanceData();
              void unsetHook(Run run){

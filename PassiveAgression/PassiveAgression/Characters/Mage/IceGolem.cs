@@ -1,5 +1,6 @@
 using RoR2;
 using RoR2.Skills;
+using RoR2.HudOverlay;
 using EntityStates;
 using RoR2.CharacterAI;
 using System;
@@ -38,7 +39,7 @@ namespace PassiveAgression.Mage
 
          def.onAssign += (skill) =>{
             if(!isHooked){
-              On.RoR2.CharacterMaster.GetBodyObject += (orig,self) => {
+              /*On.RoR2.CharacterMaster.GetBodyObject += (orig,self) => {
                 var result = orig(self);
                 if(result){
                 var body = result.GetComponent<CharacterBody>();
@@ -46,16 +47,11 @@ namespace PassiveAgression.Mage
                   return body.currentVehicle.gameObject;
                 }}
                 return result;
-              };
+              };//*/
               On.RoR2.CharacterModel.UpdateOverlays += (orig,self) =>{
                 orig(self);
                 if(self.body && self.body.GetComponent<GolemMechBehaviour>()){
                   self.currentOverlays[self.activeOverlayCount < CharacterModel.maxOverlays? self.activeOverlayCount++ : (CharacterModel.maxOverlays - 1)] = iceMat; 
-                }
-              };
-              On.RoR2.CharacterMaster.OnBodyDeath += (orig,self,body) =>{
-                if(!body.gameObject.GetComponent<GolemMechBehaviour>()){
-                    orig(self,body);
                 }
               };
               IL.RoR2.GlobalEventManager.OnCharacterDeath += (il) =>{
@@ -72,27 +68,36 @@ namespace PassiveAgression.Mage
             return null;
          };
 
-         golemPrefab = PrefabAPI.InstantiateClone(UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Golem/GolemBody.prefab").WaitForCompletion(),"MageSnowmanMech");
-         GameObject.Destroy(golemPrefab.GetComponent<BaseAI>());
-         golemPrefab.AddComponent<CharacterMaster>();
-         golemPrefab.AddComponent<VehicleSeat>();
-         golemPrefab.AddComponent<GolemMechBehaviour>();
-         golemPrefab.GetComponentInChildren<SkinnedMeshRenderer>().material.SetColor("_EmColor",Color.cyan);
-         foreach(var l in golemPrefab.GetComponentsInChildren<Light>()) {l.color = Color.cyan;}
-         var esm = EntityStateMachine.FindByCustomName(golemPrefab,"Body");
+         var golemBodyPrefab = PrefabAPI.InstantiateClone(UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Golem/GolemBody.prefab").WaitForCompletion(),"MageSnowmanMechBody");
+         golemBodyPrefab.AddComponent<CharacterMaster>();
+         golemBodyPrefab.AddComponent<VehicleSeat>();
+         golemBodyPrefab.AddComponent<GolemMechBehaviour>();
+         golemBodyPrefab.GetComponentInChildren<SkinnedMeshRenderer>().material.SetColor("_EmColor",Color.cyan);
+         foreach(var l in golemBodyPrefab.GetComponentsInChildren<Light>()) {l.color = Color.cyan;}
+         var esm = EntityStateMachine.FindByCustomName(golemBodyPrefab,"Body");
          if(esm){
             esm.initialStateType = esm.mainStateType;
          }
-         var locat = golemPrefab.GetComponent<SkillLocator>();
+         var locat = golemBodyPrefab.GetComponent<SkillLocator>();
          locat.primary = null;
          locat.secondary = null;
          locat.utility = null;
          locat.special = null;
-         golemPrefab.GetComponent<CharacterBody>().bodyFlags |= CharacterBody.BodyFlags.Masterless;
+
+         golemPrefab = PrefabAPI.InstantiateClone(UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Golem/GolemMaster.prefab").WaitForCompletion(),"MageSnowmanMechMaster");
+         GameObject.Destroy(golemPrefab.GetComponent<BaseAI>());
+         var dopbank = golemPrefab.AddComponent<DoppelInputBank>();
+         var golMas = golemPrefab.GetComponent<CharacterMaster>();
+         golMas.bodyPrefab = golemBodyPrefab;
+         golMas.hideAllyCard = true;
+         dopbank.updateDelay = 0;
+
 
          iceMat = mat.WaitForCompletion();
          ContentAddition.AddSkillDef(def);
          ContentAddition.AddEntityState(typeof(SnowmanState),out _);
+         ContentAddition.AddBody(golemBodyPrefab);
+         ContentAddition.AddMaster(golemPrefab);
     
      }
 
@@ -105,33 +110,20 @@ namespace PassiveAgression.Mage
           seat.seatPosition = transform;
           seat.exitPosition = seat.seatPosition;
           seat.passengerState = new SerializableEntityStateType(typeof(Idle));
+          seat.disableAllCollidersAndHurtboxes = true;
 
           seat.onPassengerEnter += (pass) =>{
             pilotBody = pass.GetComponent<CharacterBody>();
             if(pilotBody){
-              pilotBody.healthComponent.godMode = true;
-              pass.GetComponent<Collider>().enabled = false;
+              pilotBody.GetComponent<InteractionDriver>().interactableOverride = gameObject;
             }
-            foreach(var cam in CameraRigController.readOnlyInstancesList){
-              if(cam.target == pass){
-                cam.target = gameObject;
-                cam.hud.targetBodyObject.GetComponent<InteractionDriver>().interactableOverride = gameObject;
-              }
-            }
-            GetComponent<InteractionDriver>().interactableOverride = gameObject;
-         };
+          };
          seat.onPassengerExit += (pass) =>{
             pilotBody = pass.GetComponent<CharacterBody>();
             if(pilotBody){
-              pilotBody.healthComponent.godMode = false;
-              pass.GetComponent<Collider>().enabled = true;
+              pilotBody.GetComponent<InteractionDriver>().interactableOverride = null;
               EntityStateMachine.FindByCustomName(pass,"Body")?.SetNextStateToMain();
-            }
-            foreach(var cam in CameraRigController.readOnlyInstancesList){
-              if(cam.target == gameObject){
-                cam.target = pass;
-                cam.hud.targetBodyObject.GetComponent<InteractionDriver>().interactableOverride = null;
-              }
+              seat.gameObject.GetComponent<CharacterBody>().masterObject = null;
             }
             if(NetworkServer.active){
               var body = GetComponent<CharacterBody>();
@@ -151,17 +143,15 @@ namespace PassiveAgression.Mage
                     damageType = DamageType.Freeze2s
                   }.Fire();
               }
-              GetComponent<CharacterBody>().healthComponent.Suicide();
-              Destroy(gameObject);
             }
          };
         }
         
         public void FixedUpdate(){
             var body = GetComponent<CharacterBody>();
-            if(pilotBody && body && body.inputBank.interact.justPressed){
-              pilotBody.GetComponent<Interactor>().AttemptInteraction(gameObject);
-            }  
+            if(!pilotBody || pilotBody.currentVehicle == null){
+                body.healthComponent.Suicide();
+            }
         }
 
      }
@@ -191,26 +181,29 @@ namespace PassiveAgression.Mage
              EffectManager.SimpleMuzzleFlash(muzzleFlash, base.gameObject, "MuzzleLeft", transmit: true);
              EffectManager.SimpleMuzzleFlash(muzzleFlash, base.gameObject, "MuzzleRight", transmit: true);
              if(NetworkServer.active){
-                var gameObject = GameObject.Instantiate(golemPrefab,transform.position,transform.rotation);
-                var seat = gameObject.GetComponent<VehicleSeat>();
-                gameObject.GetComponent<TeamComponent>().teamIndex = teamComponent.teamIndex;
-                var body = gameObject.GetComponent<CharacterBody>();
-                var master = gameObject.GetComponent<CharacterMaster>(); 
-                //master.bodyInstanceObject = gameObject;
-                //body.masterObject = gameObject;
+                var master = new MasterSummon{
+                    position = characterBody.transform.position,
+                    rotation = characterBody.transform.rotation,
+                    masterPrefab = golemPrefab, 
+                    inventoryToCopy = characterBody.inventory,
+                    summonerBodyObject = characterBody.gameObject, 
+                    loadout = characterBody.master.loadout,
+                }.Perform();
+                if(characterBody.networkIdentity && characterBody.networkIdentity.clientAuthorityOwner != null){
+                    master.networkIdentity.AssignClientAuthority(characterBody.networkIdentity.clientAuthorityOwner);
+                }
+                var body = master.GetBody();
+                var seat = body.GetComponent<VehicleSeat>();
+                body.GetComponent<TeamComponent>().teamIndex = teamComponent.teamIndex;
+                //master.bodyInstanceObject = golemObject;
+                //body.masterObject = golemObject;
                 //body.inventory = characterBody.inventory;
                 foreach(var l in body.modelLocator.modelTransform.gameObject.GetComponentsInChildren<Light>()){l.color = Color.blue;}
-                body.masterObject = characterBody.masterObject;
-
+                //body.masterObject = characterBody.masterObject;
+                master.GetComponent<MinionOwnership>()?.SetOwner(characterBody.master);
+                body.teamComponent.teamIndex = teamComponent.teamIndex;
                 if(seat){
                   seat.AssignPassenger(characterBody.gameObject);
-                  NetworkUser clientAuthorityOwner = characterBody?.master?.playerCharacterMasterController?.networkUser;
-                  if(clientAuthorityOwner){
-                   NetworkServer.SpawnWithClientAuthority(gameObject,clientAuthorityOwner.gameObject);
-                  }
-                  else{
-                   NetworkServer.Spawn(gameObject);
-                  }
                 }
              }
          }

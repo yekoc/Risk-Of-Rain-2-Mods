@@ -198,6 +198,7 @@ namespace PassiveAgression.Engineer
                             blastAttack.procChainMask = default(ProcChainMask);
                             blastAttack.procCoefficient = 0.1f;
                             blastAttack.teamIndex = attackerBody.teamComponent.teamIndex;
+                            blastAttack.damageType = DamageTypeCombo.GenericPrimary;
                             blastAttack.Fire();
                             outer.SetNextState(new Idle());
                     }

@@ -101,7 +101,7 @@ namespace PassiveAgression.Croc
                 body.AddTimedBuff(debuff,5f);
              }
              else if(dot != null){
-               DotController.InflictDot(body.gameObject,attacker,dot.dotIndex,5f);
+               DotController.InflictDot(body.gameObject,attacker,null,dot.dotIndex,5f);
              }
              var buffList = body.activeBuffsList.Select(b => BuffCatalog.GetBuffDef(b)).Where( b => b.isDebuff).Except(DotController.dotDefs.Select(d => d.associatedBuff)).ToList();
              if(bouncesRemaining > 0){
