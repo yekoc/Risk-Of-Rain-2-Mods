@@ -1,6 +1,10 @@
 
 #Changelog
 ---
+1.4.2
+  - Fixed Artificer's new passive interacting badly with Rex's self damage.
+  - Fixed Bandit's starch utility not having sound.
+
 1.4.0
   - HC Update
   - Added Red Plum Blossom, an alternate Expose for Mercenary

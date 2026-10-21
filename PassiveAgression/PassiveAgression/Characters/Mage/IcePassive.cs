@@ -30,7 +30,9 @@ namespace PassiveAgression.Mage
      }
 
      private static void UpgradeFreeze(On.RoR2.SetStateOnHurt.orig_OnTakeDamageServer orig, SetStateOnHurt self,DamageReport rep){
-         if(self.targetStateMachine && self.canBeFrozen && (IceRitualState.ownerInstances.Contains(rep.attackerBody) ||  IceRitualState.ownerInstances.Contains(rep.attackerMaster.minionOwnership?.ownerMaster?.GetBody()) )){
+         if(self.targetStateMachine && self.canBeFrozen 
+                 && (IceRitualState.ownerInstances.Contains(rep.attackerBody)
+                     ||  IceRitualState.ownerInstances.Contains(rep.attackerMaster?.minionOwnership?.ownerMaster?.GetBody()) )){
              self.targetStateMachine.nextStateModifier += modifier;
          }
          orig(self,rep);

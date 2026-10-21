@@ -59,6 +59,7 @@ namespace PassiveAgression.Bandit
              shortHopVelocity = StealthMode.shortHopVelocity * 1.5f;
              base.OnEnter();
              PlayAnimation("Gesture, Additive", "ThrowSmokebomb", "ThrowSmokebomb.playbackRate", duration);
+             RoR2.Util.PlaySound(EntityStates.Bandit2.StealthMode.enterStealthSound,gameObject);
          }
          public override void FixedUpdate(){
              base.FixedUpdate();

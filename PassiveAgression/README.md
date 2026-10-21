@@ -20,7 +20,7 @@ Credit to cute anime girls for giving me the will to continue living.
 	</thead>
 	<tbody>
 		<tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/5/50/Commando.png/revision/latest?cb=20200129200647" width=128></td>			
+                        <td><img src="https://riskofrain2.wiki.gg/images/thumb/Commando.png/240px-Commando.png?f6fe3c" width=128></td>			
 			<td>
 				<b>Special:</b> Stim Shot<br>
 				Administer a cocktail which instantly heals for 20% of missing health and boosts attack and move speed by 25%.
@@ -29,7 +29,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/StimShot.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/1/1f/Bandit.png/revision/latest?cb=20210326045945" width=128></td>			
+                        <td><img src="https://riskofrain2.wiki.gg/images/Bandit.png?8b495a" width=128></td>			
 			<td>
 				<b>Passive:</b> Standoff<br>
 				All attacks on enemies that are currently attacking are Critical Strikes.
@@ -37,7 +37,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/Standoff.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/1/1f/Bandit.png/revision/latest?cb=20210326045945" width=128></td>			
+                        <td><img src="https://riskofrain2.wiki.gg/images/Bandit.png?8b495a" width=128></td>			
 			<td>
 				<b>Utility:</b> Starch Bomb<br>
 				Stunning. Deal 75%,allies in the area are cleansed from a random debuff.
@@ -45,7 +45,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/StarchIcon.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/8/8e/Acrid.png/revision/latest?cb=20200129235326" width=128></td>			
+                        <td><img src="https://riskofrain2.wiki.gg/images/Acrid.png?e7a409" width=128></td>			
 			<td>
 				<b>Special:</b> Carrier Pathogen<br>
 				Shoot a projectile that deals 85% and spreads to other enemies,carrying a random debuff from the last target.
@@ -54,7 +54,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/Pathogen.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/d/d8/Engineer.png/revision/latest?cb=20200129200649" width=128></td>			
+                        <td><img src="https://riskofrain2.wiki.gg/images/thumb/Engineer.png/240px-Engineer.png?220ed3" width=128></td>			
 			<td>
 				<b>Passive:</b> Field Tinkering<br>
 				All Mechanical Allies (including other players) gain bonus stats for each stack of scrap in your inventory.
@@ -62,7 +62,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/ScrapWrench.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/d/d8/Engineer.png/revision/latest?cb=20200129200649" width=128></td>			
+                        <td><img src="https://riskofrain2.wiki.gg/images/thumb/Engineer.png/240px-Engineer.png?220ed3" width=128></td>			
 			<td>
 				<b>Primary:</b> Resonance Cascade<br>
 				Keep your focus on an enemy for some time to destablize their body,causing an explosion for up to 4000% damage.
@@ -70,7 +70,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/ResonanceJitter.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/9/98/Artificer.png/revision/latest?cb=20200129200643" width=128></td>			
+                        <td><img src="https://riskofrain2.wiki.gg/images/thumb/Artificer.png/240px-Artificer.png?11704d" width=128></td>			
 			<td>
 				<b>Passive:</b> Unorthodox Rituals <br>
 				Whenever a tick of Bleed occurs nearby,heal 1 hp.
@@ -78,7 +78,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/UnorthodoxIcon.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/9/98/Artificer.png/revision/latest?cb=20200129200643" width=128></td>			
+                        <td><img src="https://riskofrain2.wiki.gg/images/thumb/Artificer.png/240px-Artificer.png?11704d" width=128></td>			
 			<td>
 				<b>Primary:</b> Excise <br>
                                 Fire a bolt that deals 100% damage and bleeds. <br>
@@ -88,7 +88,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/ExciseIcon.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/9/98/Artificer.png/revision/latest?cb=20200129200643" width=128></td>			
+                        <td><img src="https://riskofrain2.wiki.gg/images/thumb/Artificer.png/240px-Artificer.png?11704d" width=128></td>			
 			<td>
 				<b>Special:</b> Conclude <br>
                    Trigger all remaining Damage Over Time on an enemy twice.
@@ -97,7 +97,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/ConcludeIcon.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/9/98/Artificer.png/revision/latest?cb=20200129200643" width=128></td>			
+                        <td><img src="https://riskofrain2.wiki.gg/images/thumb/Artificer.png/240px-Artificer.png?11704d" width=128></td>			
 			<td>
 				<b>Passive:</b> Hoarfrost Rite <br>
                                 Frozen Enemies emit an aura that slows and hurts nearby enemies.
@@ -105,7 +105,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/HoarFrostIcon.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/9/98/Artificer.png/revision/latest?cb=20200129200643" width=128></td>			
+                        <td><img src="https://riskofrain2.wiki.gg/images/thumb/Artificer.png/240px-Artificer.png?11704d" width=128></td>			
 			<td>
 				<b>Special:</b> Snowsculpt <br>
                                 Cover yourself within a golem of packed snow,providing protection from attacks.<br>
@@ -114,7 +114,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/SnowmanIcon.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/a/a9/Captain.png/revision/latest?cb=20200811155443" width=128></td>			
+                        <td><img src="https://riskofrain2.wiki.gg/images/Captain.png?7c775a" width=128></td>			
 			<td>
 				<b>Special:</b> Integrated Beacons <br>
                 Temporarily Channel the effects of a Supply Beacon through Captain's prosthetics.<br>
@@ -124,7 +124,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/IntegratedBeaconIcon.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/0/00/Mercenary.png/revision/latest?cb=20200129200651" width=128></td>			
+                        <td><img src="https://riskofrain2.wiki.gg/images/thumb/Mercenary.png/240px-Mercenary.png?52066f" width=128></td>			
 			<td>
 				<b>Passive:</b> Red Plum Blossom <br>
                                 Abilities that Expose enemies instead apply Red Plum Blossom.<br>
@@ -133,7 +133,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/MercPlumBlossomIcon.png" width=128></td>
 		</tr>
         <tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/0/00/Mercenary.png/revision/latest?cb=20200129200651" width=128></td>			
+                        <td><img src="https://riskofrain2.wiki.gg/images/thumb/Mercenary.png/240px-Mercenary.png?52066f" width=128></td>			
 			<td>
 				<b>Secondary:</b> Sharp Intent <br>
                                 Gather your harmful intent to Expose enemies in a cone in front of you.
@@ -141,7 +141,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/MercIntentIcon.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/f/fe/Railgunner.png/revision/latest?cb=20220302014737" width=128></td>			
+                        <td><img src="https://riskofrain2.wiki.gg/images/Railgunner.png?12ed42" width=128></td>			
 			<td>
 				<b>Passive:</b> Micro Missile Foundry <br>
 				All crit chance is converted into damage for missiles that fire on crit.
@@ -149,7 +149,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/MicroMissile.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/5/5b/Void_Fiend.png/revision/latest?cb=20220302014710" width=128></td>			
+                        <td><img src="https://riskofrain2.wiki.gg/images/Void_Fiend.png?6870c0" width=128></td>			
 			<td>
 				<b>Passive:</b> Incessant Infestation<br>
 				At full Corruption,burst out a gaggle of Infestors.
@@ -157,7 +157,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/Infestation.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/5/5b/Void_Fiend.png/revision/latest?cb=20220302014710" width=128></td>			
+                        <td><img src="https://riskofrain2.wiki.gg/images/Void_Fiend.png?6870c0" width=128></td>			
 			<td>
 				<b>Utility:</b> TEAR <br>
 				Tear open a rift through space,carrying those that enter to the targeted area.<br>
@@ -200,7 +200,7 @@ Credit to cute anime girls for giving me the will to continue living.
                         <td><img src="https://github.com/yekoc/Risk-Of-Rain-2-Mods/raw/master/PassiveAgression/Assets/SpursIcon.png" width=128></td>
 		</tr>
 		<tr>
-                        <td><img src="https://i.imgur.com/eqp6HDQ.png" width=64><img src="https://static.wikia.nocookie.net/riskofrain2_gamepedia_en/images/5/51/CHEF.png/revision/latest?cb=20240828191631" width=64></td>			
+                        <td><img src="https://i.imgur.com/eqp6HDQ.png" width=64><img src="https://riskofrain2.wiki.gg/images/CHEF.png?9c5cbf" width=64></td>			
 			<td>
 				<b>Passive:</b> Well Stocked Pantry <br>
 				The first stack of any ingredient item reduces the cooldown of CHEF's special skill.<br>

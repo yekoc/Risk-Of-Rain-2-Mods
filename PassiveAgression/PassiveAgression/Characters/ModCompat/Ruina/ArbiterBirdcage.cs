@@ -75,13 +75,31 @@ namespace PassiveAgression.ModCompat
              }
          };
          //new MonoMod.RuntimeDetour.ILHook(typeof(KinematicCharacterController.KinematicCharacterMotor).GetMethod("InternalMoveCharacterPosition",(System.Reflection.BindingFlags)(-1)),MotorHook);
-         
+         On.RoR2.CharacterMotor.UpdateVelocity += MotorHookTheBetter;
+
          R2API.ContentAddition.AddBuffDef(bdef);
          ContentAddition.AddSkillDef(def);
          ContentAddition.AddEntityState(typeof(AimBirdcageState),out _);
          ContentAddition.AddProjectile(projPrefab);
 
      }
+       
+        public static void MotorHookTheBetter(On.RoR2.CharacterMotor.orig_UpdateVelocity orig, CharacterMotor self, ref Vector3 curVel,float deltaTime){
+            orig(self,ref curVel,deltaTime);
+            if(self.body.HasBuff(bdef)){
+                foreach(var cage in BirdcageComponent.instances){
+                    if(cage.parentZone.IsInBounds(self.transform.position)){
+                        var offset = (self.transform.position + curVel*deltaTime - cage.transform.position);
+                        if(offset.sqrMagnitude > (cage.parentZone.radius*cage.parentZone.radius)){
+                            var dot = Vector3.Dot(curVel,(-1)*offset.normalized);
+                            if(dot < 0){
+                                curVel -= (-1)*offset.normalized*dot;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         public static void MotorHook(ILContext il){
             var c = new ILCursor(il);
@@ -107,7 +125,7 @@ namespace PassiveAgression.ModCompat
                     projectilePrefab = projPrefab;
                     endpointVisualizerPrefab = targetPrefab;
                     baseMinimumDuration = 0.25f;
-                    //maxDistance = 200;
+                    maxDistance = 200;
                     endpointVisualizerRadiusScale = 4f;
                     base.OnEnter();
                     PlayAnimation("Gesture, Override", "Channel", "Channel.playbackRate", minimumDuration);
@@ -124,7 +142,9 @@ namespace PassiveAgression.ModCompat
             public SphereZone parentZone;
             public static GameObject tetherPrefab;
             public Dictionary<CharacterBody,BezierCurveLine> draggedBodies = new();
+            public List<CharacterBody> cagedBodies = new();
             public static List<IZone> birdZones = new();
+            public static List<BirdcageComponent> instances = new();
 
             public void Awake(){
                 proj = transform.gameObject.GetComponentInParent<ProjectileController>();
@@ -134,8 +154,9 @@ namespace PassiveAgression.ModCompat
                 if(parentZone){
                     parentZone.Networkradius = 4;
                     birdZones.Add(parentZone);
-                    parentZone.rangeIndicator = proj.gameObject.transform.GetChild(0);
+                    parentZone.rangeIndicator = transform;
                 }
+                instances.Add(this);
             }
             public void OnTriggerEnter(Collider col){
                 var body = col.GetComponentInParent<CharacterBody>();
@@ -143,6 +164,9 @@ namespace PassiveAgression.ModCompat
                     body.AddBuff(bdef);
                     if(Util.BodyIsMitchell(body)){
                       draggedBodies.Add(body,GameObject.Instantiate(tetherPrefab,transform).GetComponent<BezierCurveLine>());
+                    }
+                    else{
+                      cagedBodies.Add(body);
                     }
                     parentZone.Networkradius++;
                 }
@@ -155,6 +179,7 @@ namespace PassiveAgression.ModCompat
                      draggedBodies.Remove(p.Key);
                      Destroy(p.Value.gameObject);
                 }
+                instances.Remove(this);
             }
 
             public void FixedUpdate(){
@@ -164,7 +189,7 @@ namespace PassiveAgression.ModCompat
                 foreach(var p in draggedBodies){
                    var body = p.Key;
                    if(!body){
-                     draggedBodies.Remove(body);
+                     //draggedBodies.Remove(body);
                      Destroy(p.Value.gameObject);
                      continue;
                    }
@@ -176,8 +201,27 @@ namespace PassiveAgression.ModCompat
                      body.rigidbody.velocity += vec;
                    }
                 }
+                foreach(var body in cagedBodies){
+                    if(!body || !(body.healthComponent?.alive == true)){
+                        //cagedBodies.Remove(body);
+                        continue;
+                    }
+                    var motor = body.characterMotor;
+                    var dist = parentZone.radius*parentZone.radius;
+                    if(motor){
+                        if(((motor.previousPosition + motor.rootMotion + motor.velocity) - transform.position).sqrMagnitude > dist){
+                            motor.velocity = Vector3.zero;
+                            motor.rootMotion = Vector3.zero;
+                        }
+                    }
+                    else if(body.rigidbody){
+                        if((body.rigidbody.position+body.rigidbody.velocity-transform.position).sqrMagnitude > dist){
+                            body.rigidbody.velocity = Vector3.zero;
+                        }
+                    }
+                }
                // zoneCollider.radius = parentZone.radius;
-                zoneTrigger.radius = parentZone.radius - 0.2f;
+                //zoneTrigger.radius = parentZone.radius - 0.2f;
                 //exTrigger.radius = parentZone.radius * 1.2f;
             }
 

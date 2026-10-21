@@ -39,7 +39,7 @@ namespace PassiveAgression
     [BepInDependency("com.Bog.Deputy",BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.JavAngle.HouseMod",BepInDependency.DependencyFlags.SoftDependency)]
 
-    [BepInPlugin("xyz.yekoc.PassiveAgression", "Passive Agression","1.4.0" )]
+    [BepInPlugin("xyz.yekoc.PassiveAgression", "Passive Agression","1.4.2" )]
     public class PassiveAgressionPlugin : BaseUnityPlugin
     {
         public static ConfigEntry<bool> unfinishedContent,devIcons;
