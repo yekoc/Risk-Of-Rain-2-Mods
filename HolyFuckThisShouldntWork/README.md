@@ -3,16 +3,32 @@
 Mod to house experimental changes intended to optimize certain parts of the game,currently there is only a single change;\
 * Parallelize calls to RecalculateStats.Preliminary testing shows this to be highly beneficial when enemies change stats en masse(spawns,level ups).
 
-When/If more changes become part of this they will be togglable by config,though one isn't included for now since it would be equivalent to uninstalling the mod.\
+Dirty bodies are collected during each physics step and recalculated together at the end of it; small batches stay on the main thread where threads wouldn't pay off.\
 THIS MOD CAN BREAK COMPATIBILITY WITH OTHER MODS,DONT COMPLAIN TO OTHER MOD AUTHORS IF SOMETHING BREAKS WITH THIS.\
-I have left it on in my personal profile since the first release and haven't had any crashes based on it yet,your milleage may vary depending on your mod loadout.
+That said, as of 1.1.0 it actively checks every other mod's hooks before letting anything run off the main thread, see below.
+
+#Config
+---
+* `Enabled` - turn it off and the mod does nothing.
+* `Minimum Batch Size` - batches smaller than this run on the main thread (default 4).
+* `Max Threads` - 0 uses every core.
+* `Defer Foreign Calls` - see below.
+* `Log Analysis` - log the verdict for every call inside RecalculateStats.
 
 #I'm a mod dev,how does this affect my work?
 ---
-Any hooks on CharacterBody.RecalculateStats not done through RecalculateStatsAPI.GetStatCoefficents WILL break,__unless__ your hook doesn't touch any of unity's code (this means no interaction with GameObjects,vanilla csharp only).\
-While you can still put through synchronous calls to RecalculateStats() when necessary,it is greatly recommended that devs prefer marking the body's stats dirty instead,as this will allow the calls to be batched together.The statsDirty value can be set directly or through the relevant CharacterBody methods.
+The rule is still that no Unity native code may run on a worker thread. What changed in 1.1.0 is that the mod enforces it instead of hoping:
 
-Thanks to the eldritch power of reflection and heretical inter-mod manipulation the above now only applies to IL hooks.On hooks should work,but will always behave as if they start with a call to orig(self),Consider using RecalculateStatsAPI if you need to run logic before RecalculateStats is called.
+* After every IL hook and Harmony patch is applied, the final RecalculateStats is scanned call by call, and each call's whole call graph (including virtual overrides and hooks on the callees) is checked for Unity native calls, opaque delegate calls and writes to static fields.
+* Calls that are clean run in parallel as is.
+* Calls that touch Unity and return nothing (side effects, e.g. ExtraSkillSlots' cooldown sync, `UpdateAllTemporaryVisualEffects`, `onRecalculateStats` listeners) get their arguments captured and run on the main thread right after the parallel part, in their original order. Turn off `Defer Foreign Calls` to treat other mods' calls like the next point instead.
+* Calls that touch Unity and feed a value back into the calculation make the body abandon the worker attempt and get recalculated normally on the main thread.
+* If most bodies keep ending up on the main thread, the mod gives up on parallelism until the next run and logs what caused it.
+
+On hooks and any other Detours on RecalculateStats still behave as if they start with a call to orig(self): workers skip them, and they run on the main thread around the finished result. Consider using RecalculateStatsAPI if you need to run logic before RecalculateStats is called. GetStatCoefficients handlers always run on the main thread.\
+Synchronous calls to RecalculateStats() are untouched and behave exactly like vanilla, but marking the body's stats dirty is still preferred since that lets the calls be batched together.The statsDirty value can be set directly or through the relevant CharacterBody methods.
+
+The log says which of your calls got deferred or forced back onto the main thread and why.
 
 #Whats with the icon
 ---
@@ -33,6 +49,7 @@ Credit to cute anime girls for giving me the will to continue living.
 
 #Changelog
 ---
+1.1.0 - Updated for the current game version. Rewrote the parallel part around a static analyzer that checks every call in RecalculateStats (vanilla and modded) for Unity native code and defers it, or falls back to the main thread, instead of patching known spots by hand. Fixed RecalculateStatsAPI modifiers being shared between threads. Harmony patches and any kind of Detour are now handled, ExtraSkillSlots no longer needs special casing. Batches run at the end of the physics step they were queued in. Added config.\
 1.0.10 - Fixed SOTS specific crash.\
 1.0.9 - Changed R2API dependency to be finer grained,added max-hp fix dependency,fixed incompat with latest SS2\
 1.0.7 - Removed Crash.\

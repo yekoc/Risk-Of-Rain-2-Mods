@@ -2,96 +2,34 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>holy</AssemblyName>
+    <RootNamespace>HolyHolyHoly</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>1701;1702;CS0618</NoWarn>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <LangVersion>7.3</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <LangVersion>7.3</LangVersion>
-  </PropertyGroup>
-
 
   <ItemGroup>
-    <Reference Include="Facepunch.Steamworks">
-      <HintPath>..\libs\Facepunch.Steamworks.dll</HintPath>
-    </Reference>
-    <Reference Include="HGCSharpUtils">
-      <HintPath>..\libs\HGCSharpUtils.dll</HintPath>
-    </Reference>
-    <Reference Include="HGUnityUtils">
-      <HintPath>..\libs\HGUnityUtils.dll</HintPath>
-    </Reference>
-    <Reference Include="MMHOOK_RoR2">
-      <HintPath>..\libs\MMHOOK_RoR2.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\libs\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Mdb">
-      <HintPath>..\libs\Mono.Cecil.Mdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Pdb">
-      <HintPath>..\libs\Mono.Cecil.Pdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Rocks">
-      <HintPath>..\libs\Mono.Cecil.Rocks.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoMod">
-      <HintPath>..\libs\MonoMod.exe</HintPath>
-    </Reference>
-    <Reference Include="MonoMod.Utils">
-      <HintPath>..\libs\MonoMod.Utils.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Postprocessing.Runtime">
-      <HintPath>..\libs\Unity.Postprocessing.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.TextMeshPro">
-      <HintPath>..\libs\Unity.TextMeshPro.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>..\libs\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AnimationModule">
-      <HintPath>..\libs\UnityEngine.AnimationModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AssetBundleModule">
-      <HintPath>..\libs\UnityEngine.AssetBundleModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\libs\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ParticleSystemModule">
-      <HintPath>..\libs\UnityEngine.ParticleSystemModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>..\libs\UnityEngine.PhysicsModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>..\libs\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UIModule">
-      <HintPath>..\libs\UnityEngine.UIModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UNETModule">
-      <HintPath>..\libs\UnityEngine.UNETModule.dll</HintPath>
-    </Reference>
-    <Reference Include="R2API">
-	    <HintPath>..\libs\R2API.RecalculateStats.dll</HintPath>
-    </Reference>
-    <Reference Include="ExtraSkillSlots">
-      <HintPath>..\libs\ExtraSkillSlots.dll</HintPath>
-    </Reference>
+    <Compile Remove="Tests\**" />
+    <None Remove="Tests\**" />
   </ItemGroup>
 
-
   <ItemGroup>
-    <PackageReference Include="BepInEx.Core" Version="5.4.19" />
-    <PackageReference Include="RiskOfRain2.GameLibs" Version="*-*" />
-    <Reference Include="MonoMod.RuntimeDetour">
-        <HintPath>..\libs\MonoMod.RuntimeDetour.dll</HintPath>
-    </Reference>
- </ItemGroup>
+    <PackageReference Include="BepInEx.Core" Version="5.4.21" />
+    <PackageReference Include="MMHOOK.RoR2" Version="2026.10.8" NoWarn="NU1701" />
+    <PackageReference Include="R2API.RecalculateStats" Version="1.7.0" />
+    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.5.0-r.1" />
+    <PackageReference Include="UnityEngine.Modules" Version="2021.3.45" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <ProfileName Condition="'$(ProfileName)' == ''">Current</ProfileName>
+    <ProfileDeployDir>$(APPDATA)\r2modmanPlus-local\RiskOfRain2\profiles\$(ProfileName)\BepInEx\plugins\yekoc-HolyHolyHOLY</ProfileDeployDir>
+  </PropertyGroup>
+
+  <Target Name="DeployToProfile" AfterTargets="Build" Condition="Exists('$(ProfileDeployDir)')">
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(ProfileDeployDir)" Retries="0" ContinueOnError="WarnAndContinue" />
+    <Message Importance="high" Text="Deployed $(TargetName) to $(ProfileDeployDir)" />
+  </Target>
 
 </Project>
