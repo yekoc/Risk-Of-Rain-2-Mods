@@ -1,21 +1,20 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using RoR2;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Security;
 using System.Security.Permissions;
 using System.Threading.Tasks;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
-using MonoMod.RuntimeDetour.HookGen;
-using Mono.Cecil.Cil;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
 using R2API;
-using static R2API.RecalculateStatsAPI;
-using ExtraSkillSlots;
+using UnityEngine;
 
 #pragma warning disable CS0618
 [module: UnverifiableCode]
@@ -24,230 +23,258 @@ using ExtraSkillSlots;
 
 namespace HolyHolyHoly
 {
-    [BepInPlugin("xyz.yekoc.Holy", "HolyHolyHOLY","1.0.10" )]
-    [BepInDependency(RecalculateStatsAPI.PluginGUID,BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency("com.KingEnderBrine.ExtraSkillSlots", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInPlugin(GUID, "HolyHolyHOLY", "1.1.0")]
+    [BepInDependency(RecalculateStatsAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
     public class HolyPlugin : BaseUnityPlugin
     {
-	public class HolyData{
-	  public StatHookEventArgs args;
-	  public bool OnLevel;
-	  public bool statsDirty;
-          public float prevMaxHealth;
-          public float prevMaxShield;
-	}
-        static bool extraSkillSlots;
-        static float currentGrav;
-	ILHook sprint,ih;
-	Hook h,trajGrav;
-	public static event On.RoR2.CharacterBody.hook_RecalculateStats hookStealer;
-	static ConcurrentDictionary<CharacterBody,HolyData> queue = new ConcurrentDictionary<CharacterBody,HolyData>(Environment.ProcessorCount * 2,100);
-	ILContext.Manipulator Taskifier = ((il) => {
-		ILCursor c = new ILCursor(il);
-		while(c.TryGotoNext(MoveType.After,x => x.MatchCallOrCallvirt(typeof(CharacterBody).GetMethod("RecalculateStats")))){
-                 ILLabel label = c.MarkLabel();
-                 c.Index--;
-		 c.EmitDelegate<Action<CharacterBody>>((cb) => {if(!queue.ContainsKey(cb)) queue.TryAdd(cb,new HolyData()); queue[cb].statsDirty = true; cb.statsDirty = false;});
-                 c.Emit(OpCodes.Br,label);
-                 c.Emit(OpCodes.Ldarg_0);
-                 c.Index++;
-		}
-	  });
+        public const string GUID = "xyz.yekoc.Holy";
 
-	private void Awake(){
-          Run.onRunStartGlobal += (run) =>{
-           var orig = typeof(CharacterBody).GetMethod("RecalculateStats"); 
-           var endpoint = typeof(HookEndpointManager).GetMethod("GetEndpoint",(BindingFlags)(-1)).Invoke(null,new Object[]{typeof(CharacterBody).GetMethod("RecalculateStats")});
-           var hookDict = (endpoint.GetType().GetField("HookMap",(BindingFlags)(-1)).GetValue(endpoint) as Dictionary<Delegate, Stack<IDetour>>);
-           if(hookDict.Count > 1){
-               Logger.LogInfo("Stealing RecalculateStats hooks to prevent potential crashes...");
-           
-            foreach(Delegate hook in hookDict.Keys.Where((del) => del.GetType() == typeof(On.RoR2.CharacterBody.hook_RecalculateStats)).ToList()){
-               while(hookDict.ContainsKey(hook)){
-                hookStealer += hook as On.RoR2.CharacterBody.hook_RecalculateStats;
-                HookEndpointManager.Remove(orig,hook);
-               }
-            }
-            if(!extraSkillSlots && BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.KingEnderBrine.ExtraSkillSlots")){
-              ExtraSkillSlots();
-              extraSkillSlots = true;
-            }
-         
-            Logger.LogDebug("Remaining IL Hooks:");
-            foreach(var hook in (endpoint.GetType().GetField("HookList",(BindingFlags)(-1)).GetValue(endpoint) as List<IDetour>)){
-               if(hook != null && hook.GetType() == typeof(ILHook)){
-                Logger.LogDebug(HookEndpointManager.GetOwner((hook as ILHook).Manipulator));
-               }
-            }
-           }
-          };
-          Stage.onStageStartGlobal += (stage) =>{
-              queue.Clear();
-          };
-          IL.RoR2.CharacterBody.FixedUpdate += Taskifier;
-	  //IL.RoR2.CharacterBody.Start += Taskifier; //Causes Instant Death on spawn.
-	  IL.RoR2.CharacterMaster.OnBodyStart += Taskifier;
-	  IL.RoR2.CharacterBody.OnCalculatedLevelChanged += OnLevelUp;
-          RoR2.CharacterBody.onBodyInventoryChangedGlobal += (body) =>{
-              if(body.inventory.GetItemCount(DLC2Content.Items.ExtraStatsOnLevelUp) < body.extraStatsOnLevelUpCountModifier){
-                UnityEngine.Object.Instantiate(RoR2.CharacterBody.CommonAssets.prayerBeadEffect, body.gameObject.transform.position, UnityEngine.Quaternion.identity).transform.parent = body.gameObject.transform;
-              }
-          };
-	  sprint = new ILHook(typeof(CharacterBody).GetProperty("isSprinting").GetSetMethod(),Taskifier);
-          trajGrav = new Hook(typeof(Trajectory).GetProperty("defaultGravity",(BindingFlags)(-1)).GetGetMethod(true),new Func<Func<float>,float>((orig) => currentGrav));
-          currentGrav = UnityEngine.Physics.gravity.y;
-          ih = new ILHook(typeof(RecalculateStatsAPI).GetMethod("HookRecalculateStats",(System.Reflection.BindingFlags)(-1)),RecalculateStatsAPIRuiner);
-          h = new Hook(typeof(RecalculateStatsAPI).GetMethod("GetStatMods",(System.Reflection.BindingFlags)(-1)),typeof(HolyPlugin).GetMethod("RecalculateStatsAPIRuiner2",(System.Reflection.BindingFlags)(-1)));
-	  IL.RoR2.CharacterBody.RecalculateStats += UnVisualize;
-	}
-
-	private void OnDestroy(){
-	  IL.RoR2.CharacterBody.FixedUpdate -= Taskifier;
-	  IL.RoR2.CharacterMaster.OnBodyStart -= Taskifier;
-	  IL.RoR2.CharacterBody.OnCalculatedLevelChanged -= OnLevelUp;
-	  IL.RoR2.CharacterBody.RecalculateStats -= UnVisualize;
-	  trajGrav.Undo();
-          sprint.Undo();
-	  h.Undo();
-	  ih.Undo();
-	}
-
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        private void ExtraSkillSlots(){
-           Logger.LogDebug("Stealing ExtraSkillSlots RecalculateStats IL Hook");
-           var endpoint = typeof(HookEndpointManager).GetMethod("GetEndpoint",(BindingFlags)(-1)).Invoke(null,new Object[]{typeof(CharacterBody).GetMethod("RecalculateStats")});
-           var hook = (endpoint.GetType().GetField("HookMap",(BindingFlags)(-1)).GetValue(endpoint) as Dictionary<Delegate, Stack<IDetour>>).Where((pair) =>pair.Key.GetType() == typeof(ILContext.Manipulator) && pair.Key.Method.DeclaringType == typeof(ExtraCharacterBody));
-           if(hook.Count() != 0){
-            HookEndpointManager.Remove(typeof(CharacterBody).GetMethod("RecalculateStats"),hook.First().Key);
-           }
+        sealed class ReferenceComparer : IEqualityComparer<CharacterBody>
+        {
+            // UnityEngine.Object equality treats every destroyed object as equal to null and to each other.
+            public bool Equals(CharacterBody a, CharacterBody b) => ReferenceEquals(a, b);
+            public int GetHashCode(CharacterBody b) => RuntimeHelpers.GetHashCode(b);
         }
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        private void ExtraSkillStats(CharacterBody body){
-            //Replication of default ExtraSkillSlots behaviour.
-            //Does this even work when the character doesn't have a primary set?
-            if(body?.skillLocator?.primary){
-                ExtraCharacterBody.RecalculateCooldowns(body,body.skillLocator.primary.cooldownScale,body.skillLocator.primary.flatCooldownReduction);
-        
+
+        static HolyPlugin instance;
+        static MethodInfo recalculateStats;
+        static readonly Dictionary<CharacterBody, HolyData> bodies = new Dictionary<CharacterBody, HolyData>(new ReferenceComparer());
+        static readonly List<CharacterBody> dirty = new List<CharacterBody>();
+
+        ConfigEntry<bool> enabledConfig;
+        ConfigEntry<int> minimumBatch, maxThreads;
+        ILHook recalcHook, sprintHook;
+        MethodBase workerTarget;
+        Action<CharacterBody> worker;
+        bool ready, serialFallback;
+        int windowBatches, windowBodies, windowBails;
+        readonly Dictionary<int, int> windowBailSites = new Dictionary<int, int>();
+        readonly HashSet<string> loggedErrors = new HashSet<string>();
+
+        void Awake(){
+            instance = this;
+            enabledConfig = Config.Bind("General", "Enabled", true, "Recalculate character stats on worker threads. Turning this off makes the mod do nothing.");
+            minimumBatch = Config.Bind("General", "Minimum Batch Size", 4, "Batches smaller than this are recalculated on the main thread, where thread overhead would outweigh the gain.");
+            maxThreads = Config.Bind("General", "Max Threads", 0, "Upper limit on threads used per batch, 0 uses every core.");
+            var deferForeign = Config.Bind("Compatibility", "Defer Foreign Calls", true, "Let other mods' RecalculateStats IL hooks/Harmony patches that touch main-thread-only code run right after the parallel part. When off, bodies reaching such code are recalculated on the main thread instead (exact, but slower).");
+            var verbose = Config.Bind("Debug", "Log Analysis", false, "Log the verdict for every call inside RecalculateStats.");
+            if(!enabledConfig.Value) return;
+            if(!HookIntrospection.Available){
+                Logger.LogError("Unrecognized MonoMod version, can't verify other mods' hooks. Staying disabled.");
+                return;
+            }
+
+            recalculateStats = typeof(CharacterBody).GetMethod(nameof(CharacterBody.RecalculateStats), BindingFlags.Public | BindingFlags.Instance);
+            RsapiCompat.Init(Logger);
+            RecalcPatcher.Init(Logger);
+            RecalcPatcher.DeferForeignCalls = deferForeign.Value;
+            RecalcPatcher.LogEverything = verbose.Value;
+
+            IL.RoR2.CharacterBody.FixedUpdate += Batchify;
+            IL.RoR2.CharacterMaster.OnBodyStart += Batchify;
+            sprintHook = new ILHook(typeof(CharacterBody).GetProperty(nameof(CharacterBody.isSprinting)).GetSetMethod(), Batchify);
+            // Installed once every plugin has loaded so the first analysis sees their hooks; refreshed on every run start.
+            RoR2Application.onLoad += InstallRecalculateHook;
+            Run.onRunStartGlobal += _ => Refresh();
+            Stage.onStageStartGlobal += _ => { bodies.Clear(); dirty.Clear(); };
+            StartCoroutine(BatchLoop());
+        }
+
+        void OnDestroy(){
+            IL.RoR2.CharacterBody.FixedUpdate -= Batchify;
+            IL.RoR2.CharacterMaster.OnBodyStart -= Batchify;
+            sprintHook?.Dispose();
+            recalcHook?.Dispose();
+            RsapiCompat.Unload();
+            ready = false;
+        }
+
+        void InstallRecalculateHook(){
+            var config = new ILHookConfig{ ID = GUID, After = new[]{ "*" } };
+            recalcHook = new ILHook(recalculateStats, RecalcPatcher.Manipulate, ref config);
+            UpdateWorker();
+        }
+
+        void Refresh(){
+            if(recalcHook == null) return;
+            serialFallback = false;
+            windowBatches = windowBodies = windowBails = 0;
+            windowBailSites.Clear();
+            RecalcPatcher.BeginSession();
+            recalcHook.Undo();
+            recalcHook.Apply();
+            UpdateWorker();
+            Logger.LogInfo(ready
+                ? $"RecalculateStats ready for parallel execution ({RecalcPatcher.DeferredSites} deferred calls, {RecalcPatcher.BailSites} main-thread fallbacks)."
+                : "RecalculateStats will stay on the main thread this run, see earlier messages.");
+        }
+
+        // Workers call the method MonoMod generated from all IL manipulators directly, skipping On hooks/Detours;
+        // those run afterwards on the main thread around the computed result.
+        void UpdateWorker(){
+            var target = HookIntrospection.GetILTarget(recalcHook);
+            if(target != workerTarget){
+                workerTarget = target;
+                worker = null;
+                try{
+                    if(target is DynamicMethod dm) worker = (Action<CharacterBody>)dm.CreateDelegate(typeof(Action<CharacterBody>));
+                    else if(target is MethodInfo mi) worker = (Action<CharacterBody>)Delegate.CreateDelegate(typeof(Action<CharacterBody>), mi);
+                }
+                catch(Exception e){
+                    Logger.LogError("Couldn't bind the patched RecalculateStats: " + e);
+                }
+            }
+            ready = worker != null && RecalcPatcher.Healthy;
+        }
+
+        static void Batchify(ILContext il){
+            var c = new ILCursor(il);
+            var enqueue = typeof(HolyPlugin).GetMethod(nameof(Enqueue));
+            while(c.TryGotoNext(x => x.MatchCallOrCallvirt(recalculateStats))){
+                c.Next.OpCode = Mono.Cecil.Cil.OpCodes.Call;
+                c.Next.Operand = il.Import(enqueue);
+                c.Index++;
             }
         }
-	private void OnLevelUp(ILContext il){
-		ILCursor c = new ILCursor(il);
-		if(c.TryGotoNext(x => x.MatchRet())){
-                 var label = c.MarkLabel();
-		 c.Index -= 1;
-		 c.EmitDelegate<Action<CharacterBody>>((CharacterBody cb) => {queue.GetOrAdd(cb,new HolyData()).OnLevel = true;});
-                 c.Emit(OpCodes.Br,label);
-                 c.Emit(OpCodes.Ldarg_0);
-                }
-	}
 
-	private void UnVisualize(ILContext il){
-		ILCursor c = new ILCursor(il);
-                if(c.TryGotoNext(x => x.MatchRet())){
-                    c.Emit(OpCodes.Ldarg_0);
-                    c.EmitDelegate<Action<CharacterBody>>((cb) => {
-                        if(!queue.GetOrAdd(cb,(body) => {return new HolyData();}).statsDirty){
-                          //cb.UpdateAllTemporaryVisualEffects();
-                          hookStealer?.Invoke((body)=>{},cb);
-                          if(extraSkillSlots){
-                            ExtraSkillStats(cb);
-                          }
-                        }
-                    });
-                }
-		if(c.TryGotoPrev(MoveType.Before,x => x.MatchLdarg(0),x => x.MatchCallOrCallvirt(typeof(CharacterBody).GetMethod("UpdateAllTemporaryVisualEffects",(System.Reflection.BindingFlags)(-1))))){
-                  c.MoveAfterLabels();
-                  c.RemoveRange(2);
-                  /*c.MoveAfterLabels();
-                  c.Index += 2;
-		  var label = c.MarkLabel();
-                  c.Index -=2;
-                  c.Emit(OpCodes.Br,label);*/
-		}
-                if(c.TryGotoPrev(MoveType.Before,x => x.MatchCallOrCallvirt(typeof(UnityEngine.Networking.NetworkServer).GetProperty("active").GetGetMethod()),x => x.MatchBrfalse(out _))){
-                    c.Index++;
-                    c.Emit(OpCodes.Ldarg_0);
-                    c.EmitDelegate<Func<bool,CharacterBody,bool>>((active,cb) => (!queue.GetOrAdd(cb,new HolyData()).statsDirty)? active : false);
-                }
-                if(c.TryGotoPrev(MoveType.After, x => x.MatchCallOrCallvirt(typeof(UnityEngine.Object).GetMethod("Instantiate",new Type[]{typeof(UnityEngine.GameObject)})))){
-                    var dumbasscall = c.Index;
-                    c.GotoPrev(MoveType.After, x => x.MatchBrfalse(out _));
-                    c.MoveAfterLabels();
-                    c.RemoveRange(dumbasscall - c.Index);
-                }
+        // Replaces RecalculateStats() at the batched call sites; the body gets recalculated at the end of this physics step.
+        public static void Enqueue(CharacterBody body){
+            if(instance == null || !instance.ready || ParallelRuntime.InParallel || !body || !Run.instance){
+                body.RecalculateStats();
+                return;
+            }
+            if(!bodies.TryGetValue(body, out var data)) bodies[body] = data = new HolyData();
+            if(!data.queued){
+                data.queued = true;
+                dirty.Add(body);
+            }
+            body.statsDirty = false;
+        }
 
-	}
+        IEnumerator BatchLoop(){
+            // Resumes after every FixedUpdate and the physics step, so everything queued this step gets processed this step.
+            var wait = new WaitForFixedUpdate();
+            while(true){
+                yield return wait;
+                try{ ProcessBatch(); }
+                catch(Exception e){ Logger.LogError(e); }
+            }
+        }
 
-	private void RecalculateStatsAPIRuiner(ILContext il){
-				ILCursor c = new ILCursor(il);
-				ILLabel label = c.DefineLabel();
-                                if(c.TryGotoNext(MoveType.After,x=> x.MatchCallOrCallvirt(typeof(ILCursor).GetMethod("EmitDelegate").MakeGenericMethod(typeof(Action<CharacterBody>))),x=>x.MatchPop())){
-                                 label = c.MarkLabel();
-                                 if(c.TryGotoPrev(MoveType.After,x => x.MatchLdloc(0),x => x.MatchLdfld(out _))){
-				   c.EmitDelegate<Action<ILCursor>>((cursor) => {cursor.EmitDelegate<Action<CharacterBody>>((body) => {if(!queue.GetOrAdd(body,new HolyData()).statsDirty) RecalculateStatsAPI.GetStatMods(body);});});
-                                   c.Emit(OpCodes.Br,label);
-                                   c.Emit(OpCodes.Ldloc_0);
-                                 }
-                                }
-	}
-	static private void RecalculateStatsAPIRuiner2(Action<CharacterBody> orig,CharacterBody cb){
-				orig(cb);
-				queue.GetOrAdd(cb,new HolyData()).args = RecalculateStatsAPI.StatMods;
-	}
-	private void FixedUpdate(){
-		if(Run.instance){
-                currentGrav = UnityEngine.Physics.gravity.y;
-		 foreach(CharacterBody body in queue.Keys.ToList()){
-		   if(body && body.healthComponent && body.healthComponent.alive){
-                    if(queue[body].statsDirty){
-                     queue[body].prevMaxHealth = body.maxHealth;
-                     queue[body].prevMaxShield = body.maxShield;
-		     RecalculateStatsAPI.GetStatMods(body);
+        void ProcessBatch(){
+            if(dirty.Count == 0) return;
+            var batch = new List<CharacterBody>(dirty.Count);
+            foreach(var body in dirty){
+                if(bodies.TryGetValue(body, out var d)) d.queued = false;
+                if(body) batch.Add(body);
+                else bodies.Remove(body);
+            }
+            dirty.Clear();
+            if(batch.Count == 0) return;
+
+            UpdateWorker();
+            RecalcPatcher.RunStaticConstructors();
+            if(!ready || serialFallback || !Run.instance || batch.Count < minimumBatch.Value){
+                foreach(var body in batch) RecalculateOnMainThread(body, null);
+                return;
+            }
+
+            var datas = new HolyData[batch.Count];
+            ParallelRuntime.gravity = Physics.gravity.y;
+            for(int i = 0; i < batch.Count; i++){
+                var body = batch[i];
+                var d = datas[i] = bodies[body];
+                d.needsSync = false;
+                d.bailSite = 0;
+                d.error = null;
+                d.deferred.Clear();
+                d.prevLevel = body.level;
+                d.prevMaxHealth = body.maxHealth;
+                d.prevMaxShield = body.maxShield;
+                try{
+                    _ = body.master; // warms the cached master lookup, which uses GetComponent the first time
+                    RsapiCompat.Prepare(body, d);
+                }
+                catch(Exception e){
+                    d.needsSync = true;
+                    d.error = e;
+                }
+            }
+
+            var run = worker;
+            var options = new ParallelOptions{ MaxDegreeOfParallelism = maxThreads.Value > 0 ? maxThreads.Value : -1 };
+            Parallel.For(0, batch.Count, options, i => {
+                var d = datas[i];
+                if(d.needsSync) return;
+                ParallelRuntime.Enter(d);
+                try{ run(batch[i]); }
+                catch(BailException){ d.needsSync = true; }
+                catch(Exception e){
+                    d.needsSync = true;
+                    d.error = e;
+                }
+                finally{ ParallelRuntime.Exit(); }
+            });
+
+            // On hooks/Detours on RecalculateStats were skipped by the workers, run them around the results now.
+            bool runDetours = HookIntrospection.DetourCount(recalculateStats) > 1;
+            int bails = 0;
+            for(int i = 0; i < batch.Count; i++){
+                var body = batch[i];
+                var d = datas[i];
+                if(d.needsSync){
+                    bails++;
+                    windowBailSites.TryGetValue(d.bailSite, out int n);
+                    windowBailSites[d.bailSite] = n + 1;
+                    RecalculateOnMainThread(body, d);
+                    continue;
+                }
+                try{
+                    ParallelRuntime.RunDeferred(body, d);
+                    if(runDetours){
+                        ParallelRuntime.skipTarget = body;
+                        try{ body.RecalculateStats(); }
+                        finally{ ParallelRuntime.skipTarget = null; }
                     }
-		   }
-		   else{
-		     if(!queue.TryRemove(body,out _)){
-                         queue[body].statsDirty = false;
-                     }
-		   }
-		 }
-                var parallelqueue = queue.Where((pair) => pair.Value.statsDirty).ToList();
-		Parallel.ForEach(queue.Keys.Where((b) => queue[b].statsDirty), body =>{
-			  body.RecalculateStats();
-		});
-		foreach(var pair in queue){
-			if(pair.Key.healthComponent){
-			 if(pair.Value.OnLevel)
-			   pair.Key.OnLevelUp();
-			 if(pair.Value.statsDirty){
-			   pair.Key.UpdateAllTemporaryVisualEffects();
-                           hookStealer?.Invoke((body) => {},pair.Key);
-                          if(extraSkillSlots){
-                            ExtraSkillStats(pair.Key);
-                          }
-                          if(UnityEngine.Networking.NetworkServer.active){
-                            HealthComponent hc = pair.Key.healthComponent;
-                            float health = pair.Key.maxHealth - pair.Value.prevMaxHealth;
-                            if(health > 0){
-                                hc.Heal(health,default(ProcChainMask),false);
-                            }
-                            else if (hc.health > pair.Key.maxHealth){
-                                hc.Networkhealth = UnityEngine.Mathf.Max(hc.health + health, pair.Key.maxHealth); 
-                            }
-                            float shield = pair.Key.maxShield - pair.Value.prevMaxShield;
-                            if(shield > 0){
-                                hc.RechargeShield(shield);
-                            }
-                            else if(hc.shield > pair.Key.maxShield){
-                                hc.Networkshield = UnityEngine.Mathf.Max(hc.shield + shield, pair.Key.maxShield);
-                            }
-                          }
-                         }
-			}
-			pair.Value.statsDirty = false;
-			pair.Value.OnLevel = false;
-		}
-	 }
-	}
+                }
+                catch(Exception e){ LogOnce("Error while finishing a parallel stat recalculation", e); }
+            }
+            TrackFallbacks(batch.Count, bails);
+        }
+
+        void RecalculateOnMainThread(CharacterBody body, HolyData abandoned){
+            if(abandoned != null){
+                // Undo what the abandoned worker run changed that the full run uses to detect changes (level ups, heal deltas).
+                abandoned.deferred.Clear();
+                body.level = abandoned.prevLevel;
+                body.maxHealth = abandoned.prevMaxHealth;
+                body.maxShield = abandoned.prevMaxShield;
+            }
+            try{
+                body.RecalculateStats();
+                if(abandoned?.error != null) LogOnce("RecalculateStats failed on a worker thread but worked on the main thread", abandoned.error);
+            }
+            catch(Exception e){ LogOnce("RecalculateStats threw", e); }
+        }
+
+        // If most bodies end up redone on the main thread anyway, the parallel attempt is pure overhead.
+        void TrackFallbacks(int count, int bails){
+            windowBatches++;
+            windowBodies += count;
+            windowBails += bails;
+            if(windowBatches < 32) return;
+            if(windowBails * 2 > windowBodies){
+                serialFallback = true;
+                var top = windowBailSites.OrderByDescending(p => p.Value).Take(3).Select(p => $"{RecalcPatcher.BailSiteName(p.Key)} ({p.Value})");
+                Logger.LogWarning($"{windowBails} of {windowBodies} recent stat recalculations needed the main thread, running them serially until the next run. Most common causes: {string.Join("; ", top)}");
+            }
+            windowBatches = windowBodies = windowBails = 0;
+            windowBailSites.Clear();
+        }
+
+        void LogOnce(string context, Exception e){
+            string key = context + e.GetType().FullName + e.Message;
+            if(loggedErrors.Count < 64 && loggedErrors.Add(key)) Logger.LogError(context + ":\n" + e);
+        }
     }
 }
